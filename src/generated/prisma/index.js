@@ -148,7 +148,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "C:\\src\\nextjs\\next-match\\src\\generated\\prisma",
+      "value": "C:\\src\\next-match\\src\\generated\\prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -162,12 +162,11 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "C:\\src\\nextjs\\next-match\\prisma\\schema.prisma",
+    "sourceFilePath": "C:\\src\\next-match\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": null,
-    "schemaEnvPath": "../../../.env"
+    "rootEnvPath": null
   },
   "relativePath": "../../../prisma",
   "clientVersion": "6.7.0",
