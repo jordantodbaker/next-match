@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Button,
-  Navbar,
-  NavbarBrand,
-  NavbarContent,
-  NavbarItem,
-} from "@heroui/react";
+import { Button, Navbar, NavbarBrand, NavbarContent } from "@heroui/react";
 import Link from "next/link";
 import React from "react";
 import { GiMatchTip } from "react-icons/gi";
@@ -16,7 +10,7 @@ export default function TopNav() {
   return (
     <Navbar
       maxWidth="xl"
-      className="bg-gradient-to-r from-purple-400 to-purple-700"
+      className="bg-gradient-to-r from-red-400 to-red-700"
       classNames={{
         item: [
           "text-xl",
