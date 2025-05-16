@@ -10,14 +10,9 @@ export default function TopNav() {
   return (
     <Navbar
       maxWidth="xl"
-      className="bg-gradient-to-r from-red-400 to-red-700"
+      className="bg-gradient-to-r from-purple-400 to-purple-700"
       classNames={{
-        item: [
-          "text-xl",
-          "text-white",
-          "uppercase",
-          "data-[active=true]: text-yellow-400",
-        ],
+        item: ["text-xl", "text-white", "uppercase"],
       }}
     >
       <NavbarBrand as={Link} href="/">
