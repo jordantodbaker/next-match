@@ -53,8 +53,8 @@ export function Sidebar() {
   ];
   const [open, setOpen] = useState(false);
   return (
-    <AceSidebar open={open} setOpen={setOpen}>
-      <SidebarBody className="justify-between gap-10">
+    <AceSidebar open={true} setOpen={setOpen}>
+      <SidebarBody className="justify-between gap-10 border-1 border-r-black border-t-0">
         <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto">
           <div className="mt-8 flex flex-col gap-2">
             {links.map((link, idx) => (

@@ -27,6 +27,13 @@ model Account {
   @@unique([provider, providerAccountId])
 }
 
+model SafetyNarratives {
+  id            String    @id @default(cuid())
+  user          User @relation(fields: [userid], references: [id])
+  userid        String
+  narrative     String
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -35,4 +42,6 @@ model User {
   passwordHash  String
   image         String?
   accounts      Account[]
+  safetyNarratives SafetyNarratives[]
 }
+

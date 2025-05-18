@@ -4,10 +4,11 @@ import React from "react";
 
 export default function MembersPage() {
   return (
-    <div className="flex">
+    <div className="flex h-full">
       <Sidebar />
-      <h3 className="text-3xl">This will be the members page</h3>
-      <Link href="/">Back Home</Link>
+      <div>
+        <div className="border-1 border-amber-200 w-xl">APS</div>
+      </div>
     </div>
   );
 }

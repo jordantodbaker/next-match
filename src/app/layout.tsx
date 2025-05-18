@@ -18,7 +18,7 @@ export default function RootLayout({
       <body>
         <Providers>
           <TopNav />
-          <main className="container mx-auto">{children}</main>
+          <main className="vertical-center">{children}</main>
         </Providers>
       </body>
     </html>
