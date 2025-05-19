@@ -22,6 +22,7 @@ export default function LoginForm() {
 
   const onSubmit = async (data: LoginSchema) => {
     const result = await signInUser(data);
+    console.log("Result: ", result);
     if (result.status === "success") {
       router.push("/safety");
     } else {
@@ -61,7 +62,7 @@ export default function LoginForm() {
             <Button
               isLoading={isSubmitting}
               fullWidth
-              color="secondary"
+              color="primary"
               type="submit"
               isDisabled={!isValid}
             >

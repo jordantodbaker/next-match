@@ -17,7 +17,7 @@ export async function signInUser(
       password: data.password,
       redirect: false,
     });
-    console.log(result);
+    console.log("Result: ", result);
 
     return { status: "success", data: "Logged in" };
   } catch (error) {

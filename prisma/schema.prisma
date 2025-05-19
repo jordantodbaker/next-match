@@ -27,21 +27,32 @@ model Account {
   @@unique([provider, providerAccountId])
 }
 
-model SafetyNarratives {
-  id            String    @id @default(cuid())
-  user          User @relation(fields: [userid], references: [id])
-  userid        String
-  narrative     String
+model SafetyNarrative {
+  id        String         @id @default(cuid())
+  user      User           @relation(fields: [userId], references: [id])
+  userId    String
+  account   CompanyAccount @relation(fields: [accountId], references: [id])
+  accountId String
+  narrative String
+}
+
+model CompanyAccount {
+  id              String            @id @default(cuid())
+  userId          String
+  name            String
+  companyCode     String
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  SafetyNarrative SafetyNarrative[]
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String    @unique
-  emailVerified DateTime?
-  passwordHash  String
-  image         String?
-  accounts      Account[]
-  safetyNarratives SafetyNarratives[]
+  id               String            @id @default(cuid())
+  name             String?
+  email            String            @unique
+  emailVerified    DateTime?
+  passwordHash     String
+  image            String?
+  accounts         Account[]
+  safetyNarratives SafetyNarrative[]
+  CompanyAccount   CompanyAccount[]
 }
-

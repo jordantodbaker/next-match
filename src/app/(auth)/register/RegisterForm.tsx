@@ -4,11 +4,13 @@ import { registerUser } from "@/app/actions/authActions";
 import { RegisterSchema, registerSchema } from "@/lib/schemas/registerSchema";
 import { Card, CardHeader, CardBody, Input, Button } from "@heroui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { GiPadlock } from "react-icons/gi";
 
 export default function RegisterForm() {
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -24,6 +26,7 @@ export default function RegisterForm() {
 
     if (result.status === "success") {
       console.log("User registered successfully");
+      router.push("/login");
     } else {
       if (Array.isArray(result.error)) {
         result.error.forEach((e) => {
@@ -41,7 +44,7 @@ export default function RegisterForm() {
       <CardHeader className="flex flex-col items-center justify-center">
         <div className="flex flex-col gap-2 items-center text-secondary">
           <div className="flex flex-row items-center gap-3">
-            <GiPadlock size={30} />
+            <GiPadlock size={30} color="secondary" />
             <h1 className="text-3xl font-semibold color">Register</h1>
           </div>
           <p className="text-neutral-500">Welcome to next match</p>
@@ -80,7 +83,7 @@ export default function RegisterForm() {
             <Button
               isLoading={isSubmitting}
               fullWidth
-              color="secondary"
+              color="primary"
               type="submit"
               isDisabled={!isValid}
             >
