@@ -8,6 +8,7 @@ import { LoginSchema, loginSchema } from "@/lib/schemas/loginSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signInUser } from "@/app/actions/authActions";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -26,7 +27,7 @@ export default function LoginForm() {
     if (result.status === "success") {
       router.push("/safety");
     } else {
-      console.log(result.error);
+      toast.error(result.error);
     }
   };
 

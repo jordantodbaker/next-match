@@ -3,8 +3,11 @@ import { Button } from "@heroui/button";
 import { Card, CardBody, CardFooter, Image } from "@heroui/react";
 import Link from "next/link";
 import { FaRegSmile } from "react-icons/fa";
+import { useSession } from "next-auth/react";
 
 export default function Home() {
+  const { data: session } = useSession();
+  console.log("Session: ", session);
   return (
     <div className="w-full p-18 bg-blue-100">
       <div className="flex justify-center">
