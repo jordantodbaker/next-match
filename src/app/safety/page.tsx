@@ -7,8 +7,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
 import { SafetySchema, safetySchema } from "@/lib/schemas/safetySchema";
 import { submitNarrative } from "../actions/safetyActions";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function SafetyPage() {
+  const { data: session } = useSession();
+  const router = useRouter();
+
   const {
     register,
     handleSubmit,

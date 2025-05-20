@@ -9,6 +9,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { signInUser } from "@/app/actions/authActions";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+//import { signIn } from "@/auth";
+import { signIn } from "next-auth/react";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -23,9 +25,8 @@ export default function LoginForm() {
 
   const onSubmit = async (data: LoginSchema) => {
     const result = await signInUser(data);
-    console.log("Result: ", result);
     if (result.status === "success") {
-      router.push("/safety");
+      window.location.href = "/safety";
     } else {
       toast.error(result.error);
     }

@@ -42,7 +42,7 @@ model CompanyAccount {
   name            String
   companyCode     String
   user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  safetyNarratives SafetyNarrative[]
+  SafetyNarrative SafetyNarrative[]
 }
 
 model User {
@@ -54,5 +54,5 @@ model User {
   image            String?
   accounts         Account[]
   safetyNarratives SafetyNarrative[]
-  companyAccount   CompanyAccount[]
+  CompanyAccount   CompanyAccount[]
 }

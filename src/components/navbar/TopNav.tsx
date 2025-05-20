@@ -9,14 +9,34 @@ import {
 } from "@heroui/react";
 import Link from "next/link";
 import React from "react";
-import { GiMatchTip } from "react-icons/gi";
-import NavLink from "./NavLink";
 import { useSession } from "next-auth/react";
-import { signOut } from "@/auth";
+import { useRouter } from "next/navigation";
+//import { signOut } from "@/auth";
+
+import { signOut } from "next-auth/react";
 
 export default function TopNav() {
+  const router = useRouter();
   const { data: session } = useSession();
   console.log("SESSION ", session);
+
+  function SignOut() {
+    return (
+      <Button
+        as={Link}
+        href="/login"
+        variant="bordered"
+        color="primary"
+        onPress={async () => {
+          signOut({ callbackUrl: "/login" });
+          router.push("/login");
+        }}
+      >
+        Logout
+      </Button>
+    );
+  }
+
   return (
     <Navbar
       maxWidth="xl"
@@ -36,18 +56,7 @@ export default function TopNav() {
             Login
           </Button>
         ) : (
-          <Button
-            as={Link}
-            href="/login"
-            variant="bordered"
-            color="primary"
-            onClick={async () => {
-              "use server";
-              await signOut();
-            }}
-          >
-            Logout
-          </Button>
+          SignOut()
         )}
       </NavbarContent>
     </Navbar>
