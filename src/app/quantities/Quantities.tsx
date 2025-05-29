@@ -7,17 +7,15 @@ import {
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
-  Textarea,
   Input,
 } from "@heroui/react";
 import { useState } from "react";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
 import { SafetySchema, safetySchema } from "@/lib/schemas/safetySchema";
 //import { authorizeQuantity, submitQuantity } from "../actions/quantityActions";
 import { useSession } from "next-auth/react";
-import { toast } from "react-toastify";
 
 const roles = [
   { id: 1, name: "Boilermaker" },
@@ -115,16 +113,16 @@ export default function QuantitiesPage() {
     setSelectedQuantity(quantity);
   };
 
-  const onQuantityChange = (e) => {
-    const newQuantities = quantities.map((n) => {
-      if (n.id === e.target.id) {
-        n = { ...n, quantity: e.target.value };
-      }
-      return n;
-    });
-    console.log("New Quantities: ", newQuantities);
-    setQuantities(newQuantities);
-  };
+  // const onQuantityChange = (e) => {
+  //   const newQuantities = quantities.map((n) => {
+  //     if (n.id === e.target.id) {
+  //       n = { ...n, quantity: e.target.value };
+  //     }
+  //     return n;
+  //   });
+  //   console.log("New Quantities: ", newQuantities);
+  //   setQuantities(newQuantities);
+  // };
 
   const {
     register,
@@ -135,13 +133,6 @@ export default function QuantitiesPage() {
     resolver: zodResolver(safetySchema),
     mode: "onTouched",
   });
-
-  const { fields, append, prepend, remove, swap, move, insert } = useFieldArray(
-    {
-      control, // control props comes from useForm (optional: if you are using FormProvider)
-      name: "quantities", // unique name for your Field Array
-    }
-  );
 
   const onSubmit = async () => {
     setQuantities((quantity) => ({

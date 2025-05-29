@@ -1,9 +1,8 @@
 "use client";
 
 import { registerUser } from "@/app/actions/authActions";
-import { RegisterSchema, registerSchema } from "@/lib/schemas/registerSchema";
+import { RegisterSchema } from "@/lib/schemas/registerSchema";
 import { Card, CardHeader, CardBody, Input, Button } from "@heroui/react";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { useForm } from "react-hook-form";

@@ -18,10 +18,8 @@ import {
   authorizeNarrative,
   submitNarrative,
 } from "../actions/narrativeActions";
-import { getSunday } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
-import { join } from "path";
 
 export default function NarrativePage({
   intialNarratives,
@@ -64,18 +62,11 @@ export default function NarrativePage({
     register,
     control,
     handleSubmit,
-    formState: { errors, isValid, isSubmitting },
+    formState: { isValid, isSubmitting },
   } = useForm<SafetySchema>({
     resolver: zodResolver(safetySchema),
     mode: "onTouched",
   });
-
-  const { fields, append, prepend, remove, swap, move, insert } = useFieldArray(
-    {
-      control, // control props comes from useForm (optional: if you are using FormProvider)
-      name: "narratives", // unique name for your Field Array
-    }
-  );
 
   const onSubmit = async () => {
     setNarratives((narrative) => ({
@@ -103,8 +94,6 @@ export default function NarrativePage({
     const narrativeType = narrativeTypes.find((n) => n.id == key);
     setSelectedNarrative(narrativeType);
   };
-
-  const [narrativeForms, setNarrativeForms] = useState([]);
 
   return (
     <div className="flex h-full w-full">
@@ -138,7 +127,7 @@ export default function NarrativePage({
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="w-full mt-16 h-full">
-            {narratives.map((narrative, i) => (
+            {narratives.map((narrative) => (
               <div className="mb-6">
                 <Dropdown>
                   <DropdownTrigger>
@@ -151,6 +140,7 @@ export default function NarrativePage({
                   <DropdownMenu
                     color="primary"
                     variant="faded"
+                    key={selectedNarrative.id}
                     aria-label="Static Actions"
                     onAction={(key) => onChangeNarrativeType(key)}
                     selectionMode="single"

@@ -9,11 +9,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { signInUser } from "@/app/actions/authActions";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
-//import { signIn } from "@/auth";
-import { signIn } from "next-auth/react";
 
 export default function LoginForm() {
-  const router = useRouter();
   const {
     register,
     handleSubmit,

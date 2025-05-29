@@ -1,6 +1,6 @@
 "use server";
 
-import { signIn, signOut } from "@/auth";
+import { signIn } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { LoginSchema } from "@/lib/schemas/loginSchema";
 import { registerSchema, RegisterSchema } from "@/lib/schemas/registerSchema";
@@ -14,7 +14,7 @@ export async function signInUser(
   const pass = await bcrypt.hash(data.password, 10);
   console.log(pass);
   try {
-    const result = await signIn("credentials", {
+    await signIn("credentials", {
       email: data.email,
       password: data.password,
       redirect: false,

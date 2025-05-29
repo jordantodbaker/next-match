@@ -20,7 +20,7 @@ export async function submitNarrative(
   try {
     if (narratives) {
       console.log("Update", data);
-      const result = await prisma.safetyNarrative.update({
+      await prisma.safetyNarrative.update({
         where: { id: data.id },
         data: {
           userId: user?.id,
@@ -30,7 +30,7 @@ export async function submitNarrative(
       });
     } else {
       console.log("New narrative", data);
-      const result = await prisma.safetyNarrative.create({
+      await prisma.safetyNarrative.create({
         data: {
           userId: user?.id,
           companyId: user?.companyId,
