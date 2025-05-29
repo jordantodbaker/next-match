@@ -1,12 +1,11 @@
 import React from "react";
 import Quantities from "./Quantities";
-import { getNarrativeTypes, getNarratives } from "../actions/narrativeActions";
+import { getNarratives } from "../actions/narrativeActions";
 import { getCompanies } from "../actions/companyActions";
 
 export default async function NarrativePage() {
   let narratives = await getNarratives();
   const companies = await getCompanies();
-  const narrativeTypes = await getNarrativeTypes();
   console.log(companies);
 
   narratives = narratives[0] === null ? [] : narratives;

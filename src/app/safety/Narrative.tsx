@@ -15,10 +15,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
 import { SafetySchema, safetySchema } from "@/lib/schemas/safetySchema";
 import { authorizeNarrative, submitNarrative } from "../actions/safetyActions";
-import { getSunday } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
-import { join } from "path";
 
 export default function SafetyPage({ narratives, companies }) {
   const [selectedCompany, setSelectedCompany] = useState(
@@ -46,7 +44,7 @@ export default function SafetyPage({ narratives, companies }) {
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid, isSubmitting },
+    formState: { isValid, isSubmitting },
   } = useForm<SafetySchema>({
     resolver: zodResolver(safetySchema),
     mode: "onTouched",
@@ -69,7 +67,7 @@ export default function SafetyPage({ narratives, companies }) {
       ...selectedNarrative,
       authorized: !selectedNarrative.authorized,
     });
-    const result = await authorizeNarrative(selectedNarrative);
+    await authorizeNarrative(selectedNarrative);
   };
 
   return (

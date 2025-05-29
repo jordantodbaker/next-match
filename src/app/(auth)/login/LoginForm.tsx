@@ -7,7 +7,6 @@ import { GiPadlock } from "react-icons/gi";
 import { LoginSchema, loginSchema } from "@/lib/schemas/loginSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signInUser } from "@/app/actions/authActions";
-import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
 export default function LoginForm() {

@@ -125,10 +125,8 @@ export default function QuantitiesPage() {
   // };
 
   const {
-    register,
-    control,
     handleSubmit,
-    formState: { errors, isValid, isSubmitting },
+    formState: { isValid, isSubmitting },
   } = useForm<SafetySchema>({
     resolver: zodResolver(safetySchema),
     mode: "onTouched",
@@ -192,8 +190,6 @@ export default function QuantitiesPage() {
   const onChangeCumulativeInstalled = (e) => {
     setCumulativeInstalled(e.target.value);
   };
-
-  const [quantityForms, setQuantityForms] = useState([]);
 
   return (
     <div className="flex h-full w-full">

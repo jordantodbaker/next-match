@@ -1,6 +1,5 @@
 "use client";
 import { Card, CardBody, CardFooter, Image } from "@heroui/react";
-import { useSession } from "next-auth/react";
 
 export default function Home() {
   return (

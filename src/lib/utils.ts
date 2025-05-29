@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function getSunday() {
-  var d = new Date(); // duplicate start date
+  const d = new Date(); // duplicate start date
   d.setDate(d.getDate() - d.getDay()); // move to last sunday
   //d.setDate(d.getDate() - 7);
 

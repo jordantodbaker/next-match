@@ -10,7 +10,7 @@ import {
   Textarea,
 } from "@heroui/react";
 import { useState } from "react";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
 import { SafetySchema, safetySchema } from "@/lib/schemas/safetySchema";
@@ -60,7 +60,6 @@ export default function NarrativePage({
 
   const {
     register,
-    control,
     handleSubmit,
     formState: { isValid, isSubmitting },
   } = useForm<SafetySchema>({
@@ -87,7 +86,7 @@ export default function NarrativePage({
       ...selectedNarrative,
       authorized: !selectedNarrative.authorized,
     });
-    const result = await authorizeNarrative(selectedNarrative);
+    await authorizeNarrative(selectedNarrative);
   };
 
   const onChangeNarrativeType = (key) => {
@@ -128,8 +127,8 @@ export default function NarrativePage({
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="w-full mt-16 h-full">
             {narratives.map((narrative) => (
-              <div className="mb-6">
-                <Dropdown>
+              <div className="mb-6" key={selectedNarrative.id}>
+                <Dropdown key={selectedNarrative.id}>
                   <DropdownTrigger>
                     <Button variant="bordered">
                       {selectedNarrative
