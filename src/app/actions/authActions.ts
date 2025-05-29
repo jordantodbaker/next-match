@@ -11,13 +11,14 @@ import { AuthError } from "next-auth";
 export async function signInUser(
   data: LoginSchema
 ): Promise<ActionResult<string>> {
+  const pass = await bcrypt.hash(data.password, 10);
+  console.log(pass);
   try {
     const result = await signIn("credentials", {
       email: data.email,
       password: data.password,
       redirect: false,
     });
-    console.log("Result: ", result);
 
     return { status: "success", data: "Logged in" };
   } catch (error) {
@@ -50,6 +51,8 @@ export async function registerUser(
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
+
+    console.log("Existing User: ", existingUser);
 
     if (existingUser) return { status: "error", error: "User already exists" };
 

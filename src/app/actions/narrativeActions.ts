@@ -11,6 +11,8 @@ export async function submitNarrative(
   const session = await auth();
   const user = session?.user as User | undefined;
 
+  console.log("data: ", data);
+
   const narratives = await prisma.safetyNarrative.findFirst({
     where: { id: data.narrative.id },
   });
@@ -58,16 +60,20 @@ export async function getNarratives() {
   const narratives =
     user?.role === "USER"
       ? [
-          await prisma.safetyNarrative.findFirst({
+          await prisma.narrative.findFirst({
             where: { companyId: user?.companyId },
           }),
         ]
-      : await prisma.safetyNarrative.findMany();
+      : await prisma.narrative.findMany();
   return narratives;
 }
 
+export async function getNarrativeTypes() {
+  return await prisma.narrativeType.findMany();
+}
+
 export async function authorizeNarrative(narrative) {
-  const result = await prisma.safetyNarrative.update({
+  const result = await prisma.narrative.update({
     where: { id: narrative.id },
     data: { authorized: !narrative.authorized },
   });

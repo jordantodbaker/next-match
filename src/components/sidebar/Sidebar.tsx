@@ -17,35 +17,35 @@ export function Sidebar() {
   const links = [
     {
       label: "Safety",
-      href: "#",
+      href: "/safety",
       icon: (
         <IconFirstAidKit className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
     },
     {
       label: "Narratives",
-      href: "#",
+      href: "/narratives",
       icon: (
         <IconClipboard className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
     },
     {
       label: "Quantities",
-      href: "#",
+      href: "/quantities",
       icon: (
         <IconHammer className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
     },
     {
       label: "Costs",
-      href: "#",
+      href: "/costs",
       icon: (
         <IconCoin className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
     },
     {
       label: "Manpower",
-      href: "#",
+      href: "/manpower",
       icon: (
         <IconUser className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
@@ -53,8 +53,8 @@ export function Sidebar() {
   ];
   const [open, setOpen] = useState(false);
   return (
-    <AceSidebar open={true} setOpen={setOpen}>
-      <SidebarBody className="justify-between gap-10 border-1 border-r-black border-t-0">
+    <AceSidebar open={open} setOpen={setOpen}>
+      <SidebarBody className="justify-between gap-10 border-1 border-r-cyan-600 border-t-0">
         <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto">
           <div className="mt-8 flex flex-col gap-2">
             {links.map((link, idx) => (

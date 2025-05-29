@@ -18,7 +18,6 @@ import { signOut } from "next-auth/react";
 export default function TopNav() {
   const router = useRouter();
   const { data: session } = useSession();
-  console.log("SESSION ", session);
 
   function SignOut() {
     return (
@@ -40,7 +39,7 @@ export default function TopNav() {
   return (
     <Navbar
       maxWidth="xl"
-      className="flex flex-row  border-b-1"
+      className="flex flex-row  border-b-1 border-b-cyan-600"
       classNames={{
         item: ["text-xl", "uppercase"],
         brand: [""],

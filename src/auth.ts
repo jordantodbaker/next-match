@@ -12,10 +12,20 @@ export const {
   callbacks: {
     async session({ token, session }) {
       if (token.sub && session.user) {
-        session.user.id = token.sub;
+        const user = await prisma.user.findUnique({
+          where: { email: session.user.email },
+        });
+
+        // if (user) {
+        //   const account = await prisma.companyAccount.findUnique({
+        //     where: { id: user.companyId } as any,
+        //   });
+        // }
+
+        session.user = user as any;
+        console.log("user: ", user);
       }
-      console.log({ token });
-      console.log({ session });
+
       return session;
     },
   },
