@@ -81,6 +81,11 @@ const UOMs = [
   { id: 5, name: "LF" },
 ];
 
+type DropdownType = {
+  id: number;
+  name: string;
+};
+
 export default function QuantitiesPage() {
   const { data } = useSession();
   const user = data?.user;
@@ -89,29 +94,29 @@ export default function QuantitiesPage() {
     //companies.find((c) => c.id == intialQuantities[0]?.companyId || 1)
     {}
   );
-  const [selectedRole, setSelectedRole] = useState({});
-  const [selectedArea, setSelectedArea] = useState({});
-  const [selectedGroup, setSelectedGroup] = useState({});
-  const [selectedCommodity, setSelectedCommodity] = useState({});
-  const [selectedUOM, setSelectedUOM] = useState({});
+  const [selectedRole, setSelectedRole] = useState<any>({});
+  const [selectedArea, setSelectedArea] = useState<any>({});
+  const [selectedGroup, setSelectedGroup] = useState<any>({});
+  const [selectedCommodity, setSelectedCommodity] = useState<any>({});
+  const [selectedUOM, setSelectedUOM] = useState<any>({});
 
-  const [estimatedQTY, setEstimatedQTY] = useState(0);
-  const [periodQTY, setPeriodQTY] = useState(0);
-  const [cumulativeInstalled, setCumulativeInstalled] = useState(0);
+  const [estimatedQTY, setEstimatedQTY] = useState<any>(0);
+  const [periodQTY, setPeriodQTY] = useState<any>(0);
+  const [cumulativeInstalled, setCumulativeInstalled] = useState<any>(0);
 
-  const [quantities, setQuantities] = useState(
+  const [quantities, setQuantities] = useState<any>(
     //intialQuantities[0] || [{ id: "new-0", quantity: "", quantityTypeId: 1 }]
     {}
   );
 
-  const onChangeCompany = (key) => {
-    const company = companies.find((c) => c.id == key);
-    const quantity = quantities.find((n) => n.companyId == key);
+  // const onChangeCompany = (key) => {
+  //   const company = companies.find((c) => c.id == key);
+  //   const quantity = quantities.find((n) => n.companyId == key);
 
-    setQuantityValues(quantity.quantity);
-    setSelectedCompany(company);
-    setSelectedQuantity(quantity);
-  };
+  //   setQuantityValues(quantity.quantity);
+  //   setSelectedCompany(company);
+  //   setSelectedQuantity(quantity);
+  // };
 
   // const onQuantityChange = (e) => {
   //   const newQuantities = quantities.map((n) => {
@@ -133,9 +138,9 @@ export default function QuantitiesPage() {
   });
 
   const onSubmit = async () => {
-    setQuantities((quantity) => ({
+    setQuantities((quantity: any) => ({
       ...quantity,
-      userId: user.id,
+      userId: user?.id,
       updatedAt: new Date(),
     }));
     //const result = await submitQuantity(quantities);
@@ -146,48 +151,58 @@ export default function QuantitiesPage() {
     // }
   };
 
-  const onClickAuthorize = async () => {
-    setSelectedQuantity({
-      ...selectedQuantity,
-      authorized: !selectedQuantity.authorized,
-    });
-    //const result = await authorizeQuantity(selectedQuantity);
-  };
+  // const onClickAuthorize = async () => {
+  //   setSelectedQuantity({
+  //     ...selectedQuantity,
+  //     authorized: !selectedQuantity.authorized,
+  //   });
+  //   //const result = await authorizeQuantity(selectedQuantity);
+  // };
 
-  const onChangeRole = (key) => {
+  const onChangeRole = (key: number) => {
     const newRole = roles.find((r) => r.id == key);
-    setSelectedRole(newRole);
+    if (newRole) {
+      setSelectedRole(newRole);
+    }
   };
 
-  const onChangeArea = (key) => {
+  const onChangeArea = (key: number) => {
     const newArea = areas.find((r) => r.id == key);
-    setSelectedArea(newArea);
+    if (newArea) {
+      setSelectedArea(newArea);
+    }
   };
 
-  const onChangeGroup = (key) => {
+  const onChangeGroup = (key: number) => {
     const newGroup = groups.find((r) => r.id == key);
-    setSelectedGroup(newGroup);
+    if (newGroup) {
+      setSelectedGroup(newGroup);
+    }
   };
 
-  const onChangeCommodity = (key) => {
+  const onChangeCommodity = (key: number) => {
     const newCommodity = commodities.find((r) => r.id == key);
-    setSelectedCommodity(newCommodity);
+    if (newCommodity) {
+      setSelectedCommodity(newCommodity);
+    }
   };
 
-  const onChangeUOM = (key) => {
+  const onChangeUOM = (key: number) => {
     const newUOM = UOMs.find((r) => r.id == key);
-    setSelectedUOM(newUOM);
+    if (newUOM) {
+      setSelectedUOM(newUOM);
+    }
   };
 
-  const onChangeEstimateQTY = (e) => {
+  const onChangeEstimateQTY = (e: any) => {
     setEstimatedQTY(e.target.value);
   };
 
-  const onChangePeriodQTY = (e) => {
+  const onChangePeriodQTY = (e: any) => {
     setPeriodQTY(e.target.value);
   };
 
-  const onChangeCumulativeInstalled = (e) => {
+  const onChangeCumulativeInstalled = (e: any) => {
     setCumulativeInstalled(e.target.value);
   };
 
@@ -198,12 +213,12 @@ export default function QuantitiesPage() {
         <div>
           <h1 className="text-3xl text-center">Quantities</h1>
         </div>
-        {user?.role === "ADMIN" && (
+        {/* {user?.role === "ADMIN" && (
           <div className="mt-2">
             <Dropdown>
               <DropdownTrigger>
                 <Button variant="bordered" color="primary">
-                  {selectedCompany.name}
+                  {selectedCompany?.name}
                 </Button>
               </DropdownTrigger>
               <DropdownMenu
@@ -219,7 +234,7 @@ export default function QuantitiesPage() {
               </DropdownMenu>
             </Dropdown>
           </div>
-        )}
+        )} */}
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="w-full mt-16 h-full">
@@ -229,14 +244,14 @@ export default function QuantitiesPage() {
                 <Dropdown>
                   <DropdownTrigger>
                     <Button variant="bordered" color="primary">
-                      {selectedRole.name ? selectedRole.name : "Select a Role"}
+                      {selectedRole?.name ? selectedRole.name : "Select a Role"}
                     </Button>
                   </DropdownTrigger>
                   <DropdownMenu
                     color="primary"
                     variant="faded"
                     aria-label="Static Actions"
-                    onAction={(key) => onChangeRole(key)}
+                    onAction={(key) => onChangeRole(key as any)}
                     selectionMode="single"
                   >
                     {roles.map((role) => (
@@ -257,7 +272,7 @@ export default function QuantitiesPage() {
                     color="primary"
                     variant="faded"
                     aria-label="Static Actions"
-                    onAction={(key) => onChangeArea(key)}
+                    onAction={(key) => onChangeArea(key as any)}
                     selectionMode="single"
                   >
                     {areas.map((area) => (
@@ -280,7 +295,7 @@ export default function QuantitiesPage() {
                     color="primary"
                     variant="faded"
                     aria-label="Static Actions"
-                    onAction={(key) => onChangeGroup(key)}
+                    onAction={(key) => onChangeGroup(key as any)}
                     selectionMode="single"
                   >
                     {groups.map((group) => (
@@ -303,7 +318,7 @@ export default function QuantitiesPage() {
                     color="primary"
                     variant="faded"
                     aria-label="Static Actions"
-                    onAction={(key) => onChangeCommodity(key)}
+                    onAction={(key) => onChangeCommodity(key as any)}
                     selectionMode="single"
                   >
                     {commodities.map((commodity) => (
@@ -326,7 +341,7 @@ export default function QuantitiesPage() {
                     color="primary"
                     variant="faded"
                     aria-label="Static Actions"
-                    onAction={(key) => onChangeUOM(key)}
+                    onAction={(key) => onChangeUOM(key as any)}
                     selectionMode="single"
                   >
                     {UOMs.map((UOM) => (
@@ -398,7 +413,7 @@ export default function QuantitiesPage() {
             >
               Submit
             </Button>
-            {user?.role === "ADMIN" && (
+            {/* {user?.role === "ADMIN" && (
               <Button
                 className="ml-2"
                 color="primary"
@@ -408,7 +423,7 @@ export default function QuantitiesPage() {
               >
                 {quantities[0].authorized ? "Unauthorize" : "Authorize"}
               </Button>
-            )}
+            )} */}
           </div>
         </form>
       </div>

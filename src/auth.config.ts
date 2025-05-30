@@ -8,7 +8,7 @@ export default {
   providers: [
     Credentials({
       name: "credentials",
-      async authorize(creds) {
+      async authorize(creds): Promise<any> {
         const validated = loginSchema.safeParse(creds);
 
         if (validated.success) {

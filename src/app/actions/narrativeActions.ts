@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { SafetySchema } from "@/lib/schemas/safetySchema";
-import { User } from "@prisma/client";
+import { Narrative, User } from "@prisma/client";
 import { auth } from "@/auth";
 
 export async function submitNarrative(
@@ -13,8 +13,8 @@ export async function submitNarrative(
 
   console.log("data: ", data);
 
-  const narratives = await prisma.safetyNarrative.findFirst({
-    where: { id: data.narrative.id },
+  const narratives = await prisma.narrative.findFirst({
+    where: { narrative: data.narrative },
   });
 
   try {
@@ -25,7 +25,6 @@ export async function submitNarrative(
         data: {
           userId: user?.id,
           narrative: data.narrative,
-          companyId: data.companyId,
         },
       });
     } else {
@@ -56,6 +55,7 @@ export async function submitNarrative(
 
 export async function getNarratives() {
   const session = await auth();
+  console.log("SESSION USER", session?.user);
   const user = session?.user;
   const narratives =
     user?.role === "USER"
@@ -72,7 +72,7 @@ export async function getNarrativeTypes() {
   return await prisma.narrativeType.findMany();
 }
 
-export async function authorizeNarrative(narrative) {
+export async function authorizeNarrative(narrative: Narrative) {
   const result = await prisma.narrative.update({
     where: { id: narrative.id },
     data: { authorized: !narrative.authorized },

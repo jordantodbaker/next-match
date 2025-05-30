@@ -22,7 +22,7 @@ model Account {
   id_token          String? @db.Text
   session_state     String?
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  //user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -47,7 +47,7 @@ model Narrative {
   narrative String
   narrativeType NarrativeType @relation(fields: [narrativeTypeId], references: [id])
   narrativeTypeId Int 
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime? @updatedAt
   authorized Boolean @default(false)
 }
 
@@ -74,9 +74,9 @@ model User {
   emailVerified    DateTime?
   passwordHash     String
   image            String?
-  accountId        String
+  //accountId        String
   role             Role @default(USER)
-  accounts         Account[]
+  //accounts         Account[]
   companyAccount   CompanyAccount @relation(fields: [companyId], references: [id])
   companyId        Int
   safetyNarratives       SafetyNarrative[]

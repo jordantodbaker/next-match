@@ -9,7 +9,7 @@ import {
   DropdownItem,
   Textarea,
 } from "@heroui/react";
-import { useState } from "react";
+import { SetStateAction, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
@@ -20,36 +20,60 @@ import {
 } from "../actions/narrativeActions";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
+import { CompanyAccount, Narrative, NarrativeType } from "@prisma/client";
+
+type Props = {
+  initialNarratives: (Narrative | null)[];
+  companies: CompanyAccount[];
+  narrativeTypes: NarrativeType[];
+};
 
 export default function NarrativePage({
-  intialNarratives,
+  initialNarratives,
   companies,
   narrativeTypes,
-}) {
+}: Props) {
   const { data } = useSession();
   const user = data?.user;
 
   const [selectedCompany, setSelectedCompany] = useState(
-    companies.find((c) => c.id == intialNarratives[0]?.companyId || 1)
+    initialNarratives
+      ? companies.find((c) => c.id == initialNarratives[0]?.companyId || 1)
+      : null
   );
-  const [narratives, setNarratives] = useState(
-    intialNarratives[0] || [{ id: "new-0", narrative: "", narrativeTypeId: 1 }]
+  const [narratives, setNarratives] = useState<any>(
+    initialNarratives || [
+      {
+        id: 0,
+        narrative: "",
+        narrativeTypeId: 1,
+        userId: user?.id,
+        companyId: user?.companyId,
+        authorized: false,
+      },
+    ]
   );
 
-  const [selectedNarrative, setSelectedNarrative] = useState();
+  const [selectedNarrativeType, setSelectedNarrativeType] =
+    useState<NarrativeType>();
 
-  const onChangeCompany = (key) => {
+  const onChangeCompany = (key: number) => {
     const company = companies.find((c) => c.id == key);
-    const narrative = narratives.find((n) => n.companyId == key);
+    const narrative = narratives.find((n: Narrative) => n.companyId == key);
+    if (narrative) {
+      setNarratives(narrative);
+    }
 
-    setNarrativeValues(narrative.narrative);
     setSelectedCompany(company);
-    setSelectedNarrative(narrative);
+    setSelectedNarrativeType(narrative);
   };
 
-  const onNarrativeChange = (e) => {
-    const newNarratives = narratives.map((n) => {
-      if (n.id === e.target.id) {
+  const onNarrativeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("narratives", narratives);
+    console.log(e.target.id);
+    const id = parseInt(e.target.id);
+    const newNarratives = narratives.map((n: Narrative) => {
+      if (n.id == id) {
         n = { ...n, narrative: e.target.value };
       }
       return n;
@@ -68,9 +92,9 @@ export default function NarrativePage({
   });
 
   const onSubmit = async () => {
-    setNarratives((narrative) => ({
+    setNarratives((narrative: Narrative) => ({
       ...narrative,
-      userId: user.id,
+      userId: user?.id,
       updatedAt: new Date(),
     }));
     const result = await submitNarrative(narratives);
@@ -82,16 +106,16 @@ export default function NarrativePage({
   };
 
   const onClickAuthorize = async () => {
-    setSelectedNarrative({
-      ...selectedNarrative,
-      authorized: !selectedNarrative.authorized,
+    setNarratives({
+      ...narratives,
+      authorized: !narratives.authorized,
     });
-    await authorizeNarrative(selectedNarrative);
+    await authorizeNarrative(narratives);
   };
 
-  const onChangeNarrativeType = (key) => {
+  const onChangeNarrativeType = (key: number) => {
     const narrativeType = narrativeTypes.find((n) => n.id == key);
-    setSelectedNarrative(narrativeType);
+    setSelectedNarrativeType(narrativeType);
   };
 
   return (
@@ -106,14 +130,14 @@ export default function NarrativePage({
             <Dropdown>
               <DropdownTrigger>
                 <Button variant="bordered" color="primary">
-                  {selectedCompany.name}
+                  {selectedCompany?.name}
                 </Button>
               </DropdownTrigger>
               <DropdownMenu
                 color="primary"
                 variant="faded"
                 aria-label="Static Actions"
-                onAction={(key) => onChangeCompany(key)}
+                onAction={(key) => onChangeCompany(key as number)}
                 selectionMode="single"
               >
                 {companies.map((company) => (
@@ -126,22 +150,22 @@ export default function NarrativePage({
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="w-full mt-16 h-full">
-            {narratives.map((narrative) => (
-              <div className="mb-6" key={selectedNarrative.id}>
-                <Dropdown key={selectedNarrative.id}>
+            {narratives.map((narrative: Narrative) => (
+              <div className="mb-6" key={selectedNarrativeType?.id}>
+                <Dropdown key={selectedNarrativeType?.id}>
                   <DropdownTrigger>
                     <Button variant="bordered">
-                      {selectedNarrative
-                        ? selectedNarrative.type
+                      {selectedNarrativeType
+                        ? selectedNarrativeType.type
                         : "Select Narrative Type"}
                     </Button>
                   </DropdownTrigger>
                   <DropdownMenu
                     color="primary"
                     variant="faded"
-                    key={selectedNarrative.id}
+                    key={selectedNarrativeType?.id}
                     aria-label="Static Actions"
-                    onAction={(key) => onChangeNarrativeType(key)}
+                    onAction={(key) => onChangeNarrativeType(key as number)}
                     selectionMode="single"
                   >
                     {narrativeTypes.map((type) => (
@@ -151,7 +175,6 @@ export default function NarrativePage({
                 </Dropdown>
                 <Textarea
                   {...register(`narrative`)}
-                  id={narrative.id}
                   key={narrative.id}
                   label="Narrative"
                   className="mt-2"
@@ -178,7 +201,7 @@ export default function NarrativePage({
                 setNarratives([
                   ...narratives,
                   {
-                    id: "new-" + narratives.length,
+                    id: narratives.length,
                     narrativeTypeId: 1,
                     narrative: "",
                   },

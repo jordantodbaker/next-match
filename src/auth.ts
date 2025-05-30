@@ -22,7 +22,7 @@ export const {
         //   });
         // }
 
-        session.user = user;
+        session.user = user as any;
         console.log("user: ", user);
       }
 

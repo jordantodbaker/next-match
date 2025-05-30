@@ -61,7 +61,7 @@ export async function registerUser(
         name,
         email,
         passwordHash: hashedPassword,
-      },
+      } as any,
     });
     return { status: "success", data: user };
   } catch (error) {
@@ -74,6 +74,6 @@ export async function getUserByEmail(email: string) {
   return prisma.user.findUnique({ where: { email } });
 }
 
-export async function getUserById(id: string) {
+export async function getUserById(id: number) {
   return prisma.user.findUnique({ where: { id } });
 }

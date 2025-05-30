@@ -18,23 +18,28 @@ import { authorizeNarrative, submitNarrative } from "../actions/safetyActions";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
 
-export default function SafetyPage({ narratives, companies }) {
+type Props = {
+  narratives: any;
+  companies: any;
+};
+
+export default function SafetyPage({ narratives, companies }: Props) {
   const [selectedCompany, setSelectedCompany] = useState(
-    companies.find((c) => c.id == narratives[0].companyId)
+    companies.find((c: any) => c.id == narratives[0].companyId)
   );
   const [selectedNarrative, setSelectedNarrative] = useState(narratives[0]);
   const [narrativeValue, setNarrativeValue] = useState(narratives[0].narrative);
 
-  const onChangeCompany = (key) => {
-    const company = companies.find((c) => c.id == key);
-    const narrative = narratives.find((n) => n.companyId == key);
+  const onChangeCompany = (key: any) => {
+    const company = companies.find((c: any) => c.id == key);
+    const narrative = narratives.find((n: any) => n.companyId == key);
 
     setNarrativeValue(narrative.narrative);
     setSelectedCompany(company);
     setSelectedNarrative(narrative);
   };
 
-  const onNarrativeChange = (e) => {
+  const onNarrativeChange = (e: any) => {
     const narrative = e.target.value;
     setNarrativeValue(narrative);
   };
@@ -93,7 +98,7 @@ export default function SafetyPage({ narratives, companies }) {
                 // selectedKeys={[2]}
                 selectionMode="single"
               >
-                {companies.map((company) => (
+                {companies.map((company: any) => (
                   <DropdownItem key={company.id}>{company.name}</DropdownItem>
                 ))}
               </DropdownMenu>
