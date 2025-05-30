@@ -11,9 +11,9 @@ import {
 } from "@heroui/react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+//import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
-import { SafetySchema, safetySchema } from "@/lib/schemas/safetySchema";
+import { SafetySchema } from "@/lib/schemas/safetySchema";
 import { authorizeNarrative, submitNarrative } from "../actions/safetyActions";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
@@ -51,11 +51,12 @@ export default function SafetyPage({ narratives, companies }: Props) {
     handleSubmit,
     formState: { isValid, isSubmitting },
   } = useForm<SafetySchema>({
-    resolver: zodResolver(safetySchema),
+    //resolver: zodResolver(safetySchema),
     mode: "onTouched",
   });
 
   const onSubmit = async () => {
+    console.log("IN HERE");
     selectedNarrative.narrative = narrativeValue;
     selectedNarrative.userId = user?.id;
     selectedNarrative.updatedAt = new Date();
@@ -126,7 +127,7 @@ export default function SafetyPage({ narratives, companies }: Props) {
             <Button
               color="primary"
               type="submit"
-              isDisabled={!isValid || selectedNarrative.authorized}
+              isDisabled={selectedNarrative.authorized}
               isLoading={isSubmitting}
             >
               Submit
