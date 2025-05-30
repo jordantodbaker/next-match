@@ -41,18 +41,16 @@ export default function NarrativePage({
       ? companies.find((c) => c.id == initialNarratives[0]?.companyId || 1)
       : null
   );
-  const [narratives, setNarratives] = useState<any>(
-    initialNarratives || [
-      {
-        id: 0,
-        narrative: "",
-        narrativeTypeId: 1,
-        userId: user?.id,
-        companyId: user?.companyId,
-        authorized: false,
-      },
-    ]
-  );
+  const [narratives, setNarratives] = useState<any>([
+    {
+      id: 0,
+      narrative: "",
+      narrativeTypeId: 1,
+      userId: user?.id,
+      companyId: user?.companyId,
+      authorized: false,
+    },
+  ]);
 
   const [selectedNarrativeType, setSelectedNarrativeType] =
     useState<NarrativeType>();
@@ -117,6 +115,8 @@ export default function NarrativePage({
     const narrativeType = narrativeTypes.find((n) => n.id == key);
     setSelectedNarrativeType(narrativeType);
   };
+
+  console.log("Narratives: ", narratives);
 
   return (
     <div className="flex h-full w-full">
