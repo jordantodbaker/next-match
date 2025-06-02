@@ -239,7 +239,7 @@ export default function QuantitiesPage() {
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="w-full mt-16 h-full">
             <div className="flex xl:flex-row flex-col">
-              <div className="flex flex-col mr-2">
+              <div className="flex flex-col mr-2 mt-2">
                 <span>Role</span>
                 <Dropdown>
                   <DropdownTrigger>
@@ -351,32 +351,32 @@ export default function QuantitiesPage() {
                 </Dropdown>
               </div>
               <div className="flex flex-col mr-2 mt-2">
+                <span>Estimate QTY</span>
                 <Input
-                  label="Estimate QTY"
                   type="number"
                   onChange={onChangeEstimateQTY}
                   value={estimatedQTY}
                 />
               </div>
               <div className="flex flex-col mr-2 mt-2">
+                <span>Period QTY</span>
                 <Input
-                  label="Period QTY"
                   type="number"
                   onChange={onChangePeriodQTY}
                   value={periodQTY}
                 />
               </div>
               <div className="flex flex-col mr-2 mt-2">
+                <span>Cumulative Installed</span>
                 <Input
-                  label="Cumulative Installed"
                   type="number"
                   onChange={onChangeCumulativeInstalled}
                   value={cumulativeInstalled}
                 />
               </div>
               <div className="flex flex-col mr-2 mt-2">
+                <span>% Installed</span>
                 <Input
-                  label="% Installed"
                   isReadOnly
                   value={
                     estimatedQTY && cumulativeInstalled && estimatedQTY > 0
