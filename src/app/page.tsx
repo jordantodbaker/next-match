@@ -18,7 +18,7 @@ export default function Home() {
               <p className="mt-2">
                 With ACE web forms your data will data will alway be consistent.
                 With robust form validation, we can ensure the quality and
-                accuracy of your data
+                accuracy of your data.
               </p>
             </div>
           </CardFooter>
@@ -32,7 +32,8 @@ export default function Home() {
               <h1 className="text-3xl text-center">Powerful Analytics</h1>
               <p className="mt-2">
                 Gain powerful insights into your project with analytics powered
-                by Power BI.
+                by Power BI. See your SPI and CPI curves over time to track your
+                project's progress.
               </p>
             </div>
           </CardFooter>
@@ -45,9 +46,8 @@ export default function Home() {
             <div className="flex flex-col">
               <h1 className="text-3xl text-center">Data Imports</h1>
               <p className="mt-2">
-                With ACE web forms your data will data will alway be consistent.
-                With robust form validation, we can ensure the quality and
-                accuracy of your data
+                With data integration, we can take your existing infrastructure
+                and import it into a single central location.
               </p>
             </div>
           </CardFooter>
@@ -62,9 +62,9 @@ export default function Home() {
             <div className="flex flex-col">
               <h1 className="text-3xl text-center">Mobile Friendly</h1>
               <p className="mt-2">
-                With ACE web forms your data will data will alway be consistent.
-                With robust form validation, we can ensure the quality and
-                accuracy of your data
+                ACE web forms will allow you to enter data in the field with any
+                mobile device. Don't wait to get back to the office to start
+                entering your data.
               </p>
             </div>
           </CardFooter>
@@ -77,9 +77,8 @@ export default function Home() {
             <div className="flex flex-col">
               <h1 className="text-3xl text-center">Anywhere Access</h1>
               <p className="mt-2">
-                With ACE web forms your data will data will alway be consistent.
-                With robust form validation, we can ensure the quality and
-                accuracy of your data
+                Ace web forms store your data in the cloud. This means that you
+                can access your data anywhere, at any time, on any device.
               </p>
             </div>
           </CardFooter>
@@ -92,9 +91,8 @@ export default function Home() {
             <div className="flex flex-col">
               <h1 className="text-3xl text-center">Data Security</h1>
               <p className="mt-2">
-                With ACE web forms your data will data will alway be consistent.
-                With robust form validation, we can ensure the quality and
-                accuracy of your data
+                Rest assured that your data is secure. ACE web forms use modern
+                security practices to ensure the highest level of security.
               </p>
             </div>
           </CardFooter>

@@ -238,7 +238,7 @@ export default function QuantitiesPage() {
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="w-full mt-16 h-full">
-            <div className="flex flex-row">
+            <div className="flex xl:flex-row flex-col">
               <div className="flex flex-col mr-2">
                 <span>Role</span>
                 <Dropdown>
