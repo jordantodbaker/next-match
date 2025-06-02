@@ -17,7 +17,7 @@ import React from "react";
 const roles = [
   { id: 1, name: "Boilermaker" },
   { id: 2, name: "Civil" },
-  { id: 3, name: "Electirician" },
+  { id: 3, name: "Electrician" },
   { id: 4, name: "Instrument" },
   { id: 5, name: "Insulation" },
   { id: 6, name: "Ironworker" },
@@ -99,7 +99,7 @@ export default function HeadcountPage() {
             <div className="flex sm:flex-row flex-col">
               {fields.map((field, index) => {
                 return (
-                  <section key={field.id} className="mr-4 mt-4">
+                  <section key={field.id} className="mr-4 sm:mt-4 mt-16">
                     <div className="flex flex-col">
                       <span>Role</span>
                       <Dropdown>
