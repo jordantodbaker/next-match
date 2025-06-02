@@ -36,8 +36,7 @@ const roles = [
 type FormValues = {
   headcount: {
     role: { id: number; name: string } | undefined;
-    name: string;
-    amount: number;
+    headcount: number;
   }[];
 };
 
@@ -57,7 +56,7 @@ export default function HeadcountPage() {
     //resolver: zodResolver(safetySchema),
     //mode: "onTouched",
     defaultValues: {
-      headcount: [{ role: { id: 0, name: "" }, name: "", amount: 0 }],
+      headcount: [{ role: { id: 0, name: "" }, headcount: 0 }],
     },
   });
 
@@ -135,20 +134,10 @@ export default function HeadcountPage() {
                     </div>
                     <div className="mt-2">
                       <label>
-                        <span>Name</span>
-                        <Input
-                          {...register(`headcount.${index}.name`, {
-                            required: true,
-                          })}
-                        />
-                      </label>
-                    </div>
-                    <div className="mt-2">
-                      <label>
-                        <span>Amount</span>
+                        <span>Headcount</span>
                         <Input
                           type="number"
-                          {...register(`headcount.${index}.amount`)}
+                          {...register(`headcount.${index}.headcount`)}
                         />
                       </label>
                     </div>
@@ -174,8 +163,7 @@ export default function HeadcountPage() {
             onClick={() => {
               append({
                 role: { id: 0, name: "Select a Role" },
-                name: "",
-                amount: 0,
+                headcount: 0,
               });
             }}
           >
