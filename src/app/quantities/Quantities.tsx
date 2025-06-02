@@ -239,7 +239,7 @@ export default function QuantitiesPage() {
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="w-full mt-16 h-full">
             <div className="flex xl:flex-row flex-col">
-              <div className="flex flex-col mr-2 mt-2">
+              <div className="flex flex-col mr-2">
                 <span>Role</span>
                 <Dropdown>
                   <DropdownTrigger>
@@ -260,7 +260,7 @@ export default function QuantitiesPage() {
                   </DropdownMenu>
                 </Dropdown>
               </div>
-              <div className="flex flex-col mr-2">
+              <div className="flex flex-col mr-2 mt-2">
                 <span>Area</span>
                 <Dropdown>
                   <DropdownTrigger>
@@ -281,7 +281,7 @@ export default function QuantitiesPage() {
                   </DropdownMenu>
                 </Dropdown>
               </div>
-              <div className="flex flex-col mr-2">
+              <div className="flex flex-col mr-2 mt-2">
                 <span>Group</span>
                 <Dropdown>
                   <DropdownTrigger>
@@ -304,7 +304,7 @@ export default function QuantitiesPage() {
                   </DropdownMenu>
                 </Dropdown>
               </div>
-              <div className="flex flex-col mr-2">
+              <div className="flex flex-col mr-2 mt-2">
                 <span>Commodity</span>
                 <Dropdown>
                   <DropdownTrigger>
@@ -329,7 +329,7 @@ export default function QuantitiesPage() {
                   </DropdownMenu>
                 </Dropdown>
               </div>
-              <div className="flex flex-col mr-2">
+              <div className="flex flex-col mr-2 mt-2">
                 <span>UOM</span>
                 <Dropdown>
                   <DropdownTrigger>
@@ -350,7 +350,7 @@ export default function QuantitiesPage() {
                   </DropdownMenu>
                 </Dropdown>
               </div>
-              <div className="flex flex-col mr-2">
+              <div className="flex flex-col mr-2 mt-2">
                 <Input
                   label="Estimate QTY"
                   type="number"
@@ -358,7 +358,7 @@ export default function QuantitiesPage() {
                   value={estimatedQTY}
                 />
               </div>
-              <div className="flex flex-col mr-2">
+              <div className="flex flex-col mr-2 mt-2">
                 <Input
                   label="Period QTY"
                   type="number"
@@ -366,7 +366,7 @@ export default function QuantitiesPage() {
                   value={periodQTY}
                 />
               </div>
-              <div className="flex flex-col mr-2">
+              <div className="flex flex-col mr-2 mt-2">
                 <Input
                   label="Cumulative Installed"
                   type="number"
@@ -374,7 +374,7 @@ export default function QuantitiesPage() {
                   value={cumulativeInstalled}
                 />
               </div>
-              <div className="flex flex-col mr-2">
+              <div className="flex flex-col mr-2 mt-2">
                 <Input
                   label="% Installed"
                   isReadOnly
