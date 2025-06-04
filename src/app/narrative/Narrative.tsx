@@ -12,7 +12,7 @@ import {
 import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React from "react";
+import React, { useContext } from "react";
 
 const roles = [
   { id: 1, name: "Boilermaker" },
@@ -49,6 +49,7 @@ type FormValues = {
 import { useSession } from "next-auth/react";
 import { CompanyAccount, Narrative, NarrativeType } from "@prisma/client";
 import { submitNarrative } from "../actions/narrativeActions";
+import { CompanyContext } from "@/components/CompanyContext";
 export default function NarrativePage({
   initialNarratives,
   companies,
@@ -57,6 +58,8 @@ export default function NarrativePage({
   const { data } = useSession();
   const user = data?.user;
 
+  const company = useContext(CompanyContext);
+  console.log("COMP CONTEXT", company);
   const emptyNarrative = {
     narrativeType: { id: 0, type: "" },
     narrative: {
@@ -77,7 +80,6 @@ export default function NarrativePage({
 
   narratives = narratives[0] === null ? [emptyNarrative] : narratives;
 
-  console.log("narrativeS: ", narratives);
   const {
     register,
     control,
@@ -136,7 +138,6 @@ export default function NarrativePage({
           <div className="w-full mt-16 h-full">
             <div className="flex flex-col">
               {fields.map((field, index) => {
-                console.log(field.narrative);
                 return (
                   <section key={field.id} className="mr-4 mt-16 w-full">
                     <div className="flex flex-col">

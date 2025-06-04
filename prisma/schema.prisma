@@ -9,7 +9,7 @@ datasource db {
 }
 
 model Account {
-  id                Int            @id @default(autoincrement())
+  id                Int     @id @default(autoincrement())
   userId            Int
   type              String
   provider          String
@@ -28,59 +28,60 @@ model Account {
 }
 
 model SafetyNarrative {
-  id        Int            @id @default(autoincrement())
-  user      User?          @relation(fields: [userId], references: [id])
-  userId    Int?
-  companyAccount   CompanyAccount? @relation(fields: [companyId], references: [id])
-  companyId        Int?
-  narrative String
-  updatedAt   DateTime @updatedAt
-  authorized Boolean @default(false)
+  id             Int             @id @default(autoincrement())
+  user           User?           @relation(fields: [userId], references: [id])
+  userId         Int?
+  companyAccount CompanyAccount? @relation(fields: [companyId], references: [id])
+  companyId      Int?
+  narrative      String
+  updatedAt      DateTime        @updatedAt
+  authorized     Boolean         @default(false)
 }
 
 model Narrative {
-  id        Int            @id @default(autoincrement())
-  user      User?          @relation(fields: [userId], references: [id])
-  userId    Int?
-  companyAccount   CompanyAccount? @relation(fields: [companyId], references: [id])
-  companyId        Int?
-  narrative String
-  narrativeType NarrativeType @relation(fields: [narrativeTypeId], references: [id])
-  narrativeTypeId Int 
-  updatedAt   DateTime? @updatedAt
-  authorized Boolean @default(false)
+  id              Int             @id @default(autoincrement())
+  user            User?           @relation(fields: [userId], references: [id])
+  userId          Int?
+  companyAccount  CompanyAccount? @relation(fields: [companyId], references: [id])
+  companyId       Int?
+  narrative       String
+  narrativeType   NarrativeType   @relation(fields: [narrativeTypeId], references: [id])
+  narrativeTypeId Int
+  updatedAt       DateTime?       @updatedAt
+  authorized      Boolean         @default(false)
 }
 
 model NarrativeType {
-  id Int @id @default(autoincrement())
-  type String
+  id        Int         @id @default(autoincrement())
+  type      String
   narrative Narrative[]
 }
 
-
 model CompanyAccount {
-  id              Int            @id @default(autoincrement())
-  name            String
-  companyCode     String
-  user            User[]       
+  id               Int               @id @default(autoincrement())
+  name             String
+  companyCode      String
+  user             User[]
   safetyNarratives SafetyNarrative[]
-  narratives      Narrative[]
+  narratives       Narrative[]
 }
 
 model User {
-  id               Int            @id @default(autoincrement())
-  name             String?
-  email            String            @unique
-  emailVerified    DateTime?
-  passwordHash     String
-  image            String?
+  id                Int               @id @default(autoincrement())
+  name              String?
+  email             String            @unique
+  emailVerified     DateTime?
+  passwordHash      String
+  image             String?
   //accountId        String
-  role             Role @default(USER)
+  role              Role              @default(USER)
   //accounts         Account[]
-  companyAccount   CompanyAccount @relation(fields: [companyId], references: [id])
-  companyId        Int
-  safetyNarratives       SafetyNarrative[]
-  narratives Narrative[]
+  companyAccount    CompanyAccount    @relation(fields: [companyId], references: [id])
+  companyId         Int
+  selectedCompanyId Int?
+  selectedProjectId Int?
+  safetyNarratives  SafetyNarrative[]
+  narratives        Narrative[]
 }
 
 enum Role {

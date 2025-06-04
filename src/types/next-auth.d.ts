@@ -9,6 +9,8 @@ declare module "next-auth" {
       id: number;
       companyId: number;
       role: string;
+      selectedCompanyId: number?;
+      selectedProjectId: number?;
     };
   }
 }

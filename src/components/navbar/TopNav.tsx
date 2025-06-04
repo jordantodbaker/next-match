@@ -6,6 +6,10 @@ import {
   Navbar,
   NavbarBrand,
   NavbarContent,
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
 } from "@heroui/react";
 import Link from "next/link";
 import React from "react";
@@ -14,10 +18,27 @@ import { useRouter } from "next/navigation";
 //import { signOut } from "@/auth";
 
 import { signOut } from "next-auth/react";
+import { CompanyAccount } from "@prisma/client";
 
-export default function TopNav() {
+const projects = [
+  { id: 1, name: "1902 - Mech + Elect" },
+  { id: 2, name: "1904 - Product Handling" },
+];
+
+export default function TopNav({
+  companies,
+  selectedCompany,
+  setSelectedCompany,
+}: {
+  companies: CompanyAccount[];
+  selectedCompany: CompanyAccount;
+  setSelectedCompany: any;
+}) {
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session, update } = useSession();
+  const user = session?.user;
+
+  const [selectedProject, setSelectedProject] = React.useState(projects[0]);
 
   function SignOut() {
     return (
@@ -36,6 +57,21 @@ export default function TopNav() {
     );
   }
 
+  const onChangeCompany = (key: any) => {
+    const company = companies.find((c: any) => c.id == key) as CompanyAccount;
+    setSelectedCompany(company);
+  };
+
+  const onChangeProject = (key: any) => {
+    const project = projects.find((p: any) => p.id == key) as any;
+    setSelectedProject(project);
+    // const narrative = narratives.find((n: any) => n.companyId == key);
+
+    // setNarrativeValue(narrative.narrative);
+    // setSelectedCompany(company);
+    // setSelectedNarrative(narrative);
+  };
+
   return (
     <Navbar
       maxWidth="xl"
@@ -50,6 +86,52 @@ export default function TopNav() {
       </NavbarBrand>
 
       <NavbarContent justify="end">
+        <div className="mr-2">
+          <Dropdown>
+            <DropdownTrigger>
+              <Button variant="bordered" color="primary">
+                {selectedProject.name ? selectedProject.name : "Project"}
+              </Button>
+            </DropdownTrigger>
+            <DropdownMenu
+              color="primary"
+              variant="faded"
+              aria-label="Static Actions"
+              onAction={(key) => onChangeProject(key)}
+              // selectedKeys={[2]}
+              selectionMode="single"
+            >
+              {projects.map((project: any) => (
+                <DropdownItem key={project.id}>{project.name}</DropdownItem>
+              ))}
+            </DropdownMenu>
+          </Dropdown>
+        </div>
+        {user?.role === "ADMIN" && (
+          <div>
+            <div>
+              <Dropdown>
+                <DropdownTrigger>
+                  <Button variant="bordered" color="primary">
+                    {selectedCompany.name ? selectedCompany.name : "Company"}
+                  </Button>
+                </DropdownTrigger>
+                <DropdownMenu
+                  color="primary"
+                  variant="faded"
+                  aria-label="Static Actions"
+                  onAction={(key) => onChangeCompany(key)}
+                  // selectedKeys={[2]}
+                  selectionMode="single"
+                >
+                  {companies.map((company: any) => (
+                    <DropdownItem key={company.id}>{company.name}</DropdownItem>
+                  ))}
+                </DropdownMenu>
+              </Dropdown>
+            </div>
+          </div>
+        )}
         {!session ? (
           <Button as={Link} href="/login" variant="bordered" color="primary">
             Login

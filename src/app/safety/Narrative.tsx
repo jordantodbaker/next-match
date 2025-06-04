@@ -9,7 +9,7 @@ import {
   DropdownItem,
   Textarea,
 } from "@heroui/react";
-import { useState } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useForm } from "react-hook-form";
 //import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
@@ -17,6 +17,8 @@ import { SafetySchema } from "@/lib/schemas/safetySchema";
 import { authorizeNarrative, submitNarrative } from "../actions/safetyActions";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
+import { CompanyContext } from "@/components/CompanyContext";
+import { CompanyAccount } from "@prisma/client";
 
 type Props = {
   narratives: any;
@@ -24,20 +26,22 @@ type Props = {
 };
 
 export default function SafetyPage({ narratives, companies }: Props) {
-  const [selectedCompany, setSelectedCompany] = useState(
-    companies.find((c: any) => c.id == narratives[0].companyId)
-  );
+  // const [selectedCompany, setSelectedCompany] = useState(
+  //   companies.find((c: any) => c.id == narratives[0].companyId)
+  // );
+
+  const company = useContext(CompanyContext);
+
   const [selectedNarrative, setSelectedNarrative] = useState(narratives[0]);
   const [narrativeValue, setNarrativeValue] = useState(narratives[0].narrative);
 
-  const onChangeCompany = (key: any) => {
-    const company = companies.find((c: any) => c.id == key);
-    const narrative = narratives.find((n: any) => n.companyId == key);
-
-    setNarrativeValue(narrative.narrative);
-    setSelectedCompany(company);
-    setSelectedNarrative(narrative);
-  };
+  useEffect(() => {
+    if (company) {
+      const narrative = narratives.find((n: any) => n.companyId == company.id);
+      setSelectedNarrative(narrative);
+      setNarrativeValue(narrative.narrative);
+    }
+  }, [company as any]);
 
   const onNarrativeChange = (e: any) => {
     const narrative = e.target.value;
@@ -83,29 +87,6 @@ export default function SafetyPage({ narratives, companies }: Props) {
         <div>
           <h1 className="text-3xl text-center">Safety Narrative</h1>
         </div>
-        {user?.role === "ADMIN" && (
-          <div className="mt-2">
-            <Dropdown>
-              <DropdownTrigger>
-                <Button variant="bordered" color="primary">
-                  {selectedCompany.name}
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                color="primary"
-                variant="faded"
-                aria-label="Static Actions"
-                onAction={(key) => onChangeCompany(key)}
-                // selectedKeys={[2]}
-                selectionMode="single"
-              >
-                {companies.map((company: any) => (
-                  <DropdownItem key={company.id}>{company.name}</DropdownItem>
-                ))}
-              </DropdownMenu>
-            </Dropdown>
-          </div>
-        )}
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="w-full mt-16 h-full">
