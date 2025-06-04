@@ -9,9 +9,9 @@ export default async function NarrativePage() {
   const narrativeTypes = await getNarrativeTypes();
   console.log(companies);
 
-  //narratives = narratives[0] === null ? [] : narratives;
 
-  console.log("Narratives", narratives);
+
+  //console.log("Narratives", narratives);
 
   return (
     <div className="flex h-full w-full">

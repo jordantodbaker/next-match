@@ -2,38 +2,35 @@
 
 import { prisma } from "@/lib/prisma";
 import { SafetySchema } from "@/lib/schemas/safetySchema";
-import { Narrative, User } from "@prisma/client";
+import { Narrative, NarrativeType, User } from "@prisma/client";
 import { auth } from "@/auth";
 
 export async function submitNarrative(
-  data: SafetySchema
+  data: {narrative: Narrative}
 ): Promise<ActionResult<string>> {
   const session = await auth();
   const user = session?.user as User | undefined;
 
-  console.log("data: ", data);
-
-  const narratives = await prisma.narrative.findFirst({
-    where: { narrative: data.narrative },
-  });
-
   try {
-    if (narratives) {
+    if (data.narrative.id !== 0) {
       console.log("Update", data);
-      await prisma.safetyNarrative.update({
-        where: { id: data.id },
+      await prisma.narrative.update({
+        where: { id: data.narrative.id },
         data: {
           userId: user?.id,
-          narrative: data.narrative,
+          narrative: data.narrative.narrative,
+          narrativeTypeId: data.narrative.narrativeTypeId,
+          companyId: data.narrative.companyId
         },
       });
     } else {
       console.log("New narrative", data);
-      await prisma.safetyNarrative.create({
+      await prisma.narrative.create({
         data: {
           userId: user?.id,
-          companyId: user?.companyId,
-          narrative: data.narrative,
+          narrative: data.narrative.narrative,
+          narrativeTypeId: data.narrative.narrativeTypeId,
+          companyId: data.narrative.companyId
         },
       });
     }
@@ -55,15 +52,15 @@ export async function submitNarrative(
 
 export async function getNarratives() {
   const session = await auth();
-  console.log("SESSION USER", session?.user);
+
   const user = session?.user;
   const narratives =
     user?.role === "USER"
-      ? [
-          await prisma.narrative.findFirst({
+      ? 
+          await prisma.narrative.findMany({
             where: { companyId: user?.companyId },
-          }),
-        ]
+          })
+        
       : await prisma.narrative.findMany();
   return narratives;
 }

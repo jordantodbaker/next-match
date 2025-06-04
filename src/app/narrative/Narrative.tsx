@@ -9,18 +9,29 @@ import {
   DropdownItem,
   Textarea,
 } from "@heroui/react";
-import { SetStateAction, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useState } from "react";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
-import { SafetySchema, safetySchema } from "@/lib/schemas/safetySchema";
-import {
-  authorizeNarrative,
-  submitNarrative,
-} from "../actions/narrativeActions";
-import { useSession } from "next-auth/react";
-import { toast } from "react-toastify";
-import { CompanyAccount, Narrative, NarrativeType } from "@prisma/client";
+
+const roles = [
+  { id: 1, name: "Boilermaker" },
+  { id: 2, name: "Civil" },
+  { id: 3, name: "Electrician" },
+  { id: 4, name: "Instrument" },
+  { id: 5, name: "Insulation" },
+  { id: 6, name: "Ironworker" },
+  { id: 7, name: "Laborer" },
+  { id: 8, name: "Mason" },
+  { id: 9, name: "Millwright" },
+  { id: 10, name: "Pipefitter" },
+  { id: 11, name: "Painter" },
+  { id: 13, name: "Cleaning" },
+  { id: 14, name: "Carpenter" },
+  { id: 15, name: "Other" },
+  { id: 16, name: "Machinist" },
+  { id: 17, name: "Support - Gen. Labor" },
+];
 
 type Props = {
   initialNarratives: (Narrative | null)[];
@@ -28,6 +39,16 @@ type Props = {
   narrativeTypes: NarrativeType[];
 };
 
+type FormValues = {
+  narratives: {
+    narrativeType: NarrativeType;
+    narrative: Narrative;
+  }[];
+};
+
+import { useSession } from "next-auth/react";
+import { CompanyAccount, Narrative, NarrativeType } from "@prisma/client";
+import { submitNarrative } from "../actions/narrativeActions";
 export default function NarrativePage({
   initialNarratives,
   companies,
@@ -36,201 +57,174 @@ export default function NarrativePage({
   const { data } = useSession();
   const user = data?.user;
 
-  const [selectedCompany, setSelectedCompany] = useState(
-    initialNarratives
-      ? companies.find((c) => c.id == initialNarratives[0]?.companyId || 1)
-      : null
-  );
-  const [narratives, setNarratives] = useState<any>([
-    {
+  const emptyNarrative = {
+    narrativeType: { id: 0, type: "" },
+    narrative: {
       id: 0,
       narrative: "",
-      narrativeTypeId: 1,
-      userId: user?.id,
-      companyId: user?.companyId,
+      userId: 0,
+      companyId: 0,
       authorized: false,
+      updatedAt: null,
+      narrativeTypeId: 0,
     },
-  ]);
-
-  const [selectedNarrativeType, setSelectedNarrativeType] =
-    useState<NarrativeType>();
-
-  const onChangeCompany = (key: number) => {
-    const company = companies.find((c) => c.id == key);
-    const narrative = narratives.find((n: Narrative) => n.companyId == key);
-    if (narrative) {
-      setNarratives(narrative);
-    }
-
-    setSelectedCompany(company);
-    setSelectedNarrativeType(narrative);
   };
 
-  const onNarrativeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("narratives", narratives);
-    console.log(e.target.id);
-    const id = parseInt(e.target.id);
-    const newNarratives = narratives.map((n: Narrative) => {
-      if (n.id == id) {
-        n = { ...n, narrative: e.target.value };
-      }
-      return n;
-    });
-    console.log("New Narratives: ", newNarratives);
-    setNarratives(newNarratives);
-  };
+  let narratives = initialNarratives.map((n) => ({
+    narrative: n,
+    narrativeType: narrativeTypes.find((nt) => nt.id == n?.narrativeTypeId),
+  }));
 
+  narratives = narratives[0] === null ? [emptyNarrative] : narratives;
+
+  console.log("narrativeS: ", narratives);
   const {
     register,
+    control,
+    setValue,
     handleSubmit,
+    watch,
     formState: { isValid, isSubmitting },
-  } = useForm<SafetySchema>({
-    resolver: zodResolver(safetySchema),
-    mode: "onTouched",
+  } = useForm({
+    //resolver: zodResolver(safetySchema),
+    //mode: "onTouched",
+    defaultValues: {
+      narratives: narratives,
+    },
   });
 
-  const onSubmit = async () => {
-    setNarratives((narrative: Narrative) => ({
-      ...narrative,
-      userId: user?.id,
-      updatedAt: new Date(),
-    }));
-    const result = await submitNarrative(narratives);
-    if (result.status === "success") {
-      toast.success("Narrative saved.");
-    } else {
-      console.log(result.error);
-    }
-  };
+  const { fields, append, remove, update } = useFieldArray({
+    name: "narratives",
+    control,
+  });
 
-  const onClickAuthorize = async () => {
-    setNarratives({
-      ...narratives,
-      authorized: !narratives.authorized,
-    });
-    await authorizeNarrative(narratives);
-  };
+  const watchFieldArray = watch("narratives");
+  const controlledFields = fields.map((field, index) => {
+    return { ...field, ...watchFieldArray[index] };
+  });
 
-  const onChangeNarrativeType = (key: number) => {
-    const narrativeType = narrativeTypes.find((n) => n.id == key);
-    setSelectedNarrativeType(narrativeType);
-  };
+  const onSubmit = async (data: FormValues) => {
+    console.log("Submitting", data);
+    const result = await Promise.all(
+      data.narratives.map(
+        async (n) =>
+          await submitNarrative({
+            narrative: {
+              ...n.narrative,
+              userId: user?.id as number,
+              companyId: user?.companyId as number,
+              narrativeTypeId: n.narrativeType.id,
+            },
+          })
+      )
+    );
 
-  console.log("Narratives: ", narratives);
+    console.log("DONE ", result);
+  };
 
   return (
     <div className="flex h-full w-full">
       <Sidebar />
       <div className="w-full flex flex-col m-16">
         <div>
-          <h1 className="text-3xl text-center">Narrative</h1>
+          <h1 className="text-3xl text-center">Narratives</h1>
         </div>
-        {user?.role === "ADMIN" && (
-          <div className="mt-2">
-            <Dropdown>
-              <DropdownTrigger>
-                <Button variant="bordered" color="primary">
-                  {selectedCompany?.name}
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                color="primary"
-                variant="faded"
-                aria-label="Static Actions"
-                onAction={(key) => onChangeCompany(key as number)}
-                selectionMode="single"
-              >
-                {companies.map((company) => (
-                  <DropdownItem key={company.id}>{company.name}</DropdownItem>
-                ))}
-              </DropdownMenu>
-            </Dropdown>
-          </div>
-        )}
 
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form
+          onSubmit={handleSubmit(async (data) => await onSubmit(data as any))}
+        >
           <div className="w-full mt-16 h-full">
-            {narratives.map((narrative: Narrative) => (
-              <div className="mb-6" key={selectedNarrativeType?.id}>
-                <Dropdown key={selectedNarrativeType?.id}>
-                  <DropdownTrigger>
-                    <Button variant="bordered">
-                      {selectedNarrativeType
-                        ? selectedNarrativeType.type
-                        : "Select Narrative Type"}
-                    </Button>
-                  </DropdownTrigger>
-                  <DropdownMenu
-                    color="primary"
-                    variant="faded"
-                    key={selectedNarrativeType?.id}
-                    aria-label="Static Actions"
-                    onAction={(key) => onChangeNarrativeType(key as number)}
-                    selectionMode="single"
-                  >
-                    {narrativeTypes.map((type) => (
-                      <DropdownItem key={type.id}>{type.type}</DropdownItem>
-                    ))}
-                  </DropdownMenu>
-                </Dropdown>
-                <Textarea
-                  {...register(`narrative`)}
-                  key={narrative.id}
-                  label="Narrative"
-                  className="mt-2"
-                  placeholder="Enter your Safety Narrative"
-                  defaultValue={narrative.narrative}
-                  onChange={(e) => onNarrativeChange(e)}
-                  value={narrative.narrative}
-                  disabled={false}
-                />
-                {narrative?.updatedAt && (
-                  <div className="flex justify-end mr-2 text-gray-500 font-light italic mt-1">
-                    Last updated on {narrative.updatedAt.toLocaleDateString()}{" "}
-                    at {narrative.updatedAt.toLocaleTimeString()}
-                  </div>
-                )}
-              </div>
-            ))}
+            <div className="flex flex-col">
+              {fields.map((field, index) => {
+                console.log(field.narrative);
+                return (
+                  <section key={field.id} className="mr-4 mt-16 w-full">
+                    <div className="flex flex-col">
+                      <Dropdown>
+                        <DropdownTrigger>
+                          <Button
+                            variant="bordered"
+                            color="primary"
+                            className="w-xs"
+                          >
+                            {field.narrativeType?.type
+                              ? field.narrativeType.type
+                              : "Narrative Type"}
+                          </Button>
+                        </DropdownTrigger>
+                        <DropdownMenu
+                          {...register(`narratives.${index}.narrativeType`)}
+                          color="primary"
+                          variant="faded"
+                          aria-label="Static Actions"
+                          onAction={(key) => {
+                            const narrativeType = narrativeTypes.find(
+                              (r) => r.id == key
+                            );
+                            if (narrativeType) {
+                              //setValue(`headcount.${index}.role`, role);
+                              update(index, {
+                                ...field,
+                                narrativeType: narrativeType,
+                              });
+                            }
+                          }}
+                          selectionMode="single"
+                        >
+                          {narrativeTypes.map((type) => (
+                            <DropdownItem key={type.id}>
+                              {type.type}
+                            </DropdownItem>
+                          ))}
+                        </DropdownMenu>
+                      </Dropdown>
+                    </div>
+                    <div className="mt-2">
+                      <label>
+                        <span>Narrative</span>
+                        <Textarea
+                          variant="faded"
+                          type="number"
+                          {...register(
+                            `narratives.${index}.narrative.narrative`
+                          )}
+                        />
+                      </label>
+                    </div>
+                    <div className="mt-4">
+                      <Button
+                        variant="bordered"
+                        color="primary"
+                        type="button"
+                        onClick={() => remove(index)}
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  </section>
+                );
+              })}
+            </div>
           </div>
-          <div className="mt-2">
-            {" "}
-            <Button
-              color="primary"
-              onPress={() =>
-                setNarratives([
-                  ...narratives,
-                  {
-                    id: narratives.length,
-                    narrativeTypeId: 1,
-                    narrative: "",
-                  },
-                ])
-              }
-            >
-              Add Narrative
-            </Button>
-          </div>
+          <Button
+            variant="bordered"
+            color="primary"
+            type="button"
+            onClick={() => {
+              append(emptyNarrative);
+            }}
+          >
+            Add Another
+          </Button>
           <div className="mt-2">
             <Button
               color="primary"
               type="submit"
-              isDisabled={!isValid || narratives[0].authorized}
+              isDisabled={!isValid}
               isLoading={isSubmitting}
             >
               Submit
             </Button>
-            {user?.role === "ADMIN" && (
-              <Button
-                className="ml-2"
-                color="primary"
-                isDisabled={!isValid}
-                isLoading={isSubmitting}
-                onPress={onClickAuthorize}
-              >
-                {narratives[0].authorized ? "Unauthorize" : "Authorize"}
-              </Button>
-            )}
           </div>
         </form>
       </div>
