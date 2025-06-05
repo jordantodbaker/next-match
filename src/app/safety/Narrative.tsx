@@ -55,7 +55,6 @@ export default function SafetyPage({ narratives }: Props) {
   });
 
   const onSubmit = async () => {
-    console.log("IN HERE");
     selectedNarrative.narrative = narrativeValue;
     selectedNarrative.userId = user?.id;
     selectedNarrative.updatedAt = new Date();

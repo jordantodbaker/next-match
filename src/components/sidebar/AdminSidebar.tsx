@@ -14,18 +14,18 @@ import {
   IconLock,
 } from "@tabler/icons-react";
 
-export function Sidebar() {
+export function AdminSidebar() {
   const links = [
     {
-      label: "Safety",
-      href: "/safety",
+      label: "Users",
+      href: "/admin/users",
       icon: (
         <IconFirstAidKit className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
     },
     {
-      label: "Narratives",
-      href: "/narrative",
+      label: "Narrative Types",
+      href: "/admin/narrativeTypes",
       icon: (
         <IconClipboard className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
@@ -65,8 +65,8 @@ export function Sidebar() {
           <div>
             <SidebarLink
               link={{
-                label: "Admin",
-                href: "/admin",
+                label: "App",
+                href: "/",
                 icon: (
                   <IconLock className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
                 ),
