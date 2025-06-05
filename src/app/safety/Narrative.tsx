@@ -22,21 +22,16 @@ import { CompanyAccount } from "@prisma/client";
 
 type Props = {
   narratives: any;
-  companies: any;
 };
 
-export default function SafetyPage({ narratives, companies }: Props) {
-  // const [selectedCompany, setSelectedCompany] = useState(
-  //   companies.find((c: any) => c.id == narratives[0].companyId)
-  // );
-
+export default function SafetyPage({ narratives }: Props) {
   const company = useContext<CompanyAccount>(CompanyContext);
 
   const [selectedNarrative, setSelectedNarrative] = useState(narratives[0]);
   const [narrativeValue, setNarrativeValue] = useState(narratives[0].narrative);
 
   useEffect(() => {
-    if (company) {
+    if (company && user?.role === "ADMIN") {
       const narrative = narratives.find((n: any) => n.companyId == company.id);
       setSelectedNarrative(narrative);
       setNarrativeValue(narrative.narrative);
@@ -85,7 +80,7 @@ export default function SafetyPage({ narratives, companies }: Props) {
       <Sidebar />
       <div className="w-full flex flex-col m-16">
         <div>
-          <h1 className="text-3xl text-center">Safety Narrative</h1>
+          <h1 className="text-3xl text-center">Safety Narrative Update</h1>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)}>

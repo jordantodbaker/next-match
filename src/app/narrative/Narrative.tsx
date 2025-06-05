@@ -9,7 +9,7 @@ import {
   DropdownItem,
   Textarea,
 } from "@heroui/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useContext } from "react";
@@ -39,11 +39,13 @@ type Props = {
   narrativeTypes: NarrativeType[];
 };
 
+type NarrativeShape = {
+  narrativeType: NarrativeType;
+  narrative: Narrative;
+};
+
 type FormValues = {
-  narratives: {
-    narrativeType: NarrativeType;
-    narrative: Narrative;
-  }[];
+  narratives: NarrativeShape[];
 };
 
 import { useSession } from "next-auth/react";
@@ -59,7 +61,7 @@ export default function NarrativePage({
   const user = data?.user;
 
   const company = useContext(CompanyContext);
-  console.log("COMP CONTEXT", company);
+
   const emptyNarrative = {
     narrativeType: { id: 0, type: "" },
     narrative: {
@@ -73,12 +75,36 @@ export default function NarrativePage({
     },
   };
 
-  let narratives = initialNarratives.map((n) => ({
+  let processedNarratives = initialNarratives.map((n) => ({
     narrative: n,
     narrativeType: narrativeTypes.find((nt) => nt.id == n?.narrativeTypeId),
   }));
 
-  narratives = narratives[0] === null ? [emptyNarrative] : narratives;
+  processedNarratives =
+    processedNarratives[0] === null ? [emptyNarrative] : processedNarratives;
+
+  const [narratives, setNarratives] = useState(processedNarratives);
+
+  console.log("NARRAITEV", processedNarratives);
+
+  useEffect(() => {
+    if (company && user?.role === "ADMIN") {
+      console.log("NARRATIVES: ", narratives);
+      console.log("CUMPANY: ", company);
+      narratives.map((n) => console.log(n));
+      const newNarratives = narratives.filter(
+        (n: any) => n.narrative.companyId == company.id
+      );
+
+      console.log("NEW NARRATIVES: ", newNarratives);
+
+      setNarratives(
+        (newNarratives.length > 0
+          ? newNarratives
+          : [emptyNarrative]) as NarrativeShape[]
+      );
+    }
+  }, [company as any]);
 
   const {
     register,
