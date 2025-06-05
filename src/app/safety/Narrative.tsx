@@ -30,7 +30,7 @@ export default function SafetyPage({ narratives, companies }: Props) {
   //   companies.find((c: any) => c.id == narratives[0].companyId)
   // );
 
-  const company = useContext(CompanyContext);
+  const company = useContext<CompanyAccount>(CompanyContext);
 
   const [selectedNarrative, setSelectedNarrative] = useState(narratives[0]);
   const [narrativeValue, setNarrativeValue] = useState(narratives[0].narrative);
