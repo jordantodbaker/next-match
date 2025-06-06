@@ -22,7 +22,7 @@ export default function LoginForm() {
   const onSubmit = async (data: LoginSchema) => {
     const result = await signInUser(data);
     if (result.status === "success") {
-      window.location.href = "/safety";
+      window.location.href = "/dashboard";
     } else {
       toast.error(result.error);
     }
