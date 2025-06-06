@@ -7,7 +7,7 @@ export default async function AdminPage() {
   console.log({ narrativeTypes });
 
   return (
-    <div className="flex h-full w-full">
+    <div className="flex h-full w-full bg-blue-200">
       <NarrativeTypes narrativeTypes={narrativeTypes} />
     </div>
   );
