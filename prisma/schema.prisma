@@ -61,9 +61,10 @@ model CompanyAccount {
   id               Int               @id @default(autoincrement())
   name             String
   companyCode      String
-  user             User[]
+  users            User[]
   safetyNarratives SafetyNarrative[]
   narratives       Narrative[]
+  projects         Project[]
 }
 
 model User {
@@ -82,6 +83,14 @@ model User {
   selectedProjectId Int?
   safetyNarratives  SafetyNarrative[]
   narratives        Narrative[]
+}
+
+model Project {
+  id             Int            @id @default(autoincrement())
+  name           String
+  code           String
+  companyAccount CompanyAccount @relation(fields: [companyId], references: [id])
+  companyId      Int
 }
 
 enum Role {

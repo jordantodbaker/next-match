@@ -6,6 +6,7 @@ import {
   Card,
   CardBody,
   CardFooter,
+  CardHeader,
   Image,
 } from "@heroui/react";
 import { useState } from "react";
@@ -16,7 +17,7 @@ import { SafetySchema } from "@/lib/schemas/safetySchema";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
 import { CompanyContext } from "@/components/CompanyContext";
-import { NarrativeType } from "@prisma/client";
+import { Narrative, NarrativeType, SafetyNarrative } from "@prisma/client";
 import { AdminSidebar } from "@/components/sidebar/AdminSidebar";
 import {
   IconFirstAidKit,
@@ -25,6 +26,7 @@ import {
   IconUser,
   IconCoin,
   IconLock,
+  IconCheck,
 } from "@tabler/icons-react";
 import {
   saveNarrativeType,
@@ -34,35 +36,51 @@ import { Sidebar } from "@/components/sidebar/Sidebar";
 import Link from "next/link";
 
 type Props = {
-  narrativeTypes: NarrativeType[];
+  safetyNarratives: any;
+  narratives: Narrative[];
 };
 
-export default function Dashboard({ narrativeTypes }: Props) {
+export default function Dashboard({ safetyNarratives, narratives }: Props) {
+  const safetyNarrativeValid = safetyNarratives[0].narrative !== "";
+  console.log("slfjlsdjFljsd: ", safetyNarratives[0]);
+  console.log("valid: ", safetyNarrativeValid);
   const sections = [
     {
       title: "Safety",
-      icon: <IconFirstAidKit height="256" width="" color="green" />,
-      status: "valid",
+      icon: (
+        <IconFirstAidKit
+          height="256"
+          width=""
+          color={safetyNarrativeValid ? "green" : "yellow"}
+        />
+      ),
+      status: safetyNarrativeValid ? "valid" : "warn",
+      href: "/safety",
+      authorized: safetyNarratives[0].authorized,
     },
     {
       title: "Narratives",
       icon: <IconClipboard height="256" width="" color="yellow" />,
       status: "warn",
+      href: "/narratives",
     },
     {
       title: "Quantities",
       icon: <IconHammer height="256" width="" color="red" />,
       status: "error",
+      href: "/quantities",
     },
     {
       title: "Costs",
       icon: <IconCoin height="256" width="" color="green" />,
       status: "valid",
+      href: "/costs",
     },
     {
       title: "Headcount",
       icon: <IconUser height="256" width="" color="green" />,
       status: "valid",
+      href: "/headcount",
     },
   ];
 
@@ -75,8 +93,16 @@ export default function Dashboard({ narrativeTypes }: Props) {
       <div className="w-full p-18">
         <div className="flex flex-row justify-between mt-16 flex-wrap">
           {sections.map((s) => (
-            <Link href="/" className="w-1/5 mr-8 mt-6">
+            <Link href={s.href} className="w-1/5 mr-8 mt-6">
               <Card>
+                <CardHeader className="flex justify-end">
+                  {s.authorized && (
+                    <div>
+                      <IconCheck color="green" />
+                      Authorized
+                    </div>
+                  )}
+                </CardHeader>
                 <CardBody className="flex flex-row justify-center">
                   {s.icon}
                 </CardBody>
