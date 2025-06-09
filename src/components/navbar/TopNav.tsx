@@ -86,7 +86,7 @@ export default function TopNav({
       </NavbarBrand>
 
       <NavbarContent justify="end">
-        {user?.role === "ADMIN" && (
+        {user?.securityRole === "ADMIN" && (
           <div>
             <div>
               <Dropdown>

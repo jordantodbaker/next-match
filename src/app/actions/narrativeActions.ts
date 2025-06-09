@@ -55,7 +55,7 @@ export async function getNarratives() {
 
   const user = session?.user;
   const narratives =
-    user?.role === "USER"
+    user?.securityRole === "USER"
       ? 
           await prisma.narrative.findMany({
             where: { companyId: user?.companyId },

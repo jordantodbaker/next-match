@@ -88,7 +88,7 @@ export default function NarrativePage({
   console.log("NARRAITEV", processedNarratives);
 
   useEffect(() => {
-    if (company && user?.role === "ADMIN") {
+    if (company && user?.securityRole === "ADMIN") {
       narratives.map((n) => console.log(n));
       const newNarratives = narratives.filter(
         (n: any) => n.narrative.companyId == company.id

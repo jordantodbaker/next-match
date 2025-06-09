@@ -32,7 +32,7 @@ export default function SafetyPage({ narratives }: Props) {
   const [narrativeValue, setNarrativeValue] = useState(narratives[0].narrative);
 
   useEffect(() => {
-    if (company && user?.role === "ADMIN") {
+    if (company && user?.securityRole === "ADMIN") {
       const narrative = narratives.find((n: any) => n.companyId == company.id);
       setSelectedNarrative(narrative);
       setNarrativeValue(narrative.narrative);
@@ -109,7 +109,7 @@ export default function SafetyPage({ narratives }: Props) {
             >
               Submit
             </Button>
-            {user?.role === "ADMIN" && (
+            {user?.securityRole === "ADMIN" && (
               <Button
                 className="ml-2"
                 color="primary"

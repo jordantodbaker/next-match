@@ -94,7 +94,7 @@ export default function Dashboard({ safetyNarratives, narratives }: Props) {
         <div className="flex flex-row justify-between mt-16 flex-wrap">
           {sections.map((s) => (
             <Link href={s.href} className="w-1/5 mr-8 mt-6">
-              <Card>
+              <Card className="border-1 border-green-500">
                 <CardHeader className="flex justify-end">
                   {s.authorized && (
                     <div>

@@ -213,7 +213,7 @@ export default function QuantitiesPage() {
         <div>
           <h1 className="text-3xl text-center">Quantities</h1>
         </div>
-        {/* {user?.role === "ADMIN" && (
+        {/* {user?.securityRole === "ADMIN" && (
           <div className="mt-2">
             <Dropdown>
               <DropdownTrigger>

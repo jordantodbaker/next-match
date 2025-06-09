@@ -8,7 +8,7 @@ declare module "next-auth" {
     user: {
       id: number;
       companyId: number;
-      role: string;
+      securityRole: string;
       selectedCompanyId: number?;
       selectedProjectId: number?;
     };

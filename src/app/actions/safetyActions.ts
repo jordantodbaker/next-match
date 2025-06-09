@@ -58,7 +58,7 @@ export async function getNarratives() {
   if (!user) return [];
   else {
     const narratives =
-      user.role === "USER"
+      user.securityRole === "USER"
         ? [
             await prisma.safetyNarrative.findFirst({
               where: { companyId: user.companyId },
