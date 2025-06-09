@@ -17,14 +17,19 @@ import {
   deleteNarrativeType,
 } from "@/app/actions/narrativeTypeActions";
 
-type Props = {
-  narrativeTypes: NarrativeType[];
+type Role = {
+  id: number;
+  name: string;
 };
 
-export default function Roles() {
+type Props = {
+  userRoles: Role[];
+};
+
+export default function Roles(userRoles: any) {
   const { data } = useSession();
   const user = data?.user;
-  const [types, setTypes] = useState(narrativeTypes);
+  const [roles, setRoles] = useState(userRoles);
 
   const {
     register,
@@ -37,41 +42,41 @@ export default function Roles() {
     //resolver: zodResolver(safetySchema),
     //mode: "onTouched",
     defaultValues: {
-      narrativeTypes: types,
+      roles: roles,
     },
   });
 
   const { fields, append, remove, update } = useFieldArray({
-    name: "narrativeTypes",
+    name: "roles",
     control,
   });
 
-  const onSubmit = async (values: { narrativeTypes: NarrativeType[] }) => {
+  const onSubmit = async (values: { roles: Role[] }) => {
     console.log("IN HERE", values);
-    const result = await Promise.all(
-      values.narrativeTypes.map(async (n) => saveNarrativeType(n))
-    );
-    const success = result.filter((r) => r.status === "error").length === 0;
+    // const result = await Promise.all(
+    //   values.roles.map(async (n) => saveNarrativeType(n))
+    // );
+    // const success = result.filter((r) => r.status === "error").length === 0;
 
-    if (success) {
-      toast.success("Narrative saved.");
-    } else {
-      toast.error("Something went wrong.");
-    }
+    // if (success) {
+    //   toast.success("Narrative saved.");
+    // } else {
+    //   toast.error("Something went wrong.");
+    // }
   };
 
-  const onDelete = async (index: number) => {
-    const result = await deleteNarrativeType(types[index]);
+  // const onDelete = async (index: number) => {
+  //   const result = await deleteNarrativeType(types[index]);
 
-    if (result.status === "success") {
-      const newTypes = types.filter((t) => t.type !== types[index].type);
-      setTypes(newTypes);
-      remove(index);
-      toast.success("Narrative saved.");
-    } else {
-      toast.error(result.error);
-    }
-  };
+  //   if (result.status === "success") {
+  //     const newTypes = types.filter((t) => t.type !== types[index].type);
+  //     setTypes(newTypes);
+  //     remove(index);
+  //     toast.success("Narrative saved.");
+  //   } else {
+  //     toast.error(result.error);
+  //   }
+  // };
 
   return (
     <div className="flex h-full w-full">
@@ -83,20 +88,17 @@ export default function Roles() {
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="w-full mt-16 h-full">
-            {fields.map((narrativeType: NarrativeType, index: number) => {
+            {fields.map((role: any, index: number) => {
               return (
                 <div className="mt-2 flex flex-row justify-between">
                   <div className="mr-4">
-                    <Input
-                      key={narrativeType.id}
-                      {...register(`narrativeTypes.${index}.type`)}
-                    />
+                    <Input key={role.id} {...register(`roles.${index}.name`)} />
                   </div>
                   <div>
                     <Button
                       color="primary"
                       onPress={async () => {
-                        await onDelete(index);
+                        //await onDelete(index);
                       }}
                       endContent={<IconSquareX />}
                     >
@@ -114,7 +116,7 @@ export default function Roles() {
               color="primary"
               type="button"
               onClick={() => {
-                append({ id: 0, type: "" });
+                append({ id: 0, name: "" });
               }}
             >
               Add Another

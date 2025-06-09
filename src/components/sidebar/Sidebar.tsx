@@ -13,6 +13,7 @@ import {
   IconCoin,
   IconLock,
   IconHome,
+  IconCheck,
 } from "@tabler/icons-react";
 
 export function Sidebar() {

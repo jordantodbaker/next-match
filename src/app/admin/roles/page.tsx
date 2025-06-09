@@ -8,7 +8,7 @@ export default async function AdminPage() {
 
   return (
     <div className="flex h-full w-full bg-blue-200">
-      <Roles />
+      <Roles userRoles={roles} />
     </div>
   );
 }
