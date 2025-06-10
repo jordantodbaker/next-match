@@ -13,6 +13,7 @@ import {
   IconCoin,
   IconLock,
   IconHome,
+  IconUsers,
   IconCheck,
   IconAlertTriangle,
   IconExclamationMark,
@@ -68,6 +69,14 @@ export function Sidebar() {
       href: "/headcount",
       icon: (
         <IconUser className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
+      ),
+      statusIcon: <IconCheck className="h-5 w-5 shrink-0 " color="green" />,
+    },
+    {
+      label: "Workforce Plan",
+      href: "/workforcePlan",
+      icon: (
+        <IconUsers className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
       statusIcon: <IconCheck className="h-5 w-5 shrink-0 " color="green" />,
     },

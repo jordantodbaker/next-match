@@ -96,6 +96,7 @@ export default function Dashboard({ safetyNarratives, narratives }: Props) {
     <div className="flex h-full w-full">
       <Sidebar />
       <div className="w-full p-18">
+        <h1>Dashboard</h1>
         <div className="flex flex-row justify-between mt-16 flex-wrap">
           {sections.map((s) => (
             <Link href={s.href} className="w-1/5 mr-8 mt-6">
