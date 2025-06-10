@@ -14,6 +14,8 @@ import {
   IconLock,
   IconHome,
   IconCheck,
+  IconAlertTriangle,
+  IconExclamationMark,
 } from "@tabler/icons-react";
 
 export function Sidebar() {
@@ -31,12 +33,16 @@ export function Sidebar() {
       icon: (
         <IconFirstAidKit className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
+      statusIcon: <IconCheck className="h-5 w-5 shrink-0 " color="green" />,
     },
     {
       label: "Narratives",
       href: "/narrative",
       icon: (
         <IconClipboard className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
+      ),
+      statusIcon: (
+        <IconAlertTriangle className="h-5 w-5 shrink-0 " color="orange" />
       ),
     },
     {
@@ -45,6 +51,9 @@ export function Sidebar() {
       icon: (
         <IconHammer className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
+      statusIcon: (
+        <IconExclamationMark className="h-5 w-5 shrink-0 " color="red" />
+      ),
     },
     {
       label: "Costs",
@@ -52,6 +61,7 @@ export function Sidebar() {
       icon: (
         <IconCoin className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
+      statusIcon: <IconCheck className="h-5 w-5 shrink-0 " color="green" />,
     },
     {
       label: "Headcount",
@@ -59,6 +69,7 @@ export function Sidebar() {
       icon: (
         <IconUser className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
+      statusIcon: <IconCheck className="h-5 w-5 shrink-0 " color="green" />,
     },
   ];
   const [open, setOpen] = useState(false);

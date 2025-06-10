@@ -56,30 +56,35 @@ export default function Dashboard({ safetyNarratives, narratives }: Props) {
       ),
       status: safetyNarrativeValid ? "valid" : "warn",
       href: "/safety",
+      color: "green",
       authorized: safetyNarratives[0].authorized,
     },
     {
       title: "Narratives",
-      icon: <IconClipboard height="256" width="" color="yellow" />,
+      icon: <IconClipboard height="256" width="" color="#f6bc4d" />,
       status: "warn",
+      color: "amber",
       href: "/narratives",
     },
     {
       title: "Quantities",
       icon: <IconHammer height="256" width="" color="red" />,
       status: "error",
+      color: "danger",
       href: "/quantities",
     },
     {
       title: "Costs",
       icon: <IconCoin height="256" width="" color="green" />,
       status: "valid",
+      color: "green",
       href: "/costs",
     },
     {
       title: "Headcount",
       icon: <IconUser height="256" width="" color="green" />,
       status: "valid",
+      color: "green",
       href: "/headcount",
     },
   ];
@@ -94,7 +99,7 @@ export default function Dashboard({ safetyNarratives, narratives }: Props) {
         <div className="flex flex-row justify-between mt-16 flex-wrap">
           {sections.map((s) => (
             <Link href={s.href} className="w-1/5 mr-8 mt-6">
-              <Card className="border-1 border-green-500">
+              <Card className={`border-1 border-${s.color}-500`}>
                 <CardHeader className="flex justify-end">
                   {s.authorized && (
                     <div>
