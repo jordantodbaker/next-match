@@ -70,6 +70,7 @@ export async function getNarrativeTypes() {
 }
 
 export async function authorizeNarrative(narrative: Narrative) {
+  console.log("MY NARRATIVE: ", narrative);
   const result = await prisma.narrative.update({
     where: { id: narrative.id },
     data: { authorized: !narrative.authorized },

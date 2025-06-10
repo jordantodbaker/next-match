@@ -13,6 +13,7 @@ import { useState, useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useContext } from "react";
+import { useRouter } from "next/navigation";
 
 const roles = [
   { id: 1, name: "Boilermaker" },
@@ -50,7 +51,10 @@ type FormValues = {
 
 import { useSession } from "next-auth/react";
 import { CompanyAccount, Narrative, NarrativeType } from "@prisma/client";
-import { submitNarrative } from "../actions/narrativeActions";
+import {
+  authorizeNarrative,
+  submitNarrative,
+} from "../actions/narrativeActions";
 import { CompanyContext } from "@/components/CompanyContext";
 export default function NarrativePage({
   initialNarratives,
@@ -58,6 +62,7 @@ export default function NarrativePage({
   narrativeTypes,
 }: Props) {
   const { data } = useSession();
+  const router = useRouter();
   const user = data?.user;
 
   const company = useContext(CompanyContext);
@@ -85,11 +90,8 @@ export default function NarrativePage({
 
   const [narratives, setNarratives] = useState(processedNarratives);
 
-  console.log("NARRAITEV", processedNarratives);
-
   useEffect(() => {
     if (company && user?.securityRole === "ADMIN") {
-      narratives.map((n) => console.log(n));
       const newNarratives = narratives.filter(
         (n: any) => n.narrative.companyId == company.id
       );
@@ -128,7 +130,6 @@ export default function NarrativePage({
   });
 
   const onSubmit = async (data: FormValues) => {
-    console.log("Submitting", data);
     const result = await Promise.all(
       data.narratives.map(
         async (n) =>
@@ -142,8 +143,35 @@ export default function NarrativePage({
           })
       )
     );
+  };
 
-    console.log("DONE ", result);
+  const onClickAuthorize = async () => {
+    const newNarratives = narratives.map((n, i) => {
+      const newNarrative = {
+        narrativeType: { ...n.narrativeType },
+        narrative: { ...n.narrative, authorized: !n.narrative?.authorized },
+      };
+
+      if (n.narrativeType && n.narrative) {
+        return newNarrative;
+      }
+    });
+
+    fields.forEach((f, i) =>
+      update(i, {
+        narrativeType: f.narrativeType,
+        narrative: {
+          ...f.narrative,
+          authorized: !f.narrative?.authorized,
+        } as any,
+      })
+    );
+
+    const result = Promise.all(
+      narratives.map(async (n) => await authorizeNarrative(n?.narrative as any))
+    );
+
+    setNarratives(newNarratives as any);
   };
 
   return (
@@ -169,6 +197,7 @@ export default function NarrativePage({
                             variant="bordered"
                             color="primary"
                             className="w-xs"
+                            isDisabled={field.narrative?.authorized}
                           >
                             {field.narrativeType?.type
                               ? field.narrativeType.type
@@ -208,38 +237,48 @@ export default function NarrativePage({
                         <Textarea
                           variant="faded"
                           type="number"
+                          disabled={field.narrative?.authorized}
                           {...register(
                             `narratives.${index}.narrative.narrative`
                           )}
                         />
                       </label>
                     </div>
-                    <div className="mt-4">
+                    <div className="mt-4 flex justify-between">
                       <Button
                         variant="bordered"
                         color="primary"
                         type="button"
+                        isDisabled={field.narrative?.authorized}
                         onClick={() => remove(index)}
                       >
                         Delete
                       </Button>
+                      {field.narrative?.updatedAt && (
+                        <div className=" mr-2 text-gray-500 font-light italic mt-1">
+                          Last updated on{" "}
+                          {field?.narrative?.updatedAt.toLocaleDateString()} at{" "}
+                          {field.narrative.updatedAt.toLocaleTimeString()}
+                        </div>
+                      )}
                     </div>
                   </section>
                 );
               })}
             </div>
           </div>
-          <Button
-            variant="bordered"
-            color="primary"
-            type="button"
-            onClick={() => {
-              append(emptyNarrative);
-            }}
-          >
-            Add Another
-          </Button>
-          <div className="mt-2">
+          <div>
+            <Button
+              className="mr-2"
+              variant="bordered"
+              color="primary"
+              type="button"
+              onClick={() => {
+                append(emptyNarrative);
+              }}
+            >
+              Add Another
+            </Button>
             <Button
               color="primary"
               type="submit"
@@ -249,6 +288,19 @@ export default function NarrativePage({
               Submit
             </Button>
           </div>
+          {user?.securityRole === "ADMIN" && (
+            <Button
+              className="mt-2"
+              color="primary"
+              isDisabled={!isValid}
+              isLoading={isSubmitting}
+              onPress={onClickAuthorize}
+            >
+              {narratives[0]?.narrative?.authorized
+                ? "Unauthorize"
+                : "Authorize"}
+            </Button>
+          )}
         </form>
       </div>
     </div>

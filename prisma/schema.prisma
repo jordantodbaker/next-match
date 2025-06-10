@@ -75,7 +75,7 @@ model User {
   passwordHash      String
   image             String?
   //accountId        String
-  role              SecurityRole      @default(USER)
+  securityRole      SecurityRole      @default(USER)
   //accounts         Account[]
   companyAccount    CompanyAccount    @relation(fields: [companyId], references: [id])
   companyId         Int
