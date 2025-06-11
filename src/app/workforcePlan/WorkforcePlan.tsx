@@ -14,25 +14,6 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
 
-const roles = [
-  { id: 1, name: "Boilermaker" },
-  { id: 2, name: "Civil" },
-  { id: 3, name: "Electrician" },
-  { id: 4, name: "Instrument" },
-  { id: 5, name: "Insulation" },
-  { id: 6, name: "Ironworker" },
-  { id: 7, name: "Laborer" },
-  { id: 8, name: "Mason" },
-  { id: 9, name: "Millwright" },
-  { id: 10, name: "Pipefitter" },
-  { id: 11, name: "Painter" },
-  { id: 13, name: "Cleaning" },
-  { id: 14, name: "Carpenter" },
-  { id: 15, name: "Other" },
-  { id: 16, name: "Machinist" },
-  { id: 17, name: "Support - Gen. Labor" },
-];
-
 type FormValues = {
   headcount: {
     role: { id: number; name: string } | undefined;
@@ -40,11 +21,53 @@ type FormValues = {
   }[];
 };
 
+type Dates = {
+  endDate: {
+    date: Date;
+    dayCount?: number;
+    nightCount?: number;
+  };
+}[];
+
+function getDates() {
+  const sunday = getSunday();
+  let sundays = [sunday];
+  for (var i = 0; i < 10; i++) {
+    let lastSunday = sundays[i];
+    sundays = [
+      ...sundays,
+      new Date(lastSunday.setDate(lastSunday.getDate() + 7)),
+    ];
+  }
+  return sundays.map((sunday) => {
+    let weekdays = [] as any;
+    for (i = 1; i <= 6; i++) {
+      const newDate = new Date(sunday);
+      weekdays = [
+        ...weekdays,
+        {
+          day: i,
+          date: new Date(newDate.setDate(newDate.getDate() + i)),
+          dayCount: null,
+          nightCount: null,
+        },
+      ];
+    }
+    return {
+      dateEnd: sunday.toLocaleDateString(),
+      weekdays: weekdays,
+    };
+  });
+}
+
 import { useSession } from "next-auth/react";
+import { getSunday } from "@/lib/utils";
 
 export default function WorkforcePlanPage() {
   const { data } = useSession();
   const user = data?.user;
+
+  const dates = getDates();
 
   const {
     register,
@@ -57,16 +80,16 @@ export default function WorkforcePlanPage() {
     //resolver: zodResolver(safetySchema),
     //mode: "onTouched",
     defaultValues: {
-      headcount: [{ role: { id: 0, name: "" }, headcount: 0 }],
+      workforcePlan: dates,
     },
   });
 
   const { fields, append, remove, update } = useFieldArray({
-    name: "headcount",
+    name: "workforcePlan",
     control,
   });
 
-  const watchFieldArray = watch("headcount");
+  const watchFieldArray = watch("workforcePlan");
   const controlledFields = fields.map((field, index) => {
     return { ...field, ...watchFieldArray[index] };
   });
@@ -75,20 +98,14 @@ export default function WorkforcePlanPage() {
     console.log("Submitting", data);
   };
 
-  const onChangeRole = (key: any, field: any) => {
-    const role = roles.find((r) => r.id == key);
-    field.role = role;
-    console.log("role", role);
-    console.log("field", field);
-    return field;
-  };
+  let i = 0;
 
   return (
     <div className="flex h-full w-full">
       <Sidebar />
       <div className="w-full flex flex-col m-16">
         <div>
-          <h1 className="text-3xl text-center">Daily Headcount</h1>
+          <h1 className="text-3xl text-center">Workforce Plan</h1>
         </div>
 
         <form
@@ -98,60 +115,27 @@ export default function WorkforcePlanPage() {
         >
           <div className="w-full mt-16 h-full">
             <div className="flex sm:flex-row flex-col">
+              <div>
+                {dates.map((s) => (
+                  <p>{s.dateEnd}</p>
+                ))}
+              </div>
               {fields.map((field, index) => {
                 return (
-                  <section key={field.id} className="mr-4 sm:mt-4 mt-16">
-                    <div className="flex flex-col">
-                      <span>Role</span>
-                      <Dropdown>
-                        <DropdownTrigger>
-                          <Button variant="bordered" color="primary">
-                            {field.role?.name
-                              ? field.role.name
-                              : "Select a Role"}
-                          </Button>
-                        </DropdownTrigger>
-                        <DropdownMenu
-                          {...register(`headcount.${index}.role`)}
-                          color="primary"
-                          variant="faded"
-                          aria-label="Static Actions"
-                          onAction={(key) => {
-                            const role = roles.find((r) => r.id == key);
-                            if (role) {
-                              //setValue(`headcount.${index}.role`, role);
-                              update(index, { ...field, role: role });
-                            }
-                          }}
-                          selectionMode="single"
-                        >
-                          {roles.map((role) => (
-                            <DropdownItem key={role.id}>
-                              {role.name}
-                            </DropdownItem>
-                          ))}
-                        </DropdownMenu>
-                      </Dropdown>
-                    </div>
-                    <div className="mt-2">
-                      <label>
-                        <span>Headcount</span>
-                        <Input
-                          type="number"
-                          {...register(`headcount.${index}.headcount`)}
-                        />
-                      </label>
-                    </div>
-                    <div className="mt-4">
-                      <Button
-                        variant="bordered"
-                        color="primary"
-                        type="button"
-                        onClick={() => remove(index)}
-                      >
-                        Delete
-                      </Button>
-                    </div>
+                  <section key={field.id}>
+                    {field.weekdays.map((weekday: any) => {
+                      console.log("I: ", i);
+                      i++;
+                      return (
+                        <div className="mr-4 sm:mt-4 mt-16">
+                          <div className="flex flex-col">
+                            <span>{weekday.date.toLocaleDateString()}</span>
+                            Day: <Input />
+                            Night: <Input />
+                          </div>
+                        </div>
+                      );
+                    })}
                   </section>
                 );
               })}
