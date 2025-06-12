@@ -36,7 +36,6 @@ export async function submitNarrative(
     }
     return { status: "success", data: "Narrative Submitted" };
   } catch (error) {
-    console.log(error);
     if (error) {
       switch (error) {
         case "CredentialsSignin":
@@ -70,10 +69,22 @@ export async function getNarrativeTypes() {
 }
 
 export async function authorizeNarrative(narrative: Narrative) {
-  console.log("MY NARRATIVE: ", narrative);
-  const result = await prisma.narrative.update({
-    where: { id: narrative.id },
-    data: { authorized: !narrative.authorized },
+  try{
+    const result = await prisma.narrative.update({
+      where: { id: narrative.id },
+      data: { authorized: !narrative.authorized },
   });
-  return result;
+    return { status: "success", data: "Narrative Deleted" };
+  }catch (error) {
+      return { status: "error", error: "Something else went wrong" };
+    }
+}
+
+export async function deleteNarrative(narrative: Narrative) {
+  try{
+    await prisma.narrative.delete({where: {id: narrative.id}})
+    return { status: "success", data: "Narrative Deleted" };
+  } catch (error) {
+      return { status: "error", error: "Something else went wrong" };
+  }
 }

@@ -14,34 +14,27 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useContext } from "react";
 import { useRouter } from "next/navigation";
-
-const roles = [
-  { id: 1, name: "Boilermaker" },
-  { id: 2, name: "Civil" },
-  { id: 3, name: "Electrician" },
-  { id: 4, name: "Instrument" },
-  { id: 5, name: "Insulation" },
-  { id: 6, name: "Ironworker" },
-  { id: 7, name: "Laborer" },
-  { id: 8, name: "Mason" },
-  { id: 9, name: "Millwright" },
-  { id: 10, name: "Pipefitter" },
-  { id: 11, name: "Painter" },
-  { id: 13, name: "Cleaning" },
-  { id: 14, name: "Carpenter" },
-  { id: 15, name: "Other" },
-  { id: 16, name: "Machinist" },
-  { id: 17, name: "Support - Gen. Labor" },
-];
+import { useSession } from "next-auth/react";
+import { Narrative, NarrativeType } from "@prisma/client";
+import {
+  authorizeNarrative,
+  deleteNarrative,
+  submitNarrative,
+} from "../actions/narrativeActions";
+import { CompanyContext } from "@/components/CompanyContext";
+import { toast } from "react-toastify";
+import {
+  NarrativeSchema,
+  narrativeSchema,
+} from "@/lib/schemas/narrativeSchema";
 
 type Props = {
   initialNarratives: (Narrative | null)[];
-  companies: CompanyAccount[];
   narrativeTypes: NarrativeType[];
 };
 
 type NarrativeShape = {
-  narrativeType: NarrativeType;
+  narrativeType: NarrativeType | undefined;
   narrative: Narrative;
 };
 
@@ -49,16 +42,8 @@ type FormValues = {
   narratives: NarrativeShape[];
 };
 
-import { useSession } from "next-auth/react";
-import { CompanyAccount, Narrative, NarrativeType } from "@prisma/client";
-import {
-  authorizeNarrative,
-  submitNarrative,
-} from "../actions/narrativeActions";
-import { CompanyContext } from "@/components/CompanyContext";
 export default function NarrativePage({
   initialNarratives,
-  companies,
   narrativeTypes,
 }: Props) {
   const { data } = useSession();
@@ -86,23 +71,12 @@ export default function NarrativePage({
   }));
 
   processedNarratives =
-    processedNarratives[0] === null ? [emptyNarrative] : processedNarratives;
+    processedNarratives[0] === null || processedNarratives.length === 0
+      ? [emptyNarrative]
+      : processedNarratives;
 
-  const [narratives, setNarratives] = useState(processedNarratives);
-
-  useEffect(() => {
-    if (company && user?.securityRole === "ADMIN") {
-      const newNarratives = narratives.filter(
-        (n: any) => n.narrative.companyId == company.id
-      );
-
-      setNarratives(
-        (newNarratives.length > 0
-          ? newNarratives
-          : [emptyNarrative]) as NarrativeShape[]
-      );
-    }
-  }, [company as any]);
+  const [empty, setEmpty] = useState<NarrativeShape>([] as any);
+  const [narratives, setNarratives] = useState([] as any);
 
   const {
     register,
@@ -111,18 +85,69 @@ export default function NarrativePage({
     handleSubmit,
     watch,
     formState: { isValid, isSubmitting },
-  } = useForm({
-    //resolver: zodResolver(safetySchema),
+  } = useForm<NarrativeSchema>({
+    //resolver: zodResolver(narrativeSchema),
     //mode: "onTouched",
     defaultValues: {
       narratives: narratives,
     },
   });
 
-  const { fields, append, remove, update } = useFieldArray({
+  const { fields, append, remove, update, replace } = useFieldArray({
     name: "narratives",
     control,
   });
+
+  useEffect(() => {
+    if (company && user?.securityRole === "ADMIN") {
+      const empty = {
+        narrativeType: { id: 0, type: "" },
+        narrative: {
+          id: 0,
+          narrative: "",
+          userId: user?.id,
+          companyId: company.id,
+          authorized: false,
+          updatedAt: null,
+          narrativeTypeId: 0,
+        },
+      };
+
+      setEmpty(empty);
+
+      const newNarratives = processedNarratives.filter((n: any) => {
+        return n.narrative.companyId == company.id;
+      });
+
+      replace(newNarratives as NarrativeShape[]);
+      setNarratives(
+        (newNarratives.length > 0 ? newNarratives : [empty]) as NarrativeShape[]
+      );
+    } else {
+      const empty = {
+        narrativeType: { id: 0, type: "" },
+        narrative: {
+          id: 0,
+          narrative: "",
+          userId: user?.id || 0,
+          companyId: user?.companyId || 0,
+          authorized: false,
+          updatedAt: null,
+          narrativeTypeId: 0,
+        },
+      };
+
+      setEmpty(empty);
+      const newNarratives = processedNarratives.filter((n: any) => {
+        return n.narrative.companyId == user?.companyId;
+      });
+
+      replace(newNarratives as NarrativeShape[]);
+      setNarratives(
+        (newNarratives.length > 0 ? newNarratives : [empty]) as NarrativeShape[]
+      );
+    }
+  }, [company as any, user]);
 
   const watchFieldArray = watch("narratives");
   const controlledFields = fields.map((field, index) => {
@@ -137,12 +162,20 @@ export default function NarrativePage({
             narrative: {
               ...n.narrative,
               userId: user?.id as number,
-              companyId: user?.companyId as number,
-              narrativeTypeId: n.narrativeType.id,
+              narrativeTypeId: n.narrativeType?.id as number,
             },
           })
       )
     );
+  };
+
+  const onClickDelete = async (narrative: Narrative) => {
+    const result = await deleteNarrative(narrative);
+    if (result.status === "success") {
+      toast.success("Narrative deleted.");
+    } else {
+      toast.error("Something went wrong");
+    }
   };
 
   const onClickAuthorize = async () => {
@@ -167,9 +200,17 @@ export default function NarrativePage({
       })
     );
 
-    const result = Promise.all(
+    const result = await Promise.all(
       narratives.map(async (n) => await authorizeNarrative(n?.narrative as any))
     );
+
+    const success = result.filter((r) => r.status === "error").length === 0;
+
+    if (success) {
+      toast.success("Success");
+    } else {
+      toast.error("Something went wrong");
+    }
 
     setNarratives(newNarratives as any);
   };
@@ -205,7 +246,9 @@ export default function NarrativePage({
                           </Button>
                         </DropdownTrigger>
                         <DropdownMenu
-                          {...register(`narratives.${index}.narrativeType`)}
+                          {...register(`narratives.${index}.narrativeType`, {
+                            required: "Please select a narrative type.",
+                          })}
                           color="primary"
                           variant="faded"
                           aria-label="Static Actions"
@@ -214,7 +257,6 @@ export default function NarrativePage({
                               (r) => r.id == key
                             );
                             if (narrativeType) {
-                              //setValue(`headcount.${index}.role`, role);
                               update(index, {
                                 ...field,
                                 narrativeType: narrativeType,
@@ -249,8 +291,13 @@ export default function NarrativePage({
                         variant="bordered"
                         color="primary"
                         type="button"
-                        isDisabled={field.narrative?.authorized}
-                        onClick={() => remove(index)}
+                        isDisabled={
+                          field.narrative?.authorized || fields.length === 1
+                        }
+                        onPress={() => {
+                          onClickDelete(field.narrative);
+                          remove(index);
+                        }}
                       >
                         Delete
                       </Button>
@@ -273,8 +320,8 @@ export default function NarrativePage({
               variant="bordered"
               color="primary"
               type="button"
-              onClick={() => {
-                append(emptyNarrative);
+              onPress={() => {
+                append(empty);
               }}
             >
               Add Another
