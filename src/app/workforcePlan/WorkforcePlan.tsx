@@ -115,11 +115,6 @@ export default function WorkforcePlanPage() {
         >
           <div className="w-full mt-16 h-full">
             <div className="flex sm:flex-row flex-col">
-              <div>
-                {dates.map((s) => (
-                  <p>{s.dateEnd}</p>
-                ))}
-              </div>
               {fields.map((field, index) => {
                 return (
                   <section key={field.id}>
@@ -141,19 +136,6 @@ export default function WorkforcePlanPage() {
               })}
             </div>
           </div>
-          <Button
-            variant="bordered"
-            color="primary"
-            type="button"
-            onClick={() => {
-              append({
-                role: { id: 0, name: "Select a Role" },
-                headcount: 0,
-              });
-            }}
-          >
-            Add Another
-          </Button>
           <div className="mt-2">
             <Button
               color="primary"
