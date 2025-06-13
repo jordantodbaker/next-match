@@ -110,12 +110,12 @@ export default function WorkforcePlanPage() {
     console.log("NEW FIELDS: ", fields);
   };
 
-  const onChangeFillAllDay = (e) => {
+  const onChangeFillAllDay = (e: any) => {
     console.log("DIRKA");
     setFillAllDay(parseInt(e.target.value));
   };
 
-  const onChangeFillAllNight = (e) => {
+  const onChangeFillAllNight = (e: any) => {
     setFillAllNight(parseInt(e.target.value));
   };
 
