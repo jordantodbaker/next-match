@@ -105,9 +105,7 @@ export default function WorkforcePlanPage() {
         })),
       };
     });
-    console.log("NEW DATES ", newDates);
     replace(newDates);
-    console.log("NEW FIELDS: ", fields);
   };
 
   const onChangeFillAllDay = (e: any) => {
@@ -119,9 +117,27 @@ export default function WorkforcePlanPage() {
     setFillAllNight(parseInt(e.target.value));
   };
 
+  const handleDayChange = (e: any, field: any, i: number, dayIndex: number) => {
+    console.log("Handle day change at .", i);
+    field.weekdays[dayIndex].dayCount = parseInt(e.target.value);
+
+    console.log("FIELD", field);
+    update(i, field);
+  };
+
+  const handleNightChange = (
+    e: any,
+    field: any,
+    i: number,
+    dayIndex: number
+  ) => {
+    console.log("field", field);
+    //update(i,)
+  };
+
   let i = 0;
 
-  console.log("FIELDS: ", fields);
+  console.log("FIELDS ", fields);
 
   return (
     <div className="flex h-full w-full">
@@ -180,7 +196,7 @@ export default function WorkforcePlanPage() {
                         <Button color="primary">Fill Week</Button>
                       </div>
                     </div>
-                    {field.weekdays.map((weekday: any) => {
+                    {field.weekdays.map((weekday: any, dayIndex: number) => {
                       i++;
                       return (
                         <div className="mr-4 sm:mt-4 mt-16">
@@ -192,9 +208,9 @@ export default function WorkforcePlanPage() {
                                 variant="bordered"
                                 key={field.id}
                                 value={weekday.dayCount}
-                                {...register(
-                                  `workforcePlan.${i}.weekdays.dayCount`
-                                )}
+                                onChange={(e) =>
+                                  handleDayChange(e, field, index, dayIndex)
+                                }
                               />
                             </div>
                             <div className="mt-2 mr-2 w-24">
@@ -203,9 +219,9 @@ export default function WorkforcePlanPage() {
                                 variant="bordered"
                                 key={field.id}
                                 value={weekday.nightCount}
-                                {...register(
-                                  `workforcePlan.${i}.weekdays.nightCount`
-                                )}
+                                onChange={(e) =>
+                                  handleNightChange(e, field, index, dayIndex)
+                                }
                               />
                             </div>
                           </div>
