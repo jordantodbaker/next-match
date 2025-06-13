@@ -142,7 +142,7 @@ export default function NarrativePage({
         return n.narrative.companyId == user?.companyId;
       });
 
-      replace(newNarratives as NarrativeShape[]);
+      replace(newNarratives as any);
       setNarratives(
         (newNarratives.length > 0 ? newNarratives : [empty]) as NarrativeShape[]
       );
