@@ -65,6 +65,7 @@ model CompanyAccount {
   safetyNarratives SafetyNarrative[]
   narratives       Narrative[]
   projects         Project[]
+  workforcePlans   WorkforcePlan[]
 }
 
 model User {
@@ -91,6 +92,15 @@ model Project {
   code           String
   companyAccount CompanyAccount @relation(fields: [companyId], references: [id])
   companyId      Int
+  workforcePlan WorkforcePlan?
+}
+
+model WorkforcePlan {
+  id  Int @id @default(autoincrement())
+  companyAccount CompanyAccount @relation(fields: [companyId], references: [id])
+  companyId      Int
+  projectId      Int @unique
+  project       Project @relation(fields: [projectId], references: [id])
 }
 
 enum SecurityRole {

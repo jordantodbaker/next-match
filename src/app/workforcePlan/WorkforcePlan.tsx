@@ -92,7 +92,7 @@ export default function WorkforcePlanPage() {
     return { ...field, ...watchFieldArray[index] };
   });
 
-  const onSubmit = () => {
+  const onSubmit = async (data) => {
     console.log("Submitting", data);
   };
 
@@ -168,9 +168,7 @@ export default function WorkforcePlanPage() {
         </div>
 
         <form
-          onSubmit={handleSubmit((data) => {
-            console.log("DATA", data);
-          })}
+          onSubmit={handleSubmit(async (data) => await onSubmit(data as any))}
         >
           <div className="w-full mt-16 h-full">
             <div className="w-1/4 m-auto mb-4">

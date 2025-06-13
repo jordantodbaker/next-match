@@ -9,8 +9,6 @@ export async function submitWorkforcePlan(
   const session = await auth();
   const user = session?.user as User | undefined;
 
-  console.log("DATA: ", data);
-
   //   try {
   //     if (data.narrative.id !== 0) {
   //       console.log("Update", data);
