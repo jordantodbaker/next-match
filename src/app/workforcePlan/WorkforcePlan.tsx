@@ -8,18 +8,14 @@ import {
   DropdownMenu,
   DropdownItem,
   Input,
+  NumberInput,
 } from "@heroui/react";
 import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
-
-type FormValues = {
-  headcount: {
-    role: { id: number; name: string } | undefined;
-    headcount: number;
-  }[];
-};
+import { useSession } from "next-auth/react";
+import { getSunday } from "@/lib/utils";
 
 type Dates = {
   endDate: {
@@ -60,12 +56,12 @@ function getDates() {
   });
 }
 
-import { useSession } from "next-auth/react";
-import { getSunday } from "@/lib/utils";
-
 export default function WorkforcePlanPage() {
   const { data } = useSession();
   const user = data?.user;
+
+  const [fillAllDay, setFillAllDay] = useState(0);
+  const [fillAllNight, setFillAllNight] = useState(0);
 
   const dates = getDates();
 
@@ -84,7 +80,7 @@ export default function WorkforcePlanPage() {
     },
   });
 
-  const { fields, append, remove, update } = useFieldArray({
+  const { fields, append, remove, update, replace } = useFieldArray({
     name: "workforcePlan",
     control,
   });
@@ -94,11 +90,38 @@ export default function WorkforcePlanPage() {
     return { ...field, ...watchFieldArray[index] };
   });
 
-  const onSubmit = (data: FormValues) => {
+  const onSubmit = () => {
     console.log("Submitting", data);
   };
 
+  const onClickFillAll = () => {
+    const newDates = dates.map((weeks) => {
+      return {
+        ...weeks,
+        weekdays: weeks.weekdays.map((day: any) => ({
+          ...day,
+          dayCount: fillAllDay,
+          nightCount: fillAllNight,
+        })),
+      };
+    });
+    console.log("NEW DATES ", newDates);
+    replace(newDates);
+    console.log("NEW FIELDS: ", fields);
+  };
+
+  const onChangeFillAllDay = (e) => {
+    console.log("DIRKA");
+    setFillAllDay(parseInt(e.target.value));
+  };
+
+  const onChangeFillAllNight = (e) => {
+    setFillAllNight(parseInt(e.target.value));
+  };
+
   let i = 0;
+
+  console.log("FIELDS: ", fields);
 
   return (
     <div className="flex h-full w-full">
@@ -114,27 +137,85 @@ export default function WorkforcePlanPage() {
           })}
         >
           <div className="w-full mt-16 h-full">
-            <div className="flex sm:flex-row flex-col">
-              {fields.map((field, index) => {
-                return (
-                  <section key={field.id}>
+            <div className="w-1/4 m-auto mb-4">
+              <div className="flex flex-row">
+                <div className="mt-2 mr-2 ">
+                  <NumberInput
+                    label="Day"
+                    variant="bordered"
+                    onChange={(e) => onChangeFillAllDay(e)}
+                    value={fillAllDay}
+                  />
+                </div>
+                <div className="mt-2 mr-2 ">
+                  <NumberInput
+                    label="Night"
+                    variant="bordered"
+                    onChange={(e) => onChangeFillAllNight(e)}
+                    value={fillAllNight}
+                  />
+                </div>
+              </div>
+              <div className="flex items-center mt-2">
+                <Button fullWidth color="primary" onPress={onClickFillAll}>
+                  Fill All
+                </Button>
+              </div>
+            </div>
+            {fields.map((field, index) => {
+              return (
+                <section key={field.id}>
+                  <div className="flex flex-row justify-center">
+                    <div className="flex flex-row mt-4">
+                      <div className="flex flex-col">
+                        <div>{field.dateEnd}</div>
+                        <div className="mt-2 mr-2 w-24">
+                          <NumberInput label="Day" variant="bordered" />
+                        </div>
+                        <div className="mt-2 mr-2 w-24">
+                          <NumberInput label="Night" variant="bordered" />
+                        </div>
+                      </div>
+                      <div className="flex items-center ml-4 mr-4">
+                        <Button color="primary">Fill Week</Button>
+                      </div>
+                    </div>
                     {field.weekdays.map((weekday: any) => {
-                      console.log("I: ", i);
                       i++;
                       return (
                         <div className="mr-4 sm:mt-4 mt-16">
                           <div className="flex flex-col">
                             <span>{weekday.date.toLocaleDateString()}</span>
-                            Day: <Input />
-                            Night: <Input />
+                            <div className="mt-2 mr-2 w-24">
+                              <Input
+                                label="Day"
+                                variant="bordered"
+                                key={field.id}
+                                value={weekday.dayCount}
+                                {...register(
+                                  `workforcePlan.${i}.weekdays.dayCount`
+                                )}
+                              />
+                            </div>
+                            <div className="mt-2 mr-2 w-24">
+                              <Input
+                                label="Night"
+                                variant="bordered"
+                                key={field.id}
+                                value={weekday.nightCount}
+                                {...register(
+                                  `workforcePlan.${i}.weekdays.nightCount`
+                                )}
+                              />
+                            </div>
                           </div>
                         </div>
                       );
                     })}
-                  </section>
-                );
-              })}
-            </div>
+                  </div>
+                </section>
+              );
+            })}
           </div>
           <div className="mt-2">
             <Button
