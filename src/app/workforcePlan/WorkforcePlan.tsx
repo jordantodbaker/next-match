@@ -130,34 +130,28 @@ export default function WorkforcePlanPage() {
     setFillWeekNight(newWeek);
   };
 
-  const handleDayChange = (e: any, field: any, i: number, dayIndex: number) => {
-    field.weekdays[dayIndex].dayCount = parseInt(e.target.value);
-    update(i, field);
+  const handleDayChange = (e: any, id: any) => {
+    //field.weekdays[dayIndex].dayCount = parseInt(e.target.value);
+    setValue(id, e.target.value);
   };
 
-  const handleNightChange = (
-    e: any,
-    field: any,
-    i: number,
-    dayIndex: number
-  ) => {
-    field.weekdays[dayIndex].dayCount = parseInt(e.target.value);
-    update(i, field);
+  const handleNightChange = (e: any, id: any) => {
+    //field.weekdays[dayIndex].dayCount = parseInt(e.target.value);
+    setValue(id, e.target.value);
   };
 
   const onClickFillWeek = (field: any, index: any) => {
     console.log("FILL WEEK FIELD", field);
+    console.log("DAY @ INDEX", fillWeekNight[i]);
     const newWeek = field.weekdays.map((day: any) => ({
       ...day,
-      dayCount: fillWeekDay[index],
-      nightCount: fillWeekNight[index],
+      dayCount: fillWeekDay[index] ? fillWeekDay[index] : day.dayCount,
+      nightCount: fillWeekNight[index] ? fillWeekNight[index] : day.nightCount,
     }));
     update(index, { ...field, weekdays: newWeek });
   };
 
   let i = 0;
-
-  console.log("FIELDS ", fields);
 
   return (
     <div className="flex h-full w-full">
@@ -239,23 +233,33 @@ export default function WorkforcePlanPage() {
                             <span>{weekday.date.toLocaleDateString()}</span>
                             <div className="mt-2 mr-2 w-24">
                               <Input
+                                {...register(`workforcePlan.${i}.weekdays.day`)}
                                 label="Day"
                                 variant="bordered"
                                 key={field.id}
                                 value={weekday.dayCount}
                                 onChange={(e) =>
-                                  handleDayChange(e, field, index, dayIndex)
+                                  handleDayChange(
+                                    e,
+                                    `workforcePlan.${i}.weekdays.day`
+                                  )
                                 }
                               />
                             </div>
                             <div className="mt-2 mr-2 w-24">
                               <Input
+                                {...register(
+                                  `workforcePlan.${i}.weekdays.night`
+                                )}
                                 label="Night"
                                 variant="bordered"
                                 key={field.id}
                                 value={weekday.nightCount}
                                 onChange={(e) =>
-                                  handleNightChange(e, field, index, dayIndex)
+                                  handleNightChange(
+                                    e,
+                                    `workforcePlan.${i}.weekdays.night`
+                                  )
                                 }
                               />
                             </div>
