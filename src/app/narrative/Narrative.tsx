@@ -119,7 +119,7 @@ export default function NarrativePage({
         return n.narrative.companyId == company.id;
       });
 
-      replace(newNarratives as NarrativeShape[]);
+      replace(newNarratives as any);
       setNarratives(
         (newNarratives.length > 0 ? newNarratives : [empty]) as NarrativeShape[]
       );
@@ -179,7 +179,7 @@ export default function NarrativePage({
   };
 
   const onClickAuthorize = async () => {
-    const newNarratives = narratives.map((n, i) => {
+    const newNarratives = narratives.map((n: any, i: number) => {
       const newNarrative = {
         narrativeType: { ...n.narrativeType },
         narrative: { ...n.narrative, authorized: !n.narrative?.authorized },
@@ -201,7 +201,9 @@ export default function NarrativePage({
     );
 
     const result = await Promise.all(
-      narratives.map(async (n) => await authorizeNarrative(n?.narrative as any))
+      narratives.map(
+        async (n: any) => await authorizeNarrative(n?.narrative as any)
+      )
     );
 
     const success = result.filter((r) => r.status === "error").length === 0;
@@ -321,7 +323,7 @@ export default function NarrativePage({
               color="primary"
               type="button"
               onPress={() => {
-                append(empty);
+                append(empty as any);
               }}
             >
               Add Another
