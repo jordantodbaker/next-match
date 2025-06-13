@@ -62,6 +62,8 @@ export default function WorkforcePlanPage() {
 
   const [fillAllDay, setFillAllDay] = useState(0);
   const [fillAllNight, setFillAllNight] = useState(0);
+  const [fillWeekDay, setFillWeekDay] = useState([]);
+  const [fillWeekNight, setFillWeekNight] = useState([]);
 
   const dates = getDates();
 
@@ -109,7 +111,6 @@ export default function WorkforcePlanPage() {
   };
 
   const onChangeFillAllDay = (e: any) => {
-    console.log("DIRKA");
     setFillAllDay(parseInt(e.target.value));
   };
 
@@ -117,11 +118,20 @@ export default function WorkforcePlanPage() {
     setFillAllNight(parseInt(e.target.value));
   };
 
-  const handleDayChange = (e: any, field: any, i: number, dayIndex: number) => {
-    console.log("Handle day change at .", i);
-    field.weekdays[dayIndex].dayCount = parseInt(e.target.value);
+  const onChangeFillWeekDay = (e: any, i: number) => {
+    let newWeek = fillWeekDay as any;
+    newWeek[i] = parseInt(e.target.value);
+    setFillWeekDay(newWeek);
+  };
 
-    console.log("FIELD", field);
+  const onChangeFillWeekNight = (e: any, i: number) => {
+    let newWeek = fillWeekNight as any;
+    newWeek[i] = parseInt(e.target.value);
+    setFillWeekNight(newWeek);
+  };
+
+  const handleDayChange = (e: any, field: any, i: number, dayIndex: number) => {
+    field.weekdays[dayIndex].dayCount = parseInt(e.target.value);
     update(i, field);
   };
 
@@ -131,8 +141,18 @@ export default function WorkforcePlanPage() {
     i: number,
     dayIndex: number
   ) => {
-    console.log("field", field);
-    //update(i,)
+    field.weekdays[dayIndex].dayCount = parseInt(e.target.value);
+    update(i, field);
+  };
+
+  const onClickFillWeek = (field: any, index: any) => {
+    console.log("FILL WEEK FIELD", field);
+    const newWeek = field.weekdays.map((day: any) => ({
+      ...day,
+      dayCount: fillWeekDay[index],
+      nightCount: fillWeekNight[index],
+    }));
+    update(index, { ...field, weekdays: newWeek });
   };
 
   let i = 0;
@@ -186,14 +206,31 @@ export default function WorkforcePlanPage() {
                       <div className="flex flex-col">
                         <div>{field.dateEnd}</div>
                         <div className="mt-2 mr-2 w-24">
-                          <NumberInput label="Day" variant="bordered" />
+                          <NumberInput
+                            label="Day"
+                            variant="bordered"
+                            onChange={(e) => onChangeFillWeekDay(e, index)}
+                            value={fillWeekDay[index]}
+                          />
                         </div>
                         <div className="mt-2 mr-2 w-24">
-                          <NumberInput label="Night" variant="bordered" />
+                          <NumberInput
+                            label="Night"
+                            variant="bordered"
+                            onChange={(e) => onChangeFillWeekNight(e, index)}
+                            value={fillWeekNight[index]}
+                          />
                         </div>
                       </div>
                       <div className="flex items-center ml-4 mr-4">
-                        <Button color="primary">Fill Week</Button>
+                        <Button
+                          color="primary"
+                          onPress={() => {
+                            onClickFillWeek(field, index);
+                          }}
+                        >
+                          Fill Week
+                        </Button>
                       </div>
                     </div>
                     {field.weekdays.map((weekday: any, dayIndex: number) => {
