@@ -68,36 +68,40 @@ export default function WorkforcePlanPage() {
   const [fillWeekNight, setFillWeekNight] = useState([]);
   const [workForceDates, setWorkforceDates] = useState(dates);
 
-  const {
-    register,
-    control,
-    setValue,
-    handleSubmit,
-    watch,
-    formState: { isValid, isSubmitting },
-  } = useForm({
-    //resolver: zodResolver(safetySchema),
-    //mode: "onTouched",
-    defaultValues: {
-      workforcePlan: dates,
-    },
-  });
-
-  const { fields, append, remove, update, replace } = useFieldArray({
-    name: "workforcePlan",
-    control,
-  });
-
-  const watchFieldArray = watch("workforcePlan");
-  const controlledFields = fields.map((field, index) => {
-    return { ...field, ...watchFieldArray[index] };
-  });
+  // const {
+  //   register,
+  //   control,
+  //   setValue,
+  //   handleSubmit,
+  //   watch,
+  //   formState: { isValid, isSubmitting },
+  // } = useForm({
+  //   //resolver: zodResolver(safetySchema),
+  //   //mode: "onTouched",
+  //   defaultValues: {
+  //     workforcePlan: dates,
+  //   },
+  // });
 
   const onSubmit = async () => {
     console.log("Submitting", workForceDates);
   };
 
   const onClickFillAll = () => {
+    const newDates = workForceDates.map((weeks) => {
+      return {
+        ...weeks,
+        weekdays: weeks.weekdays.map((day: any) => ({
+          ...day,
+          dayCount: fillAllDay,
+          nightCount: fillAllNight,
+        })),
+      };
+    });
+    setWorkforceDates(newDates);
+  };
+
+  const onClickFillEmpty = () => {
     const newDates = workForceDates.map((weeks) => {
       return {
         ...weeks,
@@ -159,8 +163,6 @@ export default function WorkforcePlanPage() {
 
   let i = 0;
 
-  console.log("workforce dates: ", workForceDates);
-
   return (
     <div className="flex h-full w-full">
       <Sidebar />
@@ -169,12 +171,13 @@ export default function WorkforcePlanPage() {
           <h1 className="text-3xl text-center">Workforce Plan</h1>
         </div>
 
-        <form onSubmit={handleSubmit(async () => await onSubmit())}>
+        <form onSubmit={async () => await onSubmit()}>
           <div className="w-full mt-16 h-full">
             <div className="w-1/4 m-auto mb-4">
               <div className="flex flex-row">
                 <div className="mt-2 mr-2 ">
                   <NumberInput
+                    hideStepper
                     label="Day"
                     variant="bordered"
                     onChange={(e) => onChangeFillAllDay(e)}
@@ -183,6 +186,7 @@ export default function WorkforcePlanPage() {
                 </div>
                 <div className="mt-2 mr-2 ">
                   <NumberInput
+                    hideStepper
                     label="Night"
                     variant="bordered"
                     onChange={(e) => onChangeFillAllNight(e)}
@@ -191,8 +195,16 @@ export default function WorkforcePlanPage() {
                 </div>
               </div>
               <div className="flex items-center mt-2">
-                <Button fullWidth color="primary" onPress={onClickFillAll}>
+                <Button
+                  fullWidth
+                  color="primary"
+                  onPress={onClickFillAll}
+                  className="mr-2"
+                >
                   Fill All
+                </Button>
+                <Button fullWidth color="primary" onPress={onClickFillEmpty}>
+                  Fill Empty
                 </Button>
               </div>
             </div>
@@ -205,6 +217,7 @@ export default function WorkforcePlanPage() {
                         <div>{field.dateEnd}</div>
                         <div className="mt-2 mr-2 w-24">
                           <NumberInput
+                            hideStepper
                             label="Day"
                             variant="bordered"
                             onChange={(e) => onChangeFillWeekDay(e, weekIndex)}
@@ -213,6 +226,7 @@ export default function WorkforcePlanPage() {
                         </div>
                         <div className="mt-2 mr-2 w-24">
                           <NumberInput
+                            hideStepper
                             label="Night"
                             variant="bordered"
                             onChange={(e) =>
@@ -235,13 +249,13 @@ export default function WorkforcePlanPage() {
                     </div>
                     {field.weekdays.map((weekday: any, dayIndex: number) => {
                       i++;
-                      console.log("DAYCOUNT ", weekday.dayCount);
                       return (
                         <div className="mr-4 sm:mt-4 mt-16">
                           <div className="flex flex-col">
                             <span>{weekday.date.toLocaleDateString()}</span>
                             <div className="mt-2 mr-2 w-24">
                               <NumberInput
+                                hideStepper
                                 label="Day"
                                 variant="bordered"
                                 key={i}
@@ -253,6 +267,7 @@ export default function WorkforcePlanPage() {
                             </div>
                             <div className="mt-2 mr-2 w-24">
                               <NumberInput
+                                hideStepper
                                 label="Night"
                                 variant="bordered"
                                 key={i}
@@ -272,12 +287,7 @@ export default function WorkforcePlanPage() {
             })}
           </div>
           <div className="mt-2">
-            <Button
-              color="primary"
-              type="submit"
-              isDisabled={!isValid}
-              isLoading={isSubmitting}
-            >
+            <Button color="primary" onPress={async () => await onSubmit()}>
               Submit
             </Button>
           </div>
