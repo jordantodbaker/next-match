@@ -14,6 +14,8 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
 import { SafetySchema, safetySchema } from "@/lib/schemas/safetySchema";
+import Uploady from "@rpldy/uploady";
+import UploadButton from "@rpldy/upload-button";
 
 type FormValues = {
   cart: { name: string; amount: number }[];
@@ -56,37 +58,12 @@ export default function CostsPage() {
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="w-full mt-16 h-full">
-            {fields.map((field, index) => {
-              return (
-                <section key={field.id}>
-                  <label>
-                    <span>Name</span>
-                    <input
-                      {...(register(`cart.${index}.name`), { required: true })}
-                    />
-                  </label>
-                  <label>
-                    <span>Amount</span>
-                    <input
-                      type="number"
-                      {...register(`cart.${index}.amount`)}
-                    />
-                  </label>
-                  <button type="button" onClick={() => remove(index)}>
-                    Delete
-                  </button>
-                </section>
-              );
-            })}
+            <Uploady
+              destination={{ url: "http://localhost:3000/public/uploads" }}
+            >
+              <UploadButton />
+            </Uploady>
           </div>
-          <button
-            type="button"
-            onClick={() => {
-              append({ name: "bill", amount: 1 });
-            }}
-          >
-            Append
-          </button>
           <div className="mt-2">
             <Button
               color="primary"

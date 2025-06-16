@@ -60,13 +60,12 @@ export default function WorkforcePlanPage() {
   const { data } = useSession();
   const user = data?.user;
 
-  const dates = getDates();
-
   const [fillAllDay, setFillAllDay] = useState(0);
   const [fillAllNight, setFillAllNight] = useState(0);
   const [fillWeekDay, setFillWeekDay] = useState([]);
   const [fillWeekNight, setFillWeekNight] = useState([]);
-  const [workForceDates, setWorkforceDates] = useState(dates);
+
+  const dates = getDates();
 
   const {
     register,
@@ -93,12 +92,12 @@ export default function WorkforcePlanPage() {
     return { ...field, ...watchFieldArray[index] };
   });
 
-  const onSubmit = async () => {
-    console.log("Submitting", workForceDates);
+  const onSubmit = async (data: any) => {
+    console.log("Submitting", data);
   };
 
   const onClickFillAll = () => {
-    const newDates = workForceDates.map((weeks) => {
+    const newDates = dates.map((weeks) => {
       return {
         ...weeks,
         weekdays: weeks.weekdays.map((day: any) => ({
@@ -108,7 +107,7 @@ export default function WorkforcePlanPage() {
         })),
       };
     });
-    setWorkforceDates(newDates);
+    replace(newDates);
   };
 
   const onChangeFillAllDay = (e: any) => {
@@ -131,35 +130,35 @@ export default function WorkforcePlanPage() {
     setFillWeekNight(newWeek);
   };
 
-  const handleDayChange = (e: any, weekIndex: number, dayIndex: number) => {
-    let newWorkforceDates = workForceDates;
-    newWorkforceDates[weekIndex].weekdays[dayIndex].dayCount = e.target.value;
-    setWorkforceDates(newWorkforceDates);
+  const handleDayChange = (e: any, id: any) => {
+    //field.weekdays[dayIndex].dayCount = parseInt(e.target.value);
+    setValue(id, e.target.value);
   };
 
-  const handleNightChange = (e: any, weekIndex: number, dayIndex: number) => {
-    let newWorkforceDates = workForceDates;
-    newWorkforceDates[weekIndex].weekdays[dayIndex].nightCount = e.target.value;
-    setWorkforceDates(newWorkforceDates);
+  const handleNightChange = (e: any, id: any) => {
+    //field.weekdays[dayIndex].dayCount = parseInt(e.target.value);
+    setValue(id, e.target.value);
   };
 
-  const onClickFillWeek = (weekIndex: any) => {
-    let newDates = [...workForceDates];
-    const newWeek = workForceDates[weekIndex].weekdays.map((day: any) => ({
+  const onClickFillWeek = (field: any, index: any) => {
+    console.log("FILL WEEK FIELD", field.weekdays);
+    console.log("INDEX", index);
+    console.log("DAY @ INDEX", fillWeekDay[index]);
+    console.log("NIGHT @ INDEX ", fillWeekNight[index]);
+    const newWeek = field.weekdays.map((day: any) => ({
       ...day,
-      dayCount: fillWeekDay[weekIndex] ? fillWeekDay[weekIndex] : day.dayCount,
-      nightCount: fillWeekNight[weekIndex]
-        ? fillWeekNight[weekIndex]
-        : day.nightCount,
+      dayCount: fillWeekDay[index] ? fillWeekDay[index] : day.dayCount,
+      nightCount: fillWeekNight[index] ? fillWeekNight[index] : day.nightCount,
     }));
 
-    newDates[weekIndex] = { ...newDates[weekIndex], weekdays: newWeek };
-    setWorkforceDates(newDates);
+    console.log("FIELD ", field);
+    console.log("NEW WEEK", newWeek);
+    update(index, { ...field, weekdays: newWeek });
   };
 
   let i = 0;
 
-  console.log("workforce dates: ", workForceDates);
+  console.log("FIELDS: ", fields);
 
   return (
     <div className="flex h-full w-full">
@@ -169,7 +168,9 @@ export default function WorkforcePlanPage() {
           <h1 className="text-3xl text-center">Workforce Plan</h1>
         </div>
 
-        <form onSubmit={handleSubmit(async () => await onSubmit())}>
+        <form
+          onSubmit={handleSubmit(async (data) => await onSubmit(data as any))}
+        >
           <div className="w-full mt-16 h-full">
             <div className="w-1/4 m-auto mb-4">
               <div className="flex flex-row">
@@ -196,9 +197,9 @@ export default function WorkforcePlanPage() {
                 </Button>
               </div>
             </div>
-            {workForceDates.map((field, weekIndex) => {
+            {fields.map((field, index) => {
               return (
-                <section key={weekIndex}>
+                <section key={field.id}>
                   <div className="flex flex-row justify-center">
                     <div className="flex flex-row mt-4">
                       <div className="flex flex-col">
@@ -207,18 +208,16 @@ export default function WorkforcePlanPage() {
                           <NumberInput
                             label="Day"
                             variant="bordered"
-                            onChange={(e) => onChangeFillWeekDay(e, weekIndex)}
-                            value={fillWeekDay[weekIndex]}
+                            onChange={(e) => onChangeFillWeekDay(e, index)}
+                            value={fillWeekDay[index]}
                           />
                         </div>
                         <div className="mt-2 mr-2 w-24">
                           <NumberInput
                             label="Night"
                             variant="bordered"
-                            onChange={(e) =>
-                              onChangeFillWeekNight(e, weekIndex)
-                            }
-                            value={fillWeekNight[weekIndex]}
+                            onChange={(e) => onChangeFillWeekNight(e, index)}
+                            value={fillWeekNight[index]}
                           />
                         </div>
                       </div>
@@ -226,7 +225,7 @@ export default function WorkforcePlanPage() {
                         <Button
                           color="primary"
                           onPress={() => {
-                            onClickFillWeek(weekIndex);
+                            onClickFillWeek(field, index);
                           }}
                         >
                           Fill Week
@@ -235,31 +234,42 @@ export default function WorkforcePlanPage() {
                     </div>
                     {field.weekdays.map((weekday: any, dayIndex: number) => {
                       i++;
-                      console.log("DAYCOUNT ", weekday.dayCount);
                       return (
                         <div className="mr-4 sm:mt-4 mt-16">
                           <div className="flex flex-col">
                             <span>{weekday.date.toLocaleDateString()}</span>
                             <div className="mt-2 mr-2 w-24">
-                              <NumberInput
+                              <Input
+                                {...register(
+                                  `workforcePlan.${index}.weekdays.day`
+                                )}
                                 label="Day"
                                 variant="bordered"
-                                key={i}
+                                key={field.id}
                                 value={weekday.dayCount}
                                 onChange={(e) =>
-                                  handleDayChange(e, weekIndex, dayIndex)
+                                  handleDayChange(
+                                    e,
+                                    `workforcePlan.${i}.weekdays.day`
+                                  )
                                 }
                               />
                             </div>
                             <div className="mt-2 mr-2 w-24">
-                              <NumberInput
+                              <Input
+                                // {...register(
+                                //   `workforcePlan.${i}.weekdays.night`
+                                // )}
                                 label="Night"
                                 variant="bordered"
-                                key={i}
+                                key={field.id}
                                 value={weekday.nightCount}
-                                onChange={(e) =>
-                                  handleNightChange(e, weekIndex, dayIndex)
-                                }
+                                // onChange={(e) =>
+                                //   handleNightChange(
+                                //     e,
+                                //     `workforcePlan.${i}.weekdays.night`
+                                //   )
+                                // }
                               />
                             </div>
                           </div>
