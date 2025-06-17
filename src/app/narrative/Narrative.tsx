@@ -15,7 +15,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useContext } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { Narrative, NarrativeType } from "@prisma/client";
+import { Narrative, NarrativeType, SecurityRole } from "@prisma/client";
 import {
   authorizeNarrative,
   deleteNarrative,
@@ -99,7 +99,7 @@ export default function NarrativePage({
   });
 
   useEffect(() => {
-    if (company && user?.securityRole === "ADMIN") {
+    if (company && user?.securityRole === SecurityRole.ADMIN) {
       const empty = {
         narrativeType: { id: 0, type: "" },
         narrative: {
@@ -337,7 +337,7 @@ export default function NarrativePage({
               Submit
             </Button>
           </div>
-          {user?.securityRole === "ADMIN" && (
+          {user?.securityRole === SecurityRole.ADMIN && (
             <Button
               className="mt-2"
               color="primary"

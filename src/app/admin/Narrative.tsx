@@ -18,7 +18,7 @@ import { authorizeNarrative, submitNarrative } from "../actions/safetyActions";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
 import { CompanyContext } from "@/components/CompanyContext";
-import { CompanyAccount } from "@prisma/client";
+import { CompanyAccount, SecurityRole } from "@prisma/client";
 import { AdminSidebar } from "@/components/sidebar/AdminSidebar";
 
 type Props = {
@@ -32,7 +32,7 @@ export default function SafetyPage({ narratives }: Props) {
   const [narrativeValue, setNarrativeValue] = useState(narratives[0].narrative);
 
   useEffect(() => {
-    if (company && user?.securityRole === "ADMIN") {
+    if (company && user?.securityRole === SecurityRole.ADMIN) {
       const narrative = narratives.find((n: any) => n.companyId == company.id);
       setSelectedNarrative(narrative);
       setNarrativeValue(narrative.narrative);
@@ -56,7 +56,6 @@ export default function SafetyPage({ narratives }: Props) {
   });
 
   const onSubmit = async () => {
-    console.log("IN HERE");
     selectedNarrative.narrative = narrativeValue;
     selectedNarrative.userId = user?.id;
     selectedNarrative.updatedAt = new Date();
@@ -109,7 +108,7 @@ export default function SafetyPage({ narratives }: Props) {
             >
               Submit
             </Button>
-            {user?.securityRole === "ADMIN" && (
+            {user?.securityRole === SecurityRole.ADMIN && (
               <Button
                 className="ml-2"
                 color="primary"

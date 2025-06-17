@@ -17,7 +17,6 @@ export async function submitNarrative(
 
   try {
     if (narratives) {
-      console.log("Update", data);
       await prisma.safetyNarrative.update({
         where: { id: data.id },
         data: {
@@ -27,7 +26,6 @@ export async function submitNarrative(
         },
       });
     } else {
-      console.log("New narrative", data);
       await prisma.safetyNarrative.create({
         data: {
           userId: user?.id,

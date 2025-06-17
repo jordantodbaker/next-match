@@ -2,14 +2,13 @@ import React from "react";
 import WorkforcePlan from "./WorkforcePlan";
 import { getNarratives } from "../actions/narrativeActions";
 import { getCompanies } from "../actions/companyActions";
+import { getWorkforcePlans } from "../actions/workforcePlansActions";
 
 export default async function WorkforcePlanPage() {
-  const companies = await getCompanies();
-  console.log(companies);
-
+  const workforcePlans = await getWorkforcePlans();
   return (
     <div className="flex h-full w-full">
-      <WorkforcePlan />
+      <WorkforcePlan workforcePlans={workforcePlans}/>
     </div>
   );
 }

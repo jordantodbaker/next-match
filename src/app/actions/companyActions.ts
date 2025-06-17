@@ -1,5 +1,6 @@
 "use server";
 
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { CompanyAccount } from "@prisma/client";
 
@@ -7,6 +8,17 @@ export async function getCompanies() {
   return await prisma.companyAccount.findMany({
     where: { companyCode: { not: "ACE" } },
   });
+}
+
+
+export async function getCompany() {
+  const session = await auth();
+  const user = session?.user;
+  const company = await prisma.companyAccount.findFirst({
+    where: { id: user?.companyId },
+  });
+
+  return [company].filter(c => !!c)
 }
 
 export async function saveNarrativeType(company: any) {
@@ -25,7 +37,6 @@ export async function saveNarrativeType(company: any) {
 }
 
 export async function deleteCompany(company: CompanyAccount) {
-    console.log(company)
     try{
         await prisma.narrativeType.delete({where: {id: company.id}});
         return { status: "success", data: "Narrative Delete" };

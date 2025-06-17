@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import "./globals.css";
 import Providers from "../components/Providers";
-import TopNav from "@/components/navbar/TopNav";
-
-import { getCompanies } from "./actions/companyActions";
-import { CompanyAccount } from "@prisma/client";
+import { getCompany, getCompanies } from "./actions/companyActions";
+import { getProjects } from "./actions/projectActions";
+import "./globals.css";
+import { useSession } from "next-auth/react";
+import { auth } from "@/auth";
+import { SecurityRole } from "@prisma/client";
 
 export const metadata: Metadata = {
   title: "NextMatch",
@@ -16,12 +17,16 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const companies = await getCompanies();
+  const session = await auth();
+  const user = session?.user;
+  const companies =
+    user?.securityRole === SecurityRole.ADMIN ? await getCompanies() : await getCompany();
+  const projects = await getProjects();
 
   return (
     <html lang="en">
       <body>
-        <Providers companies={companies}>
+        <Providers companies={companies} projects={projects!}>
           <main className="vertical-center">{children}</main>
         </Providers>
       </body>

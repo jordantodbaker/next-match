@@ -24,7 +24,6 @@ export default function RegisterForm() {
     const result = await registerUser(data);
 
     if (result.status === "success") {
-      console.log("User registered successfully");
       router.push("/login");
     } else {
       if (Array.isArray(result.error)) {

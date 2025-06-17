@@ -70,15 +70,11 @@ export default function HeadcountPage() {
     return { ...field, ...watchFieldArray[index] };
   });
 
-  const onSubmit = (data: FormValues) => {
-    console.log("Submitting", data);
-  };
+  const onSubmit = (data: FormValues) => {};
 
   const onChangeRole = (key: any, field: any) => {
     const role = roles.find((r) => r.id == key);
     field.role = role;
-    console.log("role", role);
-    console.log("field", field);
     return field;
   };
 
@@ -90,11 +86,7 @@ export default function HeadcountPage() {
           <h1 className="text-3xl text-center">Daily Headcount</h1>
         </div>
 
-        <form
-          onSubmit={handleSubmit((data) => {
-            console.log("DATA", data);
-          })}
-        >
+        <form onSubmit={handleSubmit((data) => {})}>
           <div className="w-full mt-16 h-full">
             <div className="flex sm:flex-row flex-col">
               {fields.map((field, index) => {

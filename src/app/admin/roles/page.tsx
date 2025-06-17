@@ -4,7 +4,6 @@ import { getRoles } from "../../actions/rolesActions";
 
 export default async function AdminPage() {
   const roles = await getRoles();
-  console.log({ roles });
 
   return (
     <div className="flex h-full w-full bg-blue-200">

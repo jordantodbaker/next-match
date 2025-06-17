@@ -52,12 +52,10 @@ export default function Roles(userRoles: any) {
   });
 
   const onSubmit = async (values: { roles: Role[] }) => {
-    console.log("IN HERE", values);
     // const result = await Promise.all(
     //   values.roles.map(async (n) => saveNarrativeType(n))
     // );
     // const success = result.filter((r) => r.status === "error").length === 0;
-
     // if (success) {
     //   toast.success("Narrative saved.");
     // } else {

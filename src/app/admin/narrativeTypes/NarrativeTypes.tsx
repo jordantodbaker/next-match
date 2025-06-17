@@ -47,7 +47,6 @@ export default function NarrativeTypes({ narrativeTypes }: Props) {
   });
 
   const onSubmit = async (values: { narrativeTypes: NarrativeType[] }) => {
-    console.log("IN HERE", values);
     const result = await Promise.all(
       values.narrativeTypes.map(async (n) => saveNarrativeType(n))
     );

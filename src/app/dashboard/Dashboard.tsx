@@ -42,8 +42,6 @@ type Props = {
 
 export default function Dashboard({ safetyNarratives, narratives }: Props) {
   const safetyNarrativeValid = safetyNarratives[0].narrative !== "";
-  console.log("slfjlsdjFljsd: ", safetyNarratives[0]);
-  console.log("valid: ", safetyNarrativeValid);
   const sections = [
     {
       title: "Safety",

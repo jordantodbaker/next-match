@@ -23,7 +23,7 @@ export const {
         // }
 
         session.user = user as any;
-        console.log("user: ", user);
+        //console.log("user: ", user);
       }
 
       return session;

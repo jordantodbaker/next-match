@@ -9,22 +9,26 @@ import {
   DropdownItem,
   Input,
 } from "@heroui/react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
 import { SafetySchema, safetySchema } from "@/lib/schemas/safetySchema";
 import Uploady from "@rpldy/uploady";
 import UploadButton from "@rpldy/upload-button";
+import readXlsxFile from "read-excel-file";
 
 type FormValues = {
   cart: { name: string; amount: number }[];
 };
 
 import { useSession } from "next-auth/react";
+import { uploadFile } from "../actions/fileUploadActions";
 export default function CostsPage() {
   const { data } = useSession();
   const user = data?.user;
+  const [file, setFile] = useState();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const {
     register,
@@ -44,8 +48,8 @@ export default function CostsPage() {
     control,
   });
 
-  const onSubmit = (data: FormValues) => {
-    console.log("Submitting", data);
+  const onSubmit = async () => {
+    await uploadFile(file);
   };
 
   return (
@@ -58,11 +62,29 @@ export default function CostsPage() {
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="w-full mt-16 h-full">
-            <Uploady
-              destination={{ url: "http://localhost:3000/public/uploads" }}
+            <input
+              ref={fileInputRef}
+              type="file"
+              onChange={async (e) => {
+                const file = e.target.files?.[0] as File;
+                const data = new FormData();
+                data.set("file", file);
+
+                readXlsxFile(file).then((rows) => console.log("ROWS ", rows));
+
+                const uploadRequest = await fetch("/api/files", {
+                  method: "POST",
+                  body: data,
+                });
+              }}
+            />
+            <button
+              onClick={() => {
+                fileInputRef.current?.click();
+              }}
             >
-              <UploadButton />
-            </Uploady>
+              Upload File
+            </button>
           </div>
           <div className="mt-2">
             <Button

@@ -13,7 +13,6 @@ export async function submitNarrative(
 
   try {
     if (data.narrative.id !== 0) {
-      console.log("Update", data);
       await prisma.narrative.update({
         where: { id: data.narrative.id },
         data: {
@@ -24,7 +23,6 @@ export async function submitNarrative(
         },
       });
     } else {
-      console.log("New narrative", data);
       await prisma.narrative.create({
         data: {
           userId: user?.id,

@@ -18,27 +18,26 @@ import { useRouter } from "next/navigation";
 //import { signOut } from "@/auth";
 
 import { signOut } from "next-auth/react";
-import { CompanyAccount } from "@prisma/client";
-
-const projects = [
-  { id: 1, name: "1902 - Mech + Elect" },
-  { id: 2, name: "1904 - Product Handling" },
-];
+import { CompanyAccount, Project, SecurityRole } from "@prisma/client";
 
 export default function TopNav({
   companies,
+  projects,
   selectedCompany,
   setSelectedCompany,
+  selectedProject,
+  setSelectedProject,
 }: {
   companies: CompanyAccount[];
   selectedCompany: CompanyAccount;
   setSelectedCompany: any;
+  projects: Project[];
+  selectedProject: Project;
+  setSelectedProject: any;
 }) {
   const router = useRouter();
   const { data: session, update } = useSession();
   const user = session?.user;
-
-  const [selectedProject, setSelectedProject] = React.useState(projects[0]);
 
   function SignOut() {
     return (
@@ -65,11 +64,6 @@ export default function TopNav({
   const onChangeProject = (key: any) => {
     const project = projects.find((p: any) => p.id == key) as any;
     setSelectedProject(project);
-    // const narrative = narratives.find((n: any) => n.companyId == key);
-
-    // setNarrativeValue(narrative.narrative);
-    // setSelectedCompany(company);
-    // setSelectedNarrative(narrative);
   };
 
   return (
@@ -86,7 +80,7 @@ export default function TopNav({
       </NavbarBrand>
 
       <NavbarContent justify="end">
-        {user?.securityRole === "ADMIN" && (
+        {user?.securityRole === SecurityRole.ADMIN && (
           <div>
             <div>
               <Dropdown>

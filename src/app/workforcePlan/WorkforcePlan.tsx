@@ -10,12 +10,16 @@ import {
   Input,
   NumberInput,
 } from "@heroui/react";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
 import { useSession } from "next-auth/react";
 import { getSunday } from "@/lib/utils";
+import { submitWorkforcePlan } from "../actions/workforcePlansActions";
+import { CompanyContext } from "@/components/CompanyContext";
+import { CompanyAccount, Project, WorkforcePlan } from "@prisma/client";
+import { ProjectContext } from "@/components/ProjectContext";
 
 type Dates = {
   endDate: {
@@ -25,7 +29,32 @@ type Dates = {
   };
 }[];
 
-function getDates() {
+function buildDates(workforcePlans: any) {
+  //console.log("FIRST DATE: ", workforcePlans[0].date.getTime());
+  const existing = [...workforcePlans].sort(
+    (a, b) => b.date.getTime() - a.date.getTime()
+  );
+  const builtDates = [];
+
+  while (existing.length > 0) {
+    let i = 0;
+    let weekdays = [];
+    while (i < 6) {
+      i++;
+      weekdays.push(existing.shift());
+    }
+    const sunday = new Date(weekdays[5].date);
+    sunday.setDate(sunday.getDate() + 1);
+    builtDates.push({
+      dateEnd: sunday,
+      weekdays: weekdays,
+    });
+  }
+  builtDates.pop();
+  return builtDates;
+}
+
+function getNewDates() {
   const sunday = getSunday();
   let sundays = [sunday];
   for (var i = 0; i < 10; i++) {
@@ -37,13 +66,13 @@ function getDates() {
   }
   return sundays.map((sunday) => {
     let weekdays = [] as any;
-    for (i = 1; i <= 6; i++) {
+    for (i = 6; i >= 1; i--) {
       const newDate = new Date(sunday);
       weekdays = [
         ...weekdays,
         {
           day: i,
-          date: new Date(newDate.setDate(newDate.getDate() + i)),
+          date: new Date(newDate.setDate(newDate.getDate() - i)),
           dayCount: null,
           nightCount: null,
         },
@@ -56,11 +85,21 @@ function getDates() {
   });
 }
 
-export default function WorkforcePlanPage() {
+export default function WorkforcePlanPage({
+  workforcePlans,
+}: {
+  workforcePlans: WorkforcePlan[];
+}) {
+  const company = useContext<CompanyAccount>(CompanyContext);
+  const project = useContext<Project>(ProjectContext);
+
   const { data } = useSession();
   const user = data?.user;
 
-  const dates = getDates();
+  console.log("Plans", workforcePlans);
+
+  const dates =
+    workforcePlans.length > 0 ? buildDates(workforcePlans) : getNewDates();
 
   const [fillAllDay, setFillAllDay] = useState(0);
   const [fillAllNight, setFillAllNight] = useState(0);
@@ -68,23 +107,16 @@ export default function WorkforcePlanPage() {
   const [fillWeekNight, setFillWeekNight] = useState([]);
   const [workForceDates, setWorkforceDates] = useState(dates);
 
-  // const {
-  //   register,
-  //   control,
-  //   setValue,
-  //   handleSubmit,
-  //   watch,
-  //   formState: { isValid, isSubmitting },
-  // } = useForm({
-  //   //resolver: zodResolver(safetySchema),
-  //   //mode: "onTouched",
-  //   defaultValues: {
-  //     workforcePlan: dates,
-  //   },
-  // });
-
   const onSubmit = async () => {
-    console.log("Submitting", workForceDates);
+    const data = new FormData();
+    data.set("workforcePlan", JSON.stringify(workForceDates));
+    data.set("project", JSON.stringify(project));
+    data.set("company", JSON.stringify(company));
+
+    const uploadRequest = await fetch("/api/workforcePlans", {
+      method: "POST",
+      body: data,
+    });
   };
 
   const onClickFillAll = () => {
@@ -162,7 +194,6 @@ export default function WorkforcePlanPage() {
   };
 
   let i = 0;
-
   return (
     <div className="flex h-full w-full">
       <Sidebar />
@@ -212,9 +243,8 @@ export default function WorkforcePlanPage() {
               return (
                 <section key={weekIndex}>
                   <div className="flex flex-row justify-center">
-                    <div className="flex flex-row mt-4">
+                    <div className="flex flex-row mt-10">
                       <div className="flex flex-col">
-                        <div>{field.dateEnd}</div>
                         <div className="mt-2 mr-2 w-24">
                           <NumberInput
                             hideStepper
@@ -250,9 +280,11 @@ export default function WorkforcePlanPage() {
                     {field.weekdays.map((weekday: any, dayIndex: number) => {
                       i++;
                       return (
-                        <div className="mr-4 sm:mt-4 mt-16">
+                        <div className="mr-4 sm:mt-4 mt-16" key={i}>
                           <div className="flex flex-col">
-                            <span>{weekday.date.toLocaleDateString()}</span>
+                            <span className="text-center">
+                              {weekday.date.toLocaleDateString()}
+                            </span>
                             <div className="mt-2 mr-2 w-24">
                               <NumberInput
                                 hideStepper
@@ -281,13 +313,49 @@ export default function WorkforcePlanPage() {
                         </div>
                       );
                     })}
+
+                    <div className="flex flex-col mt-4">
+                      <span className="text-center">
+                        {field.dateEnd.toLocaleDateString()}
+                      </span>
+                      <div className="mt-2 mr-2 w-24">
+                        <NumberInput
+                          hideStepper
+                          label="Day"
+                          variant="bordered"
+                          key={i}
+                          isDisabled
+                          // value={weekday.dayCount}
+                          // onChange={(e) =>
+                          //   handleDayChange(e, weekIndex, dayIndex)
+                          // }
+                        />
+                      </div>
+                      <div className="mt-2 mr-2 w-24">
+                        <NumberInput
+                          hideStepper
+                          label="Night"
+                          variant="bordered"
+                          key={i}
+                          isDisabled
+                          // value={weekday.nightCount}
+                          // onChange={(e) =>
+                          //   handleNightChange(e, weekIndex, dayIndex)
+                          // }
+                        />
+                      </div>
+                    </div>
                   </div>
                 </section>
               );
             })}
           </div>
           <div className="mt-2">
-            <Button color="primary" onPress={async () => await onSubmit()}>
+            <Button
+              color="primary"
+              //onPress={async () => await onSubmit()}
+              type="submit"
+            >
               Submit
             </Button>
           </div>

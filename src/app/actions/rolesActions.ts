@@ -23,7 +23,6 @@ export async function saveRoles(narrativeType: NarrativeType) {
 }
 
 export async function deleteRole(narrativeType: NarrativeType) {
-    console.log(narrativeType)
     try{
         await prisma.narrativeType.delete({where: {id: narrativeType.id}});
         return { status: "success", data: "Narrative Delete" };

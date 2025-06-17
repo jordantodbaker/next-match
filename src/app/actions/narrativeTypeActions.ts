@@ -2,8 +2,6 @@
 
 import { prisma } from "@/lib/prisma";
 import { NarrativeType } from "@prisma/client";
-import { log } from "console";
-import { GiOldKing } from "react-icons/gi";
 
 export async function getNarrativeTypes() {
   return await prisma.narrativeType.findMany();
@@ -25,7 +23,6 @@ export async function saveNarrativeType(narrativeType: NarrativeType) {
 }
 
 export async function deleteNarrativeType(narrativeType: NarrativeType) {
-    console.log(narrativeType)
     try{
         await prisma.narrativeType.delete({where: {id: narrativeType.id}});
         return { status: "success", data: "Narrative Delete" };
