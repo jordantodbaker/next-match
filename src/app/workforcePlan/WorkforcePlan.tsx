@@ -22,12 +22,15 @@ import { CompanyAccount, Project, WorkforcePlan } from "@prisma/client";
 import { ProjectContext } from "@/components/ProjectContext";
 
 type Dates = {
-  endDate: {
-    date: Date;
-    dayCount?: number;
-    nightCount?: number;
-  };
+  dateEnd: Date;
+  weekdays: Day[];
 }[];
+
+type Day = {
+  date: Date;
+  dayCount?: number;
+  nightCount?: number;
+};
 
 function buildDates(workforcePlans: any) {
   //console.log("FIRST DATE: ", workforcePlans[0].date.getTime());
@@ -79,7 +82,7 @@ function getNewDates() {
       ];
     }
     return {
-      dateEnd: sunday.toLocaleDateString(),
+      dateEnd: sunday,
       weekdays: weekdays,
     };
   });
@@ -105,7 +108,7 @@ export default function WorkforcePlanPage({
   const [fillAllNight, setFillAllNight] = useState(0);
   const [fillWeekDay, setFillWeekDay] = useState([]);
   const [fillWeekNight, setFillWeekNight] = useState([]);
-  const [workForceDates, setWorkforceDates] = useState(dates);
+  const [workForceDates, setWorkforceDates] = useState<Dates>(dates);
 
   const onSubmit = async () => {
     const data = new FormData();
@@ -123,7 +126,7 @@ export default function WorkforcePlanPage({
     const newDates = workForceDates.map((weeks) => {
       return {
         ...weeks,
-        weekdays: weeks.weekdays.map((day: any) => ({
+        weekdays: weeks.weekdays.map((day: Day) => ({
           ...day,
           dayCount: fillAllDay,
           nightCount: fillAllNight,
@@ -137,7 +140,7 @@ export default function WorkforcePlanPage({
     const newDates = workForceDates.map((weeks) => {
       return {
         ...weeks,
-        weekdays: weeks.weekdays.map((day: any) => ({
+        weekdays: weeks.weekdays.map((day: Day) => ({
           ...day,
           dayCount: fillAllDay,
           nightCount: fillAllNight,
