@@ -36,12 +36,15 @@ import { Sidebar } from "@/components/sidebar/Sidebar";
 import Link from "next/link";
 
 type Props = {
-  safetyNarratives: any;
+  safetyNarratives: SafetyNarrative[];
   narratives: Narrative[];
 };
 
 export default function Dashboard({ safetyNarratives, narratives }: Props) {
-  const safetyNarrativeValid = safetyNarratives[0].narrative !== "";
+  const safetyNarrativeValid =
+    safetyNarratives.length > 0 && safetyNarratives[0].narrative !== "";
+  const safetyNarrativeAuthorized =
+    safetyNarratives.length > 0 && safetyNarratives[0].authorized;
   const sections = [
     {
       title: "Safety",
@@ -55,7 +58,7 @@ export default function Dashboard({ safetyNarratives, narratives }: Props) {
       status: safetyNarrativeValid ? "valid" : "warn",
       href: "/safety",
       color: "green",
-      authorized: safetyNarratives[0].authorized,
+      authorized: safetyNarrativeAuthorized,
     },
     {
       title: "Narratives",
@@ -94,7 +97,6 @@ export default function Dashboard({ safetyNarratives, narratives }: Props) {
     <div className="flex h-full w-full">
       <Sidebar />
       <div className="w-full p-18">
-        <h1>Dashboard</h1>
         <div className="flex flex-row justify-between mt-16 flex-wrap">
           {sections.map((s) => (
             <Link href={s.href} className="w-1/5 mr-8 mt-6">

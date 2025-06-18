@@ -48,6 +48,7 @@ export async function registerUser(
     const { name, email, password } = validated.data;
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    console.log("HASHED WIRD", hashedPassword);
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
 

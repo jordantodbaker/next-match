@@ -83,7 +83,6 @@ export default function RegisterForm() {
               fullWidth
               color="primary"
               type="submit"
-              isDisabled={!isValid}
             >
               Register
             </Button>

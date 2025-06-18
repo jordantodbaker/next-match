@@ -33,9 +33,9 @@ model SafetyNarrative {
   userId         Int?
   companyAccount CompanyAccount? @relation(fields: [companyId], references: [id])
   companyId      Int?
-  narrative      String
-  updatedAt      DateTime        @updatedAt
-  authorized     Boolean         @default(false)
+  narrative      String?
+  updatedAt      DateTime?       @updatedAt
+  authorized     Boolean?        @default(false)
 }
 
 model Narrative {

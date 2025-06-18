@@ -33,10 +33,10 @@ type Day = {
 };
 
 function buildDates(workforcePlans: any) {
-  //console.log("FIRST DATE: ", workforcePlans[0].date.getTime());
   const existing = [...workforcePlans].sort(
     (a, b) => b.date.getTime() - a.date.getTime()
   );
+  existing.sort((a, b) => a.date.getTime() - b.date.getTime());
   const builtDates = [];
 
   while (existing.length > 0) {
@@ -74,7 +74,6 @@ function getNewDates() {
       weekdays = [
         ...weekdays,
         {
-          day: i,
           date: new Date(newDate.setDate(newDate.getDate() - i)),
           dayCount: null,
           nightCount: null,
@@ -98,8 +97,6 @@ export default function WorkforcePlanPage({
 
   const { data } = useSession();
   const user = data?.user;
-
-  console.log("Plans", workforcePlans);
 
   const dates =
     workforcePlans.length > 0 ? buildDates(workforcePlans) : getNewDates();
@@ -150,41 +147,67 @@ export default function WorkforcePlanPage({
     setWorkforceDates(newDates);
   };
 
-  const onChangeFillAllDay = (e: any) => {
+  const onChangeFillAllDay = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFillAllDay(parseInt(e.target.value));
   };
 
-  const onChangeFillAllNight = (e: any) => {
+  const onChangeFillAllNight = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFillAllNight(parseInt(e.target.value));
   };
 
-  const onChangeFillWeekDay = (e: any, i: number) => {
-    let newWeek = fillWeekDay as any;
-    newWeek[i] = parseInt(e.target.value);
-    setFillWeekDay(newWeek);
+  const onChangeFillWeekDay = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    i: number
+  ) => {
+    if (e.target) {
+      let newWeek = fillWeekDay as any;
+      newWeek[i] = parseInt(e.target.value);
+      setFillWeekDay(newWeek);
+    }
   };
 
-  const onChangeFillWeekNight = (e: any, i: number) => {
-    let newWeek = fillWeekNight as any;
-    newWeek[i] = parseInt(e.target.value);
-    setFillWeekNight(newWeek);
+  const onChangeFillWeekNight = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    i: number
+  ) => {
+    if (e.target) {
+      let newWeek = fillWeekNight as any;
+      newWeek[i] = parseInt(e.target.value);
+      setFillWeekNight(newWeek);
+    }
   };
 
-  const handleDayChange = (e: any, weekIndex: number, dayIndex: number) => {
-    let newWorkforceDates = workForceDates;
-    newWorkforceDates[weekIndex].weekdays[dayIndex].dayCount = e.target.value;
-    setWorkforceDates(newWorkforceDates);
+  const handleDayChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    weekIndex: number,
+    dayIndex: number
+  ) => {
+    if (e.target) {
+      let newWorkforceDates = workForceDates;
+      newWorkforceDates[weekIndex].weekdays[dayIndex].dayCount = parseInt(
+        e.target.value
+      );
+      setWorkforceDates(newWorkforceDates);
+    }
   };
 
-  const handleNightChange = (e: any, weekIndex: number, dayIndex: number) => {
-    let newWorkforceDates = workForceDates;
-    newWorkforceDates[weekIndex].weekdays[dayIndex].nightCount = e.target.value;
-    setWorkforceDates(newWorkforceDates);
+  const handleNightChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    weekIndex: number,
+    dayIndex: number
+  ) => {
+    if (e.target) {
+      let newWorkforceDates = workForceDates;
+      newWorkforceDates[weekIndex].weekdays[dayIndex].nightCount = parseInt(
+        e.target.value
+      );
+      setWorkforceDates(newWorkforceDates);
+    }
   };
 
-  const onClickFillWeek = (weekIndex: any) => {
+  const onClickFillWeek = (weekIndex: number) => {
     let newDates = [...workForceDates];
-    const newWeek = workForceDates[weekIndex].weekdays.map((day: any) => ({
+    const newWeek = workForceDates[weekIndex].weekdays.map((day: Day) => ({
       ...day,
       dayCount: fillWeekDay[weekIndex] ? fillWeekDay[weekIndex] : day.dayCount,
       nightCount: fillWeekNight[weekIndex]
@@ -214,7 +237,11 @@ export default function WorkforcePlanPage({
                     hideStepper
                     label="Day"
                     variant="bordered"
-                    onChange={(e) => onChangeFillAllDay(e)}
+                    onChange={(e) =>
+                      onChangeFillAllDay(
+                        e as React.ChangeEvent<HTMLInputElement>
+                      )
+                    }
                     value={fillAllDay}
                   />
                 </div>
@@ -223,7 +250,11 @@ export default function WorkforcePlanPage({
                     hideStepper
                     label="Night"
                     variant="bordered"
-                    onChange={(e) => onChangeFillAllNight(e)}
+                    onChange={(e) =>
+                      onChangeFillAllNight(
+                        e as React.ChangeEvent<HTMLInputElement>
+                      )
+                    }
                     value={fillAllNight}
                   />
                 </div>
@@ -253,7 +284,12 @@ export default function WorkforcePlanPage({
                             hideStepper
                             label="Day"
                             variant="bordered"
-                            onChange={(e) => onChangeFillWeekDay(e, weekIndex)}
+                            onChange={(e) =>
+                              onChangeFillWeekDay(
+                                e as React.ChangeEvent<HTMLInputElement>,
+                                weekIndex
+                              )
+                            }
                             value={fillWeekDay[weekIndex]}
                           />
                         </div>
@@ -263,7 +299,10 @@ export default function WorkforcePlanPage({
                             label="Night"
                             variant="bordered"
                             onChange={(e) =>
-                              onChangeFillWeekNight(e, weekIndex)
+                              onChangeFillWeekNight(
+                                e as React.ChangeEvent<HTMLInputElement>,
+                                weekIndex
+                              )
                             }
                             value={fillWeekNight[weekIndex]}
                           />
@@ -296,7 +335,11 @@ export default function WorkforcePlanPage({
                                 key={i}
                                 value={weekday.dayCount}
                                 onChange={(e) =>
-                                  handleDayChange(e, weekIndex, dayIndex)
+                                  handleDayChange(
+                                    e as React.ChangeEvent<HTMLInputElement>,
+                                    weekIndex,
+                                    dayIndex
+                                  )
                                 }
                               />
                             </div>
@@ -308,7 +351,11 @@ export default function WorkforcePlanPage({
                                 key={i}
                                 value={weekday.nightCount}
                                 onChange={(e) =>
-                                  handleNightChange(e, weekIndex, dayIndex)
+                                  handleNightChange(
+                                    e as React.ChangeEvent<HTMLInputElement>,
+                                    weekIndex,
+                                    dayIndex
+                                  )
                                 }
                               />
                             </div>

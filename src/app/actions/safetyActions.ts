@@ -61,7 +61,7 @@ export async function getNarratives() {
             await prisma.safetyNarrative.findFirst({
               where: { companyId: user.companyId },
             }),
-          ]
+          ].filter(n => !!n)
         : await prisma.safetyNarrative.findMany();
     return narratives;
   }
