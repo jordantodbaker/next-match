@@ -10,7 +10,7 @@ import {
   Input,
   NumberInput,
 } from "@heroui/react";
-import { useContext, useState } from "react";
+import { Key, useContext, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
@@ -18,9 +18,10 @@ import { useSession } from "next-auth/react";
 import { getSunday } from "@/lib/utils";
 import { submitWorkforcePlan } from "../actions/workforcePlansActions";
 import { CompanyContext } from "@/components/CompanyContext";
-import { CompanyAccount, Project, WorkforcePlan } from "@prisma/client";
+import { CompanyAccount, Project, Role, WorkforcePlan } from "@prisma/client";
 import { ProjectContext } from "@/components/ProjectContext";
 import WorkforceWeek from "./WorkforceWeek";
+import { emptyRole } from "@/lib/schemas/defaultModels";
 
 type Dates = {
   dateEnd: Date;
@@ -90,14 +91,17 @@ function getNewDates() {
 
 export default function WorkforcePlanPage({
   workforcePlans,
+  roles,
 }: {
   workforcePlans: WorkforcePlan[];
+  roles: Role[];
 }) {
   const company = useContext<CompanyAccount>(CompanyContext);
   const project = useContext<Project>(ProjectContext);
   const { data } = useSession();
   const user = data?.user;
 
+  const initialRole = roles.length > 0 ? roles[0] : emptyRole;
   const dates =
     workforcePlans.length > 0 ? buildDates(workforcePlans) : getNewDates();
 
@@ -106,12 +110,14 @@ export default function WorkforcePlanPage({
   const [fillWeekDay, setFillWeekDay] = useState<number[]>([]);
   const [fillWeekNight, setFillWeekNight] = useState<number[]>([]);
   const [workForceDates, setWorkforceDates] = useState<Dates>(dates);
+  const [selectedRole, setSelectedRole] = useState<Role>(initialRole);
 
   const onSubmit = async () => {
     const data = new FormData();
     data.set("workforcePlan", JSON.stringify(workForceDates));
     data.set("project", JSON.stringify(project));
     data.set("company", JSON.stringify(company));
+    data.set("role", JSON.stringify(selectedRole))
 
     const uploadRequest = await fetch("/api/workforcePlans", {
       method: "POST",
@@ -145,6 +151,13 @@ export default function WorkforcePlanPage({
       };
     });
     setWorkforceDates(newDates);
+  };
+
+  const onChangeRole = (key: Key) => {
+    const newRole = roles.find((r) => r.id == key);
+    if (newRole) {
+      setSelectedRole(newRole);
+    }
   };
 
   const onChangeFillAllDay = (value: number) => {
@@ -211,6 +224,27 @@ export default function WorkforcePlanPage({
         <form onSubmit={async () => await onSubmit()}>
           <div className="w-full mt-16 h-full">
             <div className="w-1/4 m-auto mb-4">
+              <div>
+                {" "}
+                <Dropdown>
+                  <DropdownTrigger>
+                    <Button variant="bordered" color="primary">
+                      {selectedRole.name ? selectedRole.name : "Select a Role"}
+                    </Button>
+                  </DropdownTrigger>
+                  <DropdownMenu
+                    color="primary"
+                    variant="faded"
+                    aria-label="Static Actions"
+                    onAction={(key: Key) => onChangeRole(key)}
+                    selectionMode="single"
+                  >
+                    {roles.map((roles) => (
+                      <DropdownItem key={roles.id}>{roles.name}</DropdownItem>
+                    ))}
+                  </DropdownMenu>
+                </Dropdown>
+              </div>
               <div className="flex flex-row">
                 <div className="mt-2 mr-2 ">
                   <NumberInput

@@ -12,13 +12,15 @@ export async function submitWorkforcePlan(
   const workforcePlan = JSON.parse(data.get("workforcePlan"));
   const company = JSON.parse(data.get("company"));
   const project = JSON.parse(data.get("project"));
+  const role = JSON.parse(data.get("role"));
 
-  const existingWFP = await prisma.workforcePlan.findFirst({where: {companyId: company.id, projectId: project.id}});
+  const existingWFP = await prisma.workforcePlan.findFirst({where: {companyId: company.id, projectId: project.id, roleId: role.id}});
 
   const dates = workforcePlan.map((p: any) => ([...p.weekdays.map((w: any) => ({
     ...w,
     projectId: project.id,
-    companyId: company.id
+    companyId: company.id,
+    roleId: role.id
   })) ])).flat()
 
   console.log('WFPS TO GO => ', workforcePlan)

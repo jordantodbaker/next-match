@@ -4,9 +4,10 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(request: NextRequest){
     try {
         const data = await request.formData();
+        console.log("DATA: ", data);
         const result = await submitWorkforcePlan(data);
 
-        console.log("DATA: ", data)
+        
 
         return NextResponse.json("", {status: 200});
 
