@@ -28,8 +28,11 @@ type Props = {
 export default function SafetyPage({ narratives }: Props) {
   const company = useContext<CompanyAccount>(CompanyContext);
 
+  const initialNarrative =
+    narratives.length > 0 && narratives[0].narrative ? narratives[0] : "";
+
   const [selectedNarrative, setSelectedNarrative] = useState(narratives[0]);
-  const [narrativeValue, setNarrativeValue] = useState(narratives[0].narrative);
+  const [narrativeValue, setNarrativeValue] = useState(initialNarrative);
 
   useEffect(() => {
     if (company && user?.securityRole === SecurityRole.ADMIN) {
@@ -89,21 +92,24 @@ export default function SafetyPage({ narratives }: Props) {
               {...register("narrative")}
               label="Narrative"
               placeholder="Enter your Safety Narrative"
-              defaultValue={selectedNarrative.narrative}
+              defaultValue={selectedNarrative?.narrative || ""}
               onChange={(e) => onNarrativeChange(e)}
               value={narrativeValue}
-              disabled={selectedNarrative.authorized}
+              disabled={selectedNarrative?.authorized}
             />
-            <div className="flex justify-end mr-2 text-gray-500 font-light italic mt-1">
-              Last updated on {selectedNarrative.updatedAt.toLocaleDateString()}{" "}
-              at {selectedNarrative.updatedAt.toLocaleTimeString()}
-            </div>
+            {selectedNarrative?.updatedAt && (
+              <div className="flex justify-end mr-2 text-gray-500 font-light italic mt-1">
+                Last updated on{" "}
+                {selectedNarrative.updatedAt.toLocaleDateString()} at{" "}
+                {selectedNarrative.updatedAt.toLocaleTimeString()}
+              </div>
+            )}
           </div>
           <div className="mt-2">
             <Button
               color="primary"
               type="submit"
-              isDisabled={selectedNarrative.authorized}
+              isDisabled={selectedNarrative?.authorized}
               isLoading={isSubmitting}
             >
               Submit
@@ -116,7 +122,7 @@ export default function SafetyPage({ narratives }: Props) {
                 isLoading={isSubmitting}
                 onPress={onClickAuthorize}
               >
-                {selectedNarrative.authorized ? "Unauthorize" : "Authorize"}
+                {selectedNarrative?.authorized ? "Unauthorize" : "Authorize"}
               </Button>
             )}
           </div>

@@ -9,6 +9,7 @@ import TopNav from "./navbar/TopNav";
 import { CompanyAccount, Project } from "@prisma/client";
 import { CompanyContext } from "./CompanyContext";
 import { ProjectContext } from "./ProjectContext";
+import { emptyCompany, emptyProject } from "@/lib/schemas/defaultModels";
 
 export default function Providers({
   companies,
@@ -19,8 +20,11 @@ export default function Providers({
   projects: Project[];
   children: ReactNode;
 }) {
-  const [selectedCompany, setSelectedCompany] = useState(companies[0]);
-  const [selectedProject, setSelectedProject] = useState(projects[0]);
+  const initialCompany = companies.length > 0 ? companies[0] : emptyCompany;
+  const initialProject = projects.length > 0 ? projects[0] : emptyProject;
+
+  const [selectedCompany, setSelectedCompany] = useState(initialCompany);
+  const [selectedProject, setSelectedProject] = useState(initialProject);
 
   return (
     <SessionProvider>

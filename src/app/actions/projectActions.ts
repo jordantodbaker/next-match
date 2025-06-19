@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { SafetySchema } from "@/lib/schemas/safetySchema";
 import { Narrative, NarrativeType, SecurityRole, User } from "@prisma/client";
 import { auth } from "@/auth";
+import { emptyProject } from "@/lib/schemas/defaultModels";
 
 export async function getProjects() {
   const session = await auth();
@@ -16,6 +17,6 @@ export async function getProjects() {
       ? 
           await prisma.project.findMany()
         
-      : companyAccount?.projects;
+      : companyAccount && companyAccount.projects ? companyAccount.projects : [emptyProject];
   return projects;
 }

@@ -20,6 +20,7 @@ import { submitWorkforcePlan } from "../actions/workforcePlansActions";
 import { CompanyContext } from "@/components/CompanyContext";
 import { CompanyAccount, Project, WorkforcePlan } from "@prisma/client";
 import { ProjectContext } from "@/components/ProjectContext";
+import WorkforceWeek from "./WorkforceWeek";
 
 type Dates = {
   dateEnd: Date;
@@ -94,7 +95,6 @@ export default function WorkforcePlanPage({
 }) {
   const company = useContext<CompanyAccount>(CompanyContext);
   const project = useContext<Project>(ProjectContext);
-
   const { data } = useSession();
   const user = data?.user;
 
@@ -103,8 +103,8 @@ export default function WorkforcePlanPage({
 
   const [fillAllDay, setFillAllDay] = useState(0);
   const [fillAllNight, setFillAllNight] = useState(0);
-  const [fillWeekDay, setFillWeekDay] = useState([]);
-  const [fillWeekNight, setFillWeekNight] = useState([]);
+  const [fillWeekDay, setFillWeekDay] = useState<number[]>([]);
+  const [fillWeekNight, setFillWeekNight] = useState<number[]>([]);
   const [workForceDates, setWorkforceDates] = useState<Dates>(dates);
 
   const onSubmit = async () => {
@@ -139,70 +139,52 @@ export default function WorkforcePlanPage({
         ...weeks,
         weekdays: weeks.weekdays.map((day: Day) => ({
           ...day,
-          dayCount: fillAllDay,
-          nightCount: fillAllNight,
+          dayCount: day.dayCount ? day.dayCount : fillAllDay,
+          nightCount: day.nightCount ? day.nightCount : fillAllNight,
         })),
       };
     });
     setWorkforceDates(newDates);
   };
 
-  const onChangeFillAllDay = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFillAllDay(parseInt(e.target.value));
+  const onChangeFillAllDay = (value: number) => {
+    setFillAllDay(value);
   };
 
-  const onChangeFillAllNight = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFillAllNight(parseInt(e.target.value));
+  const onChangeFillAllNight = (value: number) => {
+    setFillAllNight(value);
   };
 
-  const onChangeFillWeekDay = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    i: number
-  ) => {
-    if (e.target) {
-      let newWeek = fillWeekDay as any;
-      newWeek[i] = parseInt(e.target.value);
-      setFillWeekDay(newWeek);
-    }
+  const onChangeFillWeekDay = (value: number, i: number) => {
+    let newWeek = [...fillWeekDay] as any;
+    newWeek[i] = value;
+    setFillWeekDay(newWeek);
   };
 
-  const onChangeFillWeekNight = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    i: number
-  ) => {
-    if (e.target) {
-      let newWeek = fillWeekNight as any;
-      newWeek[i] = parseInt(e.target.value);
-      setFillWeekNight(newWeek);
-    }
+  const onChangeFillWeekNight = (value: number, i: number) => {
+    let newWeek = [...fillWeekNight] as any;
+    newWeek[i] = value;
+    setFillWeekNight(newWeek);
   };
 
   const handleDayChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
+    value: number,
     weekIndex: number,
     dayIndex: number
   ) => {
-    if (e.target) {
-      let newWorkforceDates = workForceDates;
-      newWorkforceDates[weekIndex].weekdays[dayIndex].dayCount = parseInt(
-        e.target.value
-      );
-      setWorkforceDates(newWorkforceDates);
-    }
+    let newWorkforceDates = [...workForceDates];
+    newWorkforceDates[weekIndex].weekdays[dayIndex].dayCount = value;
+    setWorkforceDates(newWorkforceDates);
   };
 
   const handleNightChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
+    value: number,
     weekIndex: number,
     dayIndex: number
   ) => {
-    if (e.target) {
-      let newWorkforceDates = workForceDates;
-      newWorkforceDates[weekIndex].weekdays[dayIndex].nightCount = parseInt(
-        e.target.value
-      );
-      setWorkforceDates(newWorkforceDates);
-    }
+    let newWorkforceDates = [...workForceDates];
+    newWorkforceDates[weekIndex].weekdays[dayIndex].nightCount = value;
+    setWorkforceDates(newWorkforceDates);
   };
 
   const onClickFillWeek = (weekIndex: number) => {
@@ -219,7 +201,6 @@ export default function WorkforcePlanPage({
     setWorkforceDates(newDates);
   };
 
-  let i = 0;
   return (
     <div className="flex h-full w-full">
       <Sidebar />
@@ -227,7 +208,6 @@ export default function WorkforcePlanPage({
         <div>
           <h1 className="text-3xl text-center">Workforce Plan</h1>
         </div>
-
         <form onSubmit={async () => await onSubmit()}>
           <div className="w-full mt-16 h-full">
             <div className="w-1/4 m-auto mb-4">
@@ -237,11 +217,7 @@ export default function WorkforcePlanPage({
                     hideStepper
                     label="Day"
                     variant="bordered"
-                    onChange={(e) =>
-                      onChangeFillAllDay(
-                        e as React.ChangeEvent<HTMLInputElement>
-                      )
-                    }
+                    onValueChange={(value) => onChangeFillAllDay(value)}
                     value={fillAllDay}
                   />
                 </div>
@@ -250,11 +226,7 @@ export default function WorkforcePlanPage({
                     hideStepper
                     label="Night"
                     variant="bordered"
-                    onChange={(e) =>
-                      onChangeFillAllNight(
-                        e as React.ChangeEvent<HTMLInputElement>
-                      )
-                    }
+                    onValueChange={(value) => onChangeFillAllNight(value)}
                     value={fillAllNight}
                   />
                 </div>
@@ -273,139 +245,24 @@ export default function WorkforcePlanPage({
                 </Button>
               </div>
             </div>
-            {workForceDates.map((field, weekIndex) => {
+            {workForceDates.map((week, weekIndex) => {
               return (
-                <section key={weekIndex}>
-                  <div className="flex flex-row justify-center">
-                    <div className="flex flex-row mt-10">
-                      <div className="flex flex-col">
-                        <div className="mt-2 mr-2 w-24">
-                          <NumberInput
-                            hideStepper
-                            label="Day"
-                            variant="bordered"
-                            onChange={(e) =>
-                              onChangeFillWeekDay(
-                                e as React.ChangeEvent<HTMLInputElement>,
-                                weekIndex
-                              )
-                            }
-                            value={fillWeekDay[weekIndex]}
-                          />
-                        </div>
-                        <div className="mt-2 mr-2 w-24">
-                          <NumberInput
-                            hideStepper
-                            label="Night"
-                            variant="bordered"
-                            onChange={(e) =>
-                              onChangeFillWeekNight(
-                                e as React.ChangeEvent<HTMLInputElement>,
-                                weekIndex
-                              )
-                            }
-                            value={fillWeekNight[weekIndex]}
-                          />
-                        </div>
-                      </div>
-                      <div className="flex items-center ml-4 mr-4">
-                        <Button
-                          color="primary"
-                          onPress={() => {
-                            onClickFillWeek(weekIndex);
-                          }}
-                        >
-                          Fill Week
-                        </Button>
-                      </div>
-                    </div>
-                    {field.weekdays.map((weekday: any, dayIndex: number) => {
-                      i++;
-                      return (
-                        <div className="mr-4 sm:mt-4 mt-16" key={i}>
-                          <div className="flex flex-col">
-                            <span className="text-center">
-                              {weekday.date.toLocaleDateString()}
-                            </span>
-                            <div className="mt-2 mr-2 w-24">
-                              <NumberInput
-                                hideStepper
-                                label="Day"
-                                variant="bordered"
-                                key={i}
-                                value={weekday.dayCount}
-                                onChange={(e) =>
-                                  handleDayChange(
-                                    e as React.ChangeEvent<HTMLInputElement>,
-                                    weekIndex,
-                                    dayIndex
-                                  )
-                                }
-                              />
-                            </div>
-                            <div className="mt-2 mr-2 w-24">
-                              <NumberInput
-                                hideStepper
-                                label="Night"
-                                variant="bordered"
-                                key={i}
-                                value={weekday.nightCount}
-                                onChange={(e) =>
-                                  handleNightChange(
-                                    e as React.ChangeEvent<HTMLInputElement>,
-                                    weekIndex,
-                                    dayIndex
-                                  )
-                                }
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-
-                    <div className="flex flex-col mt-4">
-                      <span className="text-center">
-                        {field.dateEnd.toLocaleDateString()}
-                      </span>
-                      <div className="mt-2 mr-2 w-24">
-                        <NumberInput
-                          hideStepper
-                          label="Day"
-                          variant="bordered"
-                          key={i}
-                          isDisabled
-                          // value={weekday.dayCount}
-                          // onChange={(e) =>
-                          //   handleDayChange(e, weekIndex, dayIndex)
-                          // }
-                        />
-                      </div>
-                      <div className="mt-2 mr-2 w-24">
-                        <NumberInput
-                          hideStepper
-                          label="Night"
-                          variant="bordered"
-                          key={i}
-                          isDisabled
-                          // value={weekday.nightCount}
-                          // onChange={(e) =>
-                          //   handleNightChange(e, weekIndex, dayIndex)
-                          // }
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </section>
+                <WorkforceWeek
+                  week={week}
+                  weekIndex={weekIndex}
+                  fillWeekDay={fillWeekDay}
+                  fillWeekNight={fillWeekNight}
+                  onChangeFillWeekDay={onChangeFillWeekDay}
+                  onChangeFillWeekNight={onChangeFillWeekNight}
+                  onClickFillWeek={onClickFillWeek}
+                  handleDayChange={handleDayChange}
+                  handleNightChange={handleNightChange}
+                />
               );
             })}
           </div>
           <div className="mt-2">
-            <Button
-              color="primary"
-              //onPress={async () => await onSubmit()}
-              type="submit"
-            >
+            <Button color="primary" type="submit">
               Submit
             </Button>
           </div>

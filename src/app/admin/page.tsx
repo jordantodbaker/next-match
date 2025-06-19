@@ -5,10 +5,10 @@ import { getCompanies } from "../actions/companyActions";
 
 export default async function AdminPage() {
   const narratives = await getNarratives();
-
+  const intialNarratives = narratives.length > 0 ? narratives : [];
   return (
     <div className="flex h-full w-full">
-      <Narrative narratives={narratives} />
+      <Narrative narratives={intialNarratives} />
     </div>
   );
 }

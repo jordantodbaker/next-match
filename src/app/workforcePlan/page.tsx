@@ -6,9 +6,10 @@ import { getWorkforcePlans } from "../actions/workforcePlansActions";
 
 export default async function WorkforcePlanPage() {
   const workforcePlans = await getWorkforcePlans();
+  //const roles = await getRoles();
   return (
     <div className="flex h-full w-full">
-      <WorkforcePlan workforcePlans={workforcePlans}/>
+      <WorkforcePlan workforcePlans={workforcePlans} />
     </div>
   );
 }

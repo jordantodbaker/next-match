@@ -1,35 +1,42 @@
 "use client";
 
 import { Button, Input } from "@heroui/react";
-import { useState } from "react";
+import { useState, useContext, useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import React from "react";
-import { SafetySchema } from "@/lib/schemas/safetySchema";
-//import { authorizeNarrative, submitNarrative } from "../../actions/safetyActions";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
-import { CompanyContext } from "@/components/CompanyContext";
-import { NarrativeType } from "@prisma/client";
 import { AdminSidebar } from "@/components/sidebar/AdminSidebar";
 import { IconSquareX } from "@tabler/icons-react";
-import {
-  saveNarrativeType,
-  deleteNarrativeType,
-} from "@/app/actions/narrativeTypeActions";
-
-type Role = {
-  id: number;
-  name: string;
-};
+import { ProjectContext } from "@/components/ProjectContext";
+import { Role } from "@prisma/client";
+import { deleteRole, saveRoles } from "@/app/actions/rolesActions";
+import { emptyRole } from "@/lib/schemas/defaultModels";
 
 type Props = {
   userRoles: Role[];
 };
 
-export default function Roles(userRoles: any) {
+export default function Roles({ userRoles }: Props) {
   const { data } = useSession();
   const user = data?.user;
-  const [roles, setRoles] = useState(userRoles);
+  const project = useContext(ProjectContext);
+
+  const initialRoles =
+    userRoles.length > 0
+      ? userRoles
+      : [{ ...emptyRole, projectId: project.id }];
+
+  const [roles, setRoles] = useState(
+    initialRoles.filter((r) => r.projectId === project.id)
+  );
+
+  useEffect(() => {
+    const newRoles = [...initialRoles].filter(
+      (r) => r.projectId === project.id
+    );
+    setRoles(newRoles);
+  }, [project]);
 
   const {
     register,
@@ -52,29 +59,27 @@ export default function Roles(userRoles: any) {
   });
 
   const onSubmit = async (values: { roles: Role[] }) => {
-    // const result = await Promise.all(
-    //   values.roles.map(async (n) => saveNarrativeType(n))
-    // );
-    // const success = result.filter((r) => r.status === "error").length === 0;
-    // if (success) {
-    //   toast.success("Narrative saved.");
-    // } else {
-    //   toast.error("Something went wrong.");
-    // }
+    const result = await saveRoles(values.roles);
+    if (result.status === "success") {
+      toast.success("Roles saved.");
+    } else {
+      toast.error("Something went wrong.");
+    }
   };
 
-  // const onDelete = async (index: number) => {
-  //   const result = await deleteNarrativeType(types[index]);
+  const onDelete = async (index: number) => {
+    console.log("Role to delete: ", roles[index]);
+    const result = await deleteRole(roles[index]);
 
-  //   if (result.status === "success") {
-  //     const newTypes = types.filter((t) => t.type !== types[index].type);
-  //     setTypes(newTypes);
-  //     remove(index);
-  //     toast.success("Narrative saved.");
-  //   } else {
-  //     toast.error(result.error);
-  //   }
-  // };
+    if (result.status === "success") {
+      const newRoles = roles.filter((t) => t.name !== roles[index].name);
+      setRoles(newRoles);
+      remove(index);
+      toast.success("Role deleted.");
+    } else {
+      toast.error(result.error);
+    }
+  };
 
   return (
     <div className="flex h-full w-full">
@@ -86,18 +91,29 @@ export default function Roles(userRoles: any) {
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="w-full mt-16 h-full">
-            {fields.map((role: any, index: number) => {
+            {fields.map((role: Role, index: number) => {
               return (
                 <div className="mt-2 flex flex-row justify-between">
-                  <div className="mr-4">
-                    <Input key={role.id} {...register(`roles.${index}.name`)} />
+                  <div className="flex flex-row">
+                    <div className="mr-4">
+                      <Input
+                        label="name"
+                        key={role.id}
+                        {...register(`roles.${index}.name`)}
+                      />
+                    </div>
+                    <div className="mr-4">
+                      <Input
+                        label="code"
+                        key={role.id}
+                        {...register(`roles.${index}.code`)}
+                      />
+                    </div>
                   </div>
                   <div>
                     <Button
                       color="primary"
-                      onPress={async () => {
-                        //await onDelete(index);
-                      }}
+                      onPress={async () => onDelete(index)}
                       endContent={<IconSquareX />}
                     >
                       Delete
@@ -113,8 +129,8 @@ export default function Roles(userRoles: any) {
               variant="bordered"
               color="primary"
               type="button"
-              onClick={() => {
-                append({ id: 0, name: "" });
+              onPress={() => {
+                append(emptyRole);
               }}
             >
               Add Another

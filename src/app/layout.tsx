@@ -6,6 +6,7 @@ import "./globals.css";
 import { useSession } from "next-auth/react";
 import { auth } from "@/auth";
 import { SecurityRole } from "@prisma/client";
+import { emptyCompany, emptyProject } from "@/lib/schemas/defaultModels";
 
 export const metadata: Metadata = {
   title: "NextMatch",
@@ -20,13 +21,18 @@ export default async function RootLayout({
   const session = await auth();
   const user = session?.user;
   const companies =
-    user?.securityRole === SecurityRole.ADMIN ? await getCompanies() : await getCompany();
+    user?.securityRole === SecurityRole.ADMIN
+      ? await getCompanies()
+      : await getCompany();
   const projects = await getProjects();
+
+  const initialCompanies = companies.length > 0 ? companies : [emptyCompany];
+  const initialProjects = projects.length > 0 ? projects : [emptyProject];
 
   return (
     <html lang="en">
       <body>
-        <Providers companies={companies} projects={projects!}>
+        <Providers companies={initialCompanies} projects={initialProjects}>
           <main className="vertical-center">{children}</main>
         </Providers>
       </body>
