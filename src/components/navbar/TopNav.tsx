@@ -106,9 +106,20 @@ export default function TopNav({
           </div>
         )}
         {!session ? (
-          <Button as={Link} href="/login" variant="bordered" color="primary">
-            Login
-          </Button>
+          <div>
+            <Button
+              as={Link}
+              href="/login"
+              variant="bordered"
+              color="primary"
+              className="mr-4"
+            >
+              Login
+            </Button>
+            <Button as={Link} href="/demo" variant="bordered" color="primary">
+              Demo
+            </Button>
+          </div>
         ) : (
           <div className="flex flex-row">
             <div className="mr-2">
