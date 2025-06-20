@@ -13,7 +13,7 @@ export default async function AdminPage() {
         title="HaskellSilaCumulative"
         width="1200"
         height="673.5"
-        src="https://app.powerbi.com/view?r=eyJrIjoiZWU2NzE0YjgtMDg0Yi00YThjLTlmYWItYjNjMmU2ZTRkNTUzIiwidCI6ImYyODhkNTU2LTJmZTctNDkwZS1iYzdlLTFhMzcwYTRlNTU2ZiIsImMiOjZ9"
+        src="https://app.powerbi.com/view?r=eyJrIjoiODNlYTkyNTYtNzU4Yi00N2M5LWJlMWEtMzlmZTEzODU5YzJjIiwidCI6ImYyODhkNTU2LTJmZTctNDkwZS1iYzdlLTFhMzcwYTRlNTU2ZiIsImMiOjZ9"
         allowFullScreen={true}
       ></iframe>
       {/* <iframe
