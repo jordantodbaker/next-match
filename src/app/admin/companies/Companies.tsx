@@ -1,6 +1,23 @@
 "use client";
 
-import { Button, Input } from "@heroui/react";
+import {
+  Button,
+  Input,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
+  Table,
+  TableHeader,
+  TableColumn,
+  TableBody,
+  TableRow,
+  TableCell,
+  Chip,
+  Tooltip,
+} from "@heroui/react";
 import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import React from "react";
@@ -17,6 +34,7 @@ import {
   deleteNarrativeType,
 } from "@/app/actions/narrativeTypeActions";
 import { deleteCompany } from "@/app/actions/companyActions";
+import CompanyTable from "./CompanyTable";
 
 type Props = {
   companies: CompanyAccount[];
@@ -26,6 +44,7 @@ export default function Companies({ companies: retarde }: Props) {
   const { data } = useSession();
   const user = data?.user;
   const [companies, setCompanies] = useState(retarde);
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const {
     register,
@@ -80,9 +99,9 @@ export default function Companies({ companies: retarde }: Props) {
       <AdminSidebar />
       <div className="w-full flex flex-col m-16">
         <div>
-          <h1 className="text-3xl text-center">Narrative Types</h1>
+          <h1 className="text-3xl text-center">Companies</h1>
         </div>
-
+        <CompanyTable />
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="w-full mt-16 h-full">
             {fields.map((company: CompanyAccount, index: number) => {
@@ -115,16 +134,54 @@ export default function Companies({ companies: retarde }: Props) {
               variant="bordered"
               color="primary"
               type="button"
-              onClick={() => {
-                append({ id: 0, name: "", companyCode: "" });
-              }}
+              onPress={onOpen}
             >
-              Add Another
+              Add Company
             </Button>
-            <Button color="primary" type="submit" isLoading={isSubmitting}>
+            {/* <Button color="primary" type="submit" isLoading={isSubmitting}>
               Submit
-            </Button>
+            </Button> */}
           </div>
+          <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+            <ModalContent>
+              {(onClose) => (
+                <>
+                  <ModalHeader className="flex flex-col gap-1">
+                    Modal Title
+                  </ModalHeader>
+                  <ModalBody>
+                    <p>
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                      Nullam pulvinar risus non risus hendrerit venenatis.
+                      Pellentesque sit amet hendrerit risus, sed porttitor quam.
+                    </p>
+                    <p>
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                      Nullam pulvinar risus non risus hendrerit venenatis.
+                      Pellentesque sit amet hendrerit risus, sed porttitor quam.
+                    </p>
+                    <p>
+                      Magna exercitation reprehenderit magna aute tempor
+                      cupidatat consequat elit dolor adipisicing. Mollit dolor
+                      eiusmod sunt ex incididunt cillum quis. Velit duis sit
+                      officia eiusmod Lorem aliqua enim laboris do dolor
+                      eiusmod. Et mollit incididunt nisi consectetur esse
+                      laborum eiusmod pariatur proident Lorem eiusmod et. Culpa
+                      deserunt nostrud ad veniam.
+                    </p>
+                  </ModalBody>
+                  <ModalFooter>
+                    <Button color="danger" variant="light" onPress={onClose}>
+                      Close
+                    </Button>
+                    <Button color="primary" onPress={onClose}>
+                      Action
+                    </Button>
+                  </ModalFooter>
+                </>
+              )}
+            </ModalContent>
+          </Modal>
         </form>
       </div>
     </div>

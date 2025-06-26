@@ -28,8 +28,8 @@ export function AdminSidebar() {
     },
 
     {
-      label: "Accounts",
-      href: "/admin/accounts",
+      label: "Company Accounts",
+      href: "/admin/companies",
       icon: (
         <IconLayoutGrid className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),

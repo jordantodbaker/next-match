@@ -58,7 +58,7 @@ model NarrativeType {
 }
 
 model CompanyAccount {
-  id               Int               @id @default(autoincrement())
+  id               Int                      @id @default(autoincrement())
   name             String
   companyCode      String
   users            User[]
@@ -66,6 +66,7 @@ model CompanyAccount {
   narratives       Narrative[]
   projects         Project[]
   workforcePlans   WorkforcePlan[]
+  roles            CompanyAccountsOnRoles[]
 }
 
 model User {
@@ -92,7 +93,6 @@ model Project {
   code            String
   companyAccounts CompanyAccount[] //@relation(fields: [companyId], references: [id])
   workforcePlans  WorkforcePlan[]
-  roles           Role[]
 }
 
 model WorkforcePlan {
@@ -109,13 +109,21 @@ model WorkforcePlan {
 }
 
 model Role {
-  id            Int             @id @default(autoincrement())
-  code          String
-  name          String
-  project       Project         @relation(fields: [projectId], references: [id])
-  projectId     Int
-  workforcePlan WorkforcePlan[]
-  isDirect      Boolean         @default(true)
+  id              Int                      @id @default(autoincrement())
+  code            String
+  name            String
+  workforcePlans  WorkforcePlan[]
+  isDirect        Boolean                  @default(true)
+  companyAccounts CompanyAccountsOnRoles[]
+}
+
+model CompanyAccountsOnRoles {
+  companyAccount   CompanyAccount @relation(fields: [companyAccountId], references: [id])
+  companyAccountId Int
+  role             Role           @relation(fields: [roleId], references: [id])
+  roleId           Int
+
+  @@id([companyAccountId, roleId])
 }
 
 enum SecurityRole {

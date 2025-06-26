@@ -9,7 +9,7 @@ export async function getRoles() {
 
 export async function saveRoles(roles: Role[]) {
     const newRoles = roles.filter(r => r.id === 0);
-    const filteredNewRoles = newRoles.map(r => ({name: r.name, code: r.code, projectId: r.projectId}))
+    const filteredNewRoles = newRoles.map(r => ({name: r.name, code: r.code}))
     const existingRoles = roles.filter(r => r.id !== 0);
     try{
         if(filteredNewRoles.length > 0) {
