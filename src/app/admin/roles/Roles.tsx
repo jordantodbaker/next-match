@@ -86,7 +86,7 @@ export default function Roles({ userRoles }: Props) {
       <AdminSidebar />
       <div className="w-full flex flex-col m-16">
         <div>
-          <h1 className="text-3xl text-center">Narrative Types</h1>
+          <h1 className="text-3xl text-center">Roles</h1>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -113,6 +113,7 @@ export default function Roles({ userRoles }: Props) {
                   <div>
                     <Button
                       color="primary"
+                      key={role.id}
                       onPress={async () => onDelete(index)}
                       endContent={<IconSquareX />}
                     >
@@ -130,7 +131,7 @@ export default function Roles({ userRoles }: Props) {
               color="primary"
               type="button"
               onPress={() => {
-                append(emptyRole);
+                append({ ...emptyRole, projectId: project.id });
               }}
             >
               Add Another

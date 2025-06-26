@@ -115,6 +115,7 @@ model Role {
   project       Project         @relation(fields: [projectId], references: [id])
   projectId     Int
   workforcePlan WorkforcePlan[]
+  isDirect      Boolean         @default(true)
 }
 
 enum SecurityRole {

@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { NarrativeType, Role } from "@prisma/client";
 
 export async function getRoles() {
-  return await prisma.role.findMany();
+  return await prisma.role.findMany({orderBy: {isDirect: 'asc'}});
 }
 
 export async function saveRoles(roles: Role[]) {

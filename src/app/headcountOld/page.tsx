@@ -2,14 +2,15 @@ import React from "react";
 import Headcount from "./Headcount";
 import { getNarratives } from "../actions/narrativeActions";
 import { getCompanies } from "../actions/companyActions";
-import { getRoles } from "../actions/rolesActions";
 
 export default async function NarrativePage() {
-  const roles = await getRoles();
+  let narratives = await getNarratives();
+  const companies = await getCompanies();
 
+  narratives = narratives[0] === null ? [] : narratives;
   return (
     <div className="flex h-full w-full">
-      <Headcount roles={roles}/>
+      <Headcount />
     </div>
   );
 }
