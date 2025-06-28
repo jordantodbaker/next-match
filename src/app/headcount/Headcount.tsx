@@ -9,7 +9,7 @@ import {
   DropdownItem,
   Input,
 } from "@heroui/react";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
@@ -24,16 +24,38 @@ type FormValues = {
 
 type Props = {
   roles: Role[];
+  company: CompanyWithRoles[];
+  headcount: any;
 };
 
 import { useSession } from "next-auth/react";
-import { Role } from "@prisma/client";
-export default function HeadcountPage({ roles }: Props) {
+import { CompanyAccount, Role, SecurityRole } from "@prisma/client";
+import { CompanyWithRoles } from "@/lib/types";
+import { saveHeadcount } from "../actions/headcountActions";
+import { ProjectContext } from "@/components/ProjectContext";
+import { CompanyContext } from "@/components/CompanyContext";
+import { narrativeSchema } from "../../lib/schemas/narrativeSchema";
+import { toast } from "react-toastify";
+
+export default function HeadcountPage({ roles, company, headcount }: Props) {
   const { data } = useSession();
   const user = data?.user;
-
+  const project = useContext(ProjectContext);
+  const selectedCompany = useContext(CompanyContext);
   const initialValues = [
-    ...roles.map((role) => ({ ...role, dayHeadcount: 0, nightHeadcount: 0 })),
+    ...company[0].roles.map((role) => ({
+      role: role,
+      dayHeadcount: 0,
+      nightHeadcount: 0,
+      id: headcount.length > 0 && headcount[0].id ? headcount[0].id : 0,
+      userId: user?.id,
+      date: new Date(),
+      companyId:
+        user?.securityRole === SecurityRole.ADMIN
+          ? selectedCompany.id
+          : user?.companyId,
+      projectId: project.id,
+    })),
   ];
 
   const {
@@ -56,17 +78,19 @@ export default function HeadcountPage({ roles }: Props) {
     control,
   });
 
-  const watchFieldArray = watch("headcount");
-  const controlledFields = fields.map((field, index) => {
-    return { ...field, ...watchFieldArray[index] };
-  });
-
-  const onSubmit = (data: FormValues) => {};
-
-  const onChangeRole = (key: any, field: any) => {
-    const role = roles.find((r) => r.id == key);
-    field.role = role;
-    return field;
+  const onSubmit = async (data) => {
+    console.log("DATA: ", data);
+    // const headcounts = data.map((hc) => ({
+    //   id: hc.id,
+    //   dayCount: hc.dayCount,
+    //   nightCount: hc.nightCount,
+    // }));
+    const result = await saveHeadcount(data.headcount);
+    if (result.status === "success") {
+      toast.success("Company Deleted.");
+    } else {
+      toast.error(result.error);
+    }
   };
 
   return (
@@ -76,7 +100,11 @@ export default function HeadcountPage({ roles }: Props) {
         <div>
           <h1 className="text-3xl text-center">Daily Headcount</h1>
         </div>
-        <form onSubmit={handleSubmit((data) => {})}>
+        <form
+          onSubmit={handleSubmit((data) => {
+            onSubmit(data);
+          })}
+        >
           <div className="w-full mt-16 h-full flex flex-col justify-center">
             <div className="">
               {fields.map((field, index) => {
@@ -84,7 +112,7 @@ export default function HeadcountPage({ roles }: Props) {
                   <section key={field.id} className="mr-4 sm:mt-4 mt-16">
                     <div className="flex flex-row">
                       <div className="w-3xs flex align-middle">
-                        <span>{field.name}</span>
+                        <span>{field.role.name}</span>
                       </div>
                       <Input
                         fullWidth={false}

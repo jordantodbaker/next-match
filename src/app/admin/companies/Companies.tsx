@@ -9,89 +9,114 @@ import {
   ModalBody,
   ModalFooter,
   useDisclosure,
-  Table,
-  TableHeader,
-  TableColumn,
-  TableBody,
-  TableRow,
-  TableCell,
-  Chip,
-  Tooltip,
+  Checkbox,
+  CheckboxGroup,
 } from "@heroui/react";
 import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import React from "react";
-import { SafetySchema } from "@/lib/schemas/safetySchema";
 //import { authorizeNarrative, submitNarrative } from "../../actions/safetyActions";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
-import { CompanyContext } from "@/components/CompanyContext";
-import { CompanyAccount, NarrativeType } from "@prisma/client";
+import { CompanyAccount, Role } from "@prisma/client";
 import { AdminSidebar } from "@/components/sidebar/AdminSidebar";
 import { IconSquareX } from "@tabler/icons-react";
-import {
-  saveNarrativeType,
-  deleteNarrativeType,
-} from "@/app/actions/narrativeTypeActions";
-import { deleteCompany } from "@/app/actions/companyActions";
+import { deleteCompany, saveCompany } from "@/app/actions/companyActions";
 import CompanyTable from "./CompanyTable";
+import { emptyCompany } from "@/lib/schemas/defaultModels";
+import { CompanyWithRoles } from "@/lib/types";
 
 type Props = {
-  companies: CompanyAccount[];
+  companies: CompanyWithRoles[];
+  roles: Role[];
 };
 
-export default function Companies({ companies: retarde }: Props) {
+export default function Companies({
+  companies: initialCompanies,
+  roles,
+}: Props) {
   const { data } = useSession();
   const user = data?.user;
-  const [companies, setCompanies] = useState(retarde);
+
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-
   const {
-    register,
-    control,
-    setValue,
-    handleSubmit,
-    watch,
-    formState: { isValid, isSubmitting },
-  } = useForm({
-    //resolver: zodResolver(safetySchema),
-    //mode: "onTouched",
-    defaultValues: {
-      companies: companies,
-    },
-  });
+    isOpen: isDeleteOpen,
+    onOpen: onDeleteOpen,
+    onOpenChange: onDeleteOpenChange,
+  } = useDisclosure();
 
-  const { fields, append, remove, update } = useFieldArray({
-    name: "companies",
-    control,
-  });
+  const [companies, setCompanies] = useState(initialCompanies);
+  const [selectedCompany, setSelectedCompany] =
+    useState<CompanyWithRoles>(emptyCompany);
+  const [selectedRoles, setSelectedRoles] = useState<Role[]>([]);
 
-  const onSubmit = async (values: { companies: CompanyAccount[] }) => {
-    const result = await Promise.all(
-      values.companies.map(async (n) => saveCompany(n))
-    );
-    const success = result.filter((r) => r.status === "error").length === 0;
-
-    if (success) {
-      toast.success("Narrative saved.");
-    } else {
-      toast.error("Something went wrong.");
-    }
+  const handleNameChange = (name: string) => {
+    const newCompany = { ...selectedCompany, name: name };
+    setSelectedCompany(newCompany);
   };
 
-  const onDelete = async (index: number) => {
-    const result = await deleteCompany(companies[index]);
+  const handleCodeChange = (code: string) => {
+    const newCompany = { ...selectedCompany, companyCode: code };
+    setSelectedCompany(newCompany);
+  };
+
+  const onSaveCompany = async () => {
+    const company = { ...selectedCompany };
+    const roles = [...selectedRoles];
+    const result = await saveCompany(company, roles);
+    const newCompanies =
+      company.id === 0
+        ? [...companies, company]
+        : companies.map((c) => {
+            if (c.id === company.id || c.id === 0) {
+              return company;
+            }
+            return c;
+          });
+
+    setCompanies(newCompanies);
 
     if (result.status === "success") {
-      const newTypes = companies.filter(
-        (t) => t.name !== companies[index].name
-      );
-      setCompanies(newTypes);
-      remove(index);
-      toast.success("Narrative saved.");
+      toast.success("Company Saved.");
     } else {
       toast.error(result.error);
     }
+  };
+
+  const onDeleteCompany = async () => {
+    const company = { ...selectedCompany };
+    const result = await deleteCompany(company);
+
+    if (result.status === "success") {
+      const newCompanies = companies.filter(
+        (t) => t.name !== selectedCompany.name
+      );
+      setCompanies(newCompanies);
+      toast.success("Company Deleted.");
+    } else {
+      toast.error(result.error);
+    }
+  };
+
+  const onClickEditCompany = async (company: CompanyWithRoles) => {
+    setSelectedCompany(company);
+    setSelectedRoles(company.roles);
+    onOpen();
+  };
+
+  const onClickDeleteCompany = (company: CompanyWithRoles) => {
+    setSelectedCompany(company);
+    onDeleteOpen();
+  };
+
+  const onToggleRole = (role: Role) => {
+    const roles = [...selectedRoles];
+    if (roles.includes(role)) {
+      setSelectedRoles(roles.filter((r) => r.id !== role.id));
+    } else {
+      setSelectedRoles([...roles, role]);
+    }
+    console.log("Roles: ", selectedRoles);
   };
 
   return (
@@ -101,96 +126,128 @@ export default function Companies({ companies: retarde }: Props) {
         <div>
           <h1 className="text-3xl text-center">Companies</h1>
         </div>
-        <CompanyTable />
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="w-full mt-16 h-full">
-            {fields.map((company: CompanyAccount, index: number) => {
-              return (
-                <div className="mt-2 flex flex-row justify-between">
-                  <div className="mr-4">
-                    <Input
-                      key={company.id}
-                      {...register(`companies.${index}.name`)}
-                    />
-                  </div>
-                  <div>
-                    <Button
-                      color="primary"
-                      onPress={async () => {
-                        await onDelete(index);
-                      }}
-                      endContent={<IconSquareX />}
-                    >
-                      Delete
-                    </Button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <div>
-            <Button
-              className="mr-4"
-              variant="bordered"
-              color="primary"
-              type="button"
-              onPress={onOpen}
-            >
-              Add Company
-            </Button>
-            {/* <Button color="primary" type="submit" isLoading={isSubmitting}>
+        <CompanyTable
+          companies={companies}
+          onClickEditCompany={onClickEditCompany}
+          onClickDeleteCompany={onClickDeleteCompany}
+        />
+
+        <div className="mt-4">
+          <Button
+            className="mr-4"
+            color="primary"
+            type="button"
+            onPress={() => {
+              setSelectedCompany(emptyCompany);
+              onOpen();
+            }}
+          >
+            Add Company
+          </Button>
+          {/* <Button color="primary" type="submit" isLoading={isSubmitting}>
               Submit
             </Button> */}
-          </div>
-          <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
-            <ModalContent>
-              {(onClose) => (
-                <>
-                  <ModalHeader className="flex flex-col gap-1">
-                    Modal Title
-                  </ModalHeader>
-                  <ModalBody>
-                    <p>
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                      Nullam pulvinar risus non risus hendrerit venenatis.
-                      Pellentesque sit amet hendrerit risus, sed porttitor quam.
-                    </p>
-                    <p>
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                      Nullam pulvinar risus non risus hendrerit venenatis.
-                      Pellentesque sit amet hendrerit risus, sed porttitor quam.
-                    </p>
-                    <p>
-                      Magna exercitation reprehenderit magna aute tempor
-                      cupidatat consequat elit dolor adipisicing. Mollit dolor
-                      eiusmod sunt ex incididunt cillum quis. Velit duis sit
-                      officia eiusmod Lorem aliqua enim laboris do dolor
-                      eiusmod. Et mollit incididunt nisi consectetur esse
-                      laborum eiusmod pariatur proident Lorem eiusmod et. Culpa
-                      deserunt nostrud ad veniam.
-                    </p>
-                  </ModalBody>
-                  <ModalFooter>
-                    <Button color="danger" variant="light" onPress={onClose}>
-                      Close
-                    </Button>
-                    <Button color="primary" onPress={onClose}>
-                      Action
-                    </Button>
-                  </ModalFooter>
-                </>
-              )}
-            </ModalContent>
-          </Modal>
-        </form>
+        </div>
+        <Modal
+          isOpen={isOpen}
+          placement="top-center"
+          onOpenChange={onOpenChange}
+        >
+          <ModalContent>
+            {(onClose) => (
+              <>
+                <ModalHeader className="flex flex-col gap-1">
+                  {selectedCompany.id === 0 ? "Add Company" : "Edit Company"}
+                </ModalHeader>
+                <ModalBody>
+                  <Input
+                    label="Company Name"
+                    placeholder="Company Name"
+                    variant="bordered"
+                    value={selectedCompany.name}
+                    onChange={(e) => handleNameChange(e.target.value)}
+                  />
+                  <Input
+                    label="Company Code"
+                    placeholder="Company Code"
+                    variant="bordered"
+                    value={selectedCompany.companyCode}
+                    onChange={(e) => handleCodeChange(e.target.value)}
+                  />
+                  <div className="flex py-2 px-1 justify-between">
+                    <CheckboxGroup
+                      defaultValue={selectedCompany.roles.map((r) => r.code)}
+                      label="Select roles"
+                    >
+                      {roles.map((role) => {
+                        return (
+                          <Checkbox
+                            value={role.code}
+                            onValueChange={() => onToggleRole(role)}
+                            defaultChecked={selectedCompany.roles.some(
+                              (r) => r.id === role.id
+                            )}
+                          >
+                            {role.name}
+                          </Checkbox>
+                        );
+                      })}
+                    </CheckboxGroup>
+                  </div>
+                </ModalBody>
+                <ModalFooter>
+                  <Button color="danger" variant="flat" onPress={onClose}>
+                    Close
+                  </Button>
+                  <Button
+                    color="primary"
+                    onPress={async () => {
+                      onClose();
+                      await onSaveCompany();
+                    }}
+                  >
+                    {selectedCompany.id === 0 ? "Add Company" : "Edit Company"}
+                  </Button>
+                </ModalFooter>
+              </>
+            )}
+          </ModalContent>
+        </Modal>
+        <Modal
+          isOpen={isDeleteOpen}
+          placement="top-center"
+          onOpenChange={onDeleteOpenChange}
+        >
+          <ModalContent>
+            {(onDeleteClose) => (
+              <>
+                <ModalHeader className="flex flex-col gap-1">
+                  {selectedCompany.id === 0 ? "Add Company" : "Edit Company"}
+                </ModalHeader>
+                <ModalBody>
+                  <div>
+                    Are you just you want to delete {selectedCompany.name}
+                  </div>
+                </ModalBody>
+                <ModalFooter>
+                  <Button color="danger" variant="flat" onPress={onDeleteClose}>
+                    Close
+                  </Button>
+                  <Button
+                    color="primary"
+                    onPress={async () => {
+                      onDeleteClose();
+                      await onDeleteCompany();
+                    }}
+                  >
+                    Delete {selectedCompany.name}
+                  </Button>
+                </ModalFooter>
+              </>
+            )}
+          </ModalContent>
+        </Modal>
       </div>
     </div>
   );
-}
-function saveCompany(n: {
-  name: string;
-  id: number;
-  companyCode: string;
-}): any {
-  throw new Error("Function not implemented.");
 }

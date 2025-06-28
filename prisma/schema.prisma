@@ -66,7 +66,8 @@ model CompanyAccount {
   narratives       Narrative[]
   projects         Project[]
   workforcePlans   WorkforcePlan[]
-  roles            CompanyAccountsOnRoles[]
+  roles            Role[]
+  headcounts  Headcount[]
 }
 
 model User {
@@ -85,6 +86,7 @@ model User {
   selectedProjectId Int?
   safetyNarratives  SafetyNarrative[]
   narratives        Narrative[]
+  headcounts  Headcount[]
 }
 
 model Project {
@@ -93,6 +95,7 @@ model Project {
   code            String
   companyAccounts CompanyAccount[] //@relation(fields: [companyId], references: [id])
   workforcePlans  WorkforcePlan[]
+  headcounts  Headcount[]
 }
 
 model WorkforcePlan {
@@ -114,16 +117,23 @@ model Role {
   name            String
   workforcePlans  WorkforcePlan[]
   isDirect        Boolean                  @default(true)
-  companyAccounts CompanyAccountsOnRoles[]
+  companyAccounts CompanyAccount[]
+  headcounts  Headcount[]
 }
 
-model CompanyAccountsOnRoles {
-  companyAccount   CompanyAccount @relation(fields: [companyAccountId], references: [id])
-  companyAccountId Int
-  role             Role           @relation(fields: [roleId], references: [id])
-  roleId           Int
-
-  @@id([companyAccountId, roleId])
+model Headcount {
+  id Int @id @default(autoincrement())
+  dayCount Int
+  nightCount Int
+  date DateTime
+  role Role @relation(fields: [roleId], references: [id])
+  roleId Int
+  company CompanyAccount @relation(fields: [companyId], references: [id])
+  companyId Int
+  user    User @relation(fields: [userId], references: [id])
+  userId Int
+  project Project @relation(fields: [projectId], references: [id])
+  projectId Int
 }
 
 enum SecurityRole {
