@@ -109,14 +109,33 @@ export default function Companies({
     onDeleteOpen();
   };
 
-  const onToggleRole = (role: Role) => {
-    const roles = [...selectedRoles];
-    if (roles.includes(role)) {
-      setSelectedRoles(roles.filter((r) => r.id !== role.id));
-    } else {
-      setSelectedRoles([...roles, role]);
+  const onToggleRole = (e: any) => {
+    const rolesSelected = [...selectedRoles];
+    const selectedRole = roles.find((r) => r.code === e.target.value);
+    if (selectedRole) {
+      let newRoles = [...selectedRoles];
+      if (
+        selectedRole &&
+        rolesSelected.filter((r) => r.id === selectedRole.id).length > 0
+      ) {
+        newRoles = rolesSelected.filter((r) => r.id !== selectedRole.id);
+      } else {
+        newRoles = [...rolesSelected, selectedRole];
+      }
+
+      let newCompany = { ...selectedCompany, roles: newRoles };
+
+      const newCompanies = companies.map((c) => {
+        if (c.id === newCompany.id) {
+          return newCompany;
+        }
+        return c;
+      });
+
+      setSelectedRoles(newRoles);
+      setSelectedCompany(newCompany);
+      setCompanies(newCompanies);
     }
-    console.log("Roles: ", selectedRoles);
   };
 
   return (
@@ -144,9 +163,6 @@ export default function Companies({
           >
             Add Company
           </Button>
-          {/* <Button color="primary" type="submit" isLoading={isSubmitting}>
-              Submit
-            </Button> */}
         </div>
         <Modal
           isOpen={isOpen}
@@ -182,8 +198,9 @@ export default function Companies({
                       {roles.map((role) => {
                         return (
                           <Checkbox
+                            name={role.code}
                             value={role.code}
-                            onValueChange={() => onToggleRole(role)}
+                            onChange={(e) => onToggleRole(e)}
                             defaultChecked={selectedCompany.roles.some(
                               (r) => r.id === role.id
                             )}
