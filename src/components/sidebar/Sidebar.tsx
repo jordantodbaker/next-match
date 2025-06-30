@@ -18,8 +18,12 @@ import {
   IconAlertTriangle,
   IconExclamationMark,
 } from "@tabler/icons-react";
+import { useSession } from "next-auth/react";
+import { SecurityRole } from "@prisma/client";
 
 export function Sidebar() {
+  const { data } = useSession();
+  const user = data?.user;
   const links = [
     {
       label: "Home",
@@ -91,17 +95,19 @@ export function Sidebar() {
               <SidebarLink key={idx} link={link} />
             ))}
           </div>
-          <div>
-            <SidebarLink
-              link={{
-                label: "Admin",
-                href: "/admin",
-                icon: (
-                  <IconLock className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
-                ),
-              }}
-            />
-          </div>
+          {user && user.securityRole === SecurityRole.ADMIN && (
+            <div>
+              <SidebarLink
+                link={{
+                  label: "Admin",
+                  href: "/admin",
+                  icon: (
+                    <IconLock className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
+                  ),
+                }}
+              />
+            </div>
+          )}
         </div>
       </SidebarBody>
     </AceSidebar>

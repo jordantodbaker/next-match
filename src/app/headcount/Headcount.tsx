@@ -35,7 +35,7 @@ type Props = {
 };
 
 import { useSession } from "next-auth/react";
-import { CompanyAccount, Role, SecurityRole } from "@prisma/client";
+import { CompanyAccount, Headcount, Role, SecurityRole } from "@prisma/client";
 import { CompanyWithRoles } from "@/lib/types";
 import { saveHeadcount } from "../actions/headcountActions";
 import { ProjectContext } from "@/components/ProjectContext";
@@ -43,16 +43,20 @@ import { CompanyContext } from "@/components/CompanyContext";
 import { narrativeSchema } from "../../lib/schemas/narrativeSchema";
 import { toast } from "react-toastify";
 
-export default function HeadcountPage({ roles, company, headcount }: Props) {
+export default function HeadcountPage({
+  roles,
+  company,
+  headcount: initialHeadcount,
+}: Props) {
   const { data } = useSession();
   const user = data?.user;
   const project = useContext(ProjectContext);
   const selectedCompany = useContext(CompanyContext);
-  console.log("HEAD COUNT: ", headcount);
+  const [headcount, setHeadcount] = useState(initialHeadcount);
   const initialValues =
     headcount.length > 0 &&
-    headcount[0].filter((hc: any) => hc.projectId === project.id).length > 0
-      ? headcount[0]
+    headcount.filter((hc: any) => hc.projectId === project.id).length > 0
+      ? headcount
       : [
           ...company[0].roles.map((role) => ({
             role: role,
@@ -72,8 +76,8 @@ export default function HeadcountPage({ roles, company, headcount }: Props) {
   useEffect(() => {
     const newHeadcount =
       headcount.length > 0 &&
-      headcount[0].filter((hc: any) => hc.projectId === project.id).length > 0
-        ? headcount[0].filter((hc: any) => hc.projectId === project.id)
+      headcount.filter((hc: any) => hc.projectId === project.id).length > 0
+        ? headcount.filter((hc: any) => hc.projectId === project.id)
         : [
             ...company[0].roles.map((role) => ({
               role: role,
@@ -89,14 +93,8 @@ export default function HeadcountPage({ roles, company, headcount }: Props) {
               projectId: project.id,
             })),
           ];
-    console.log("NEW COUNT REPLACING: ", newHeadcount);
     replace(newHeadcount);
   }, [project]);
-  const filtered = headcount[0].filter(
-    (hc: any) => hc.projectId === project.id
-  );
-  console.log("Headcount: ", filtered);
-  console.log("Project ID: ", project.id);
 
   const {
     register,
@@ -119,8 +117,12 @@ export default function HeadcountPage({ roles, company, headcount }: Props) {
   });
 
   const onSubmit = async (data: FormValues) => {
+    if (data.headcount[0].id === 0) {
+      const newHeadcounts = [...headcount, ...data.headcount];
+      setHeadcount(newHeadcounts);
+    }
     if (user?.id) {
-      const headcounts = data.headcount.map((hc) => {
+      const headcounts = data.headcount.map((hc: any) => {
         return {
           id: hc.id,
           dayCount: hc.dayCount,
@@ -135,6 +137,7 @@ export default function HeadcountPage({ roles, company, headcount }: Props) {
           projectId: hc.projectId,
         };
       });
+
       const result = await saveHeadcount(headcounts);
 
       if (result.status === "success") {

@@ -98,8 +98,8 @@ export default function Dashboard({ safetyNarratives, narratives }: Props) {
       <Sidebar />
       <div className="w-full p-18">
         <div className="flex flex-row justify-between mt-16 flex-wrap">
-          {sections.map((s) => (
-            <Link href={s.href} className="w-1/5 mr-8 mt-6">
+          {sections.map((s, i) => (
+            <Link href={s.href} className="w-1/5 mr-8 mt-6" key={i}>
               <Card className={`border-1 border-${s.color}-500`}>
                 <CardHeader className="flex justify-end">
                   {s.authorized && (

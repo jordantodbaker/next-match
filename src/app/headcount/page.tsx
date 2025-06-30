@@ -12,7 +12,7 @@ export default async function NarrativePage() {
 
   return (
     <div className="flex h-full w-full">
-      <Headcount roles={roles} company={company} headcount={headcount} />
+      <Headcount roles={roles} company={company} headcount={headcount[0]} />
     </div>
   );
 }
