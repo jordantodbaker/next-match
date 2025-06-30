@@ -8,17 +8,23 @@ import {
   DropdownMenu,
   DropdownItem,
   Input,
+  NumberInput,
 } from "@heroui/react";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
 
 type FormValues = {
   headcount: {
-    role: { id: number; name: string };
-    dayHeadcount: number;
-    nightHeadcount: number;
+    role: Role;
+    dayCount: number;
+    nightCount: number;
+    id: number;
+    userId: number | undefined;
+    companyId: number;
+    projectId: number;
+    date: Date;
   }[];
 };
 
@@ -42,21 +48,55 @@ export default function HeadcountPage({ roles, company, headcount }: Props) {
   const user = data?.user;
   const project = useContext(ProjectContext);
   const selectedCompany = useContext(CompanyContext);
-  const initialValues = [
-    ...company[0].roles.map((role) => ({
-      role: role,
-      dayHeadcount: 0,
-      nightHeadcount: 0,
-      id: headcount.length > 0 && headcount[0].id ? headcount[0].id : 0,
-      userId: user?.id,
-      date: new Date(),
-      companyId:
-        user?.securityRole === SecurityRole.ADMIN
-          ? selectedCompany.id
-          : user?.companyId,
-      projectId: project.id,
-    })),
-  ];
+  console.log("HEAD COUNT: ", headcount);
+  const initialValues =
+    headcount.length > 0 &&
+    headcount[0].filter((hc: any) => hc.projectId === project.id).length > 0
+      ? headcount[0]
+      : [
+          ...company[0].roles.map((role) => ({
+            role: role,
+            dayCount: 0,
+            nightCount: 0,
+            id: headcount.length > 0 && headcount[0].id ? headcount[0].id : 0,
+            userId: typeof user?.id !== "undefined" ? user.id : 0,
+            date: new Date(),
+            companyId:
+              user?.securityRole === SecurityRole.ADMIN
+                ? selectedCompany.id
+                : user?.companyId,
+            projectId: project.id,
+          })),
+        ];
+
+  useEffect(() => {
+    const newHeadcount =
+      headcount.length > 0 &&
+      headcount[0].filter((hc: any) => hc.projectId === project.id).length > 0
+        ? headcount[0].filter((hc: any) => hc.projectId === project.id)
+        : [
+            ...company[0].roles.map((role) => ({
+              role: role,
+              dayCount: 0,
+              nightCount: 0,
+              id: headcount.length > 0 && headcount[0].id ? headcount[0].id : 0,
+              userId: typeof user?.id !== "undefined" ? user.id : 0,
+              date: new Date(),
+              companyId:
+                user?.securityRole === SecurityRole.ADMIN
+                  ? selectedCompany.id
+                  : user?.companyId,
+              projectId: project.id,
+            })),
+          ];
+    console.log("NEW COUNT REPLACING: ", newHeadcount);
+    replace(newHeadcount);
+  }, [project]);
+  const filtered = headcount[0].filter(
+    (hc: any) => hc.projectId === project.id
+  );
+  console.log("Headcount: ", filtered);
+  console.log("Project ID: ", project.id);
 
   const {
     register,
@@ -73,23 +113,35 @@ export default function HeadcountPage({ roles, company, headcount }: Props) {
     },
   });
 
-  const { fields, append, remove, update } = useFieldArray({
+  const { fields, append, remove, update, replace } = useFieldArray({
     name: "headcount",
     control,
   });
 
-  const onSubmit = async (data) => {
-    console.log("DATA: ", data);
-    // const headcounts = data.map((hc) => ({
-    //   id: hc.id,
-    //   dayCount: hc.dayCount,
-    //   nightCount: hc.nightCount,
-    // }));
-    const result = await saveHeadcount(data.headcount);
-    if (result.status === "success") {
-      toast.success("Company Deleted.");
-    } else {
-      toast.error(result.error);
+  const onSubmit = async (data: FormValues) => {
+    if (user?.id) {
+      const headcounts = data.headcount.map((hc) => {
+        return {
+          id: hc.id,
+          dayCount: hc.dayCount,
+          nightCount: hc.nightCount,
+          roleId: hc.role.id,
+          companyId:
+            user.securityRole === SecurityRole.ADMIN
+              ? selectedCompany.id
+              : user.companyId,
+          userId: user.id,
+          date: hc.date,
+          projectId: hc.projectId,
+        };
+      });
+      const result = await saveHeadcount(headcounts);
+
+      if (result.status === "success") {
+        toast.success("Headcount saved.");
+      } else {
+        toast.error(result.error);
+      }
     }
   };
 
@@ -99,15 +151,22 @@ export default function HeadcountPage({ roles, company, headcount }: Props) {
       <div className="w-full flex flex-col m-16">
         <div>
           <h1 className="text-3xl text-center">Daily Headcount</h1>
+          <h2 className="text-2xl text-center mt-4">
+            {new Date().toLocaleDateString()}
+          </h2>
+          <p className="mt-4 text-center">
+            Please submit the headcount for today's day and night shifts for
+            each role.
+          </p>
         </div>
         <form
           onSubmit={handleSubmit((data) => {
-            onSubmit(data);
+            onSubmit(data as any);
           })}
         >
           <div className="w-full mt-16 h-full flex flex-col justify-center">
             <div className="">
-              {fields.map((field, index) => {
+              {fields.map((field: any, index) => {
                 return (
                   <section key={field.id} className="mr-4 sm:mt-4 mt-16">
                     <div className="flex flex-row">
@@ -119,15 +178,18 @@ export default function HeadcountPage({ roles, company, headcount }: Props) {
                         size="sm"
                         className="mr-2"
                         label="Day"
-                        type="number"
-                        {...register(`headcount.${index}.dayHeadcount`)}
+                        {...register(`headcount.${index}.dayCount`, {
+                          valueAsNumber: true,
+                        })}
                       />
                       <Input
                         fullWidth={false}
                         size="sm"
                         label="Night"
                         type="number"
-                        {...register(`headcount.${index}.nightHeadcount`)}
+                        {...register(`headcount.${index}.nightCount`, {
+                          valueAsNumber: true,
+                        })}
                       />
                     </div>
                   </section>
