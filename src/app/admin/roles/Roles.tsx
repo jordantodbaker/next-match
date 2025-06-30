@@ -27,16 +27,17 @@ export default function Roles({ userRoles }: Props) {
       ? userRoles
       : [{ ...emptyRole, projectId: project.id }];
 
-  const [roles, setRoles] = useState(
-    initialRoles.filter((r) => r.projectId === project.id)
+  const [roles, setRoles] = useState<any>(
+    //initialRoles.filter((r) => r.projectId === project.id)
+    initialRoles
   );
 
-  useEffect(() => {
-    const newRoles = [...initialRoles].filter(
-      (r) => r.projectId === project.id
-    );
-    setRoles(newRoles);
-  }, [project]);
+  // useEffect(() => {
+  //   const newRoles = [...initialRoles].filter(
+  //     (r) => r.projectId === project.id
+  //   );
+  //   setRoles(newRoles);
+  // }, [project]);
 
   const {
     register,
@@ -72,7 +73,7 @@ export default function Roles({ userRoles }: Props) {
     const result = await deleteRole(roles[index]);
 
     if (result.status === "success") {
-      const newRoles = roles.filter((t) => t.name !== roles[index].name);
+      const newRoles = roles.filter((t: any) => t.name !== roles[index].name);
       setRoles(newRoles);
       remove(index);
       toast.success("Role deleted.");
@@ -91,7 +92,7 @@ export default function Roles({ userRoles }: Props) {
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="w-full mt-16 h-full">
-            {fields.map((role: Role, index: number) => {
+            {fields.map((role: any, index: number) => {
               return (
                 <div className="mt-2 flex flex-row justify-between">
                   <div className="flex flex-row">
@@ -131,7 +132,7 @@ export default function Roles({ userRoles }: Props) {
               color="primary"
               type="button"
               onPress={() => {
-                append({ ...emptyRole, projectId: project.id });
+                append({ ...emptyRole, projectId: project.id } as any);
               }}
             >
               Add Another
