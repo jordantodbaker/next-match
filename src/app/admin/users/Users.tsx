@@ -54,8 +54,12 @@ export default function UsersPage({ companies }: Props) {
   const { data } = useSession();
   const user = data?.user;
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [showChangePassword, setShowChangePassword] = useState(false);
 
-  const [selectedUser, setSelectedUser] = useState(emptyUser);
+  const [selectedUser, setSelectedUser] = useState({
+    ...emptyUser,
+    updatePassword: false,
+  });
   const [errors, setErrors] = useState({
     name: { errors: [] },
     password: { errors: [] },
@@ -65,9 +69,15 @@ export default function UsersPage({ companies }: Props) {
   useEffect(() => {}, []);
 
   const onSaveUser = async () => {
-    console.log("SAVING USER");
-    // Need to do a server request here
-    const result = await saveUser(selectedUser);
+    const data = new FormData();
+    data.set("user", JSON.stringify(selectedUser));
+
+    const result = await fetch("/api/users", {
+      method: "POST",
+      body: data,
+    });
+
+    console.log("RESULT: ", result);
   };
 
   console.log("Errors", errors);
@@ -105,7 +115,7 @@ export default function UsersPage({ companies }: Props) {
                                 color="primary"
                                 onPress={() => {
                                   onOpen();
-                                  setSelectedUser(user);
+                                  setSelectedUser(user as any);
                                 }}
                               >
                                 Edit
@@ -125,7 +135,7 @@ export default function UsersPage({ companies }: Props) {
             <Button
               color="primary"
               onPress={() => {
-                setSelectedUser(emptyUser);
+                setSelectedUser({ ...emptyUser, updatePassword: true });
                 onOpen();
               }}
             >
@@ -182,27 +192,47 @@ export default function UsersPage({ companies }: Props) {
                     }
                   />
 
-                  <Input
-                    label="Password"
-                    placeholder="Password"
-                    variant="bordered"
-                    value={selectedUser.passwordHash}
-                    type="password"
-                    isInvalid={
-                      errors &&
-                      errors.password &&
-                      errors.password.errors.length > 0
-                    }
-                    errorMessage={
-                      errors && errors.password ? errors.password.errors[0] : ""
-                    }
-                    onChange={(e) =>
-                      setSelectedUser({
-                        ...selectedUser,
-                        passwordHash: e.target.value,
-                      })
-                    }
-                  />
+                  {(showChangePassword || selectedUser.id === 0) && (
+                    <Input
+                      label="Password"
+                      placeholder="Password"
+                      variant="bordered"
+                      value={selectedUser.passwordHash}
+                      type="password"
+                      isInvalid={
+                        errors &&
+                        errors.password &&
+                        errors.password.errors.length > 0
+                      }
+                      errorMessage={
+                        errors && errors.password
+                          ? errors.password.errors[0]
+                          : ""
+                      }
+                      onChange={(e) =>
+                        setSelectedUser({
+                          ...selectedUser,
+                          passwordHash: e.target.value,
+                        })
+                      }
+                    />
+                  )}
+
+                  {selectedUser.id !== 0 && (
+                    <Button
+                      color="primary"
+                      onPress={() => {
+                        setShowChangePassword(true);
+                        setSelectedUser({
+                          ...selectedUser,
+                          passwordHash: "",
+                          updatePassword: true,
+                        });
+                      }}
+                    >
+                      Change Password
+                    </Button>
+                  )}
 
                   <Dropdown>
                     <DropdownTrigger>
@@ -212,7 +242,9 @@ export default function UsersPage({ companies }: Props) {
                         className="w-xs"
                       >
                         {selectedUser.companyId
-                          ? selectedUser.companyId
+                          ? companies.find(
+                              (c) => c.id == selectedUser.companyId
+                            )!.name
                           : "Select Company"}
                       </Button>
                     </DropdownTrigger>
@@ -248,14 +280,12 @@ export default function UsersPage({ companies }: Props) {
                     onPress={async () => {
                       const result = userSchema.safeParse(selectedUser);
                       if (result.error) {
-                        const tree = z.treeifyError(result.error as any);
-                        console.log("Tree", tree);
+                        const tree: any = z.treeifyError(result.error as any);
                         setErrors(tree.properties);
                       } else {
-                        onSaveUser();
+                        await onSaveUser();
                         onClose();
                       }
-                      //await onSaveUser();
                     }}
                   >
                     {selectedUser.id === 0 ? "Add User" : "Edit User"}

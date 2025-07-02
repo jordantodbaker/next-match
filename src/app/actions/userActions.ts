@@ -14,7 +14,7 @@ export async function saveUser(
       return { status: "error", error: validated.error.errors };
     }
 
-    const { id, name, email, password, companyId, updatePassword } =
+    const { id, name, email, passwordHash, companyId, updatePassword } =
       validated.data;
 
     let saveData = {
@@ -24,8 +24,8 @@ export async function saveUser(
     } as any;
 
     if (id === 0 || updatePassword) {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      saveData = { ...saveData, passwordHash: hashedPassword };
+      const hash = await bcrypt.hash(passwordHash, 10);
+      saveData = { ...saveData, passwordHash: hash };
     }
 
     let user;
