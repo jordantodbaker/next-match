@@ -1,4 +1,10 @@
-import { CompanyAccount, Project, Role } from "@prisma/client";
+import {
+  CompanyAccount,
+  Project,
+  Role,
+  SecurityRole,
+  User,
+} from "@prisma/client";
 
 type CompanyWithRoles = CompanyAccount & { roles: Role[] };
 
@@ -16,3 +22,12 @@ export const emptyRole = {
   code: "",
   name: "",
 } as Role;
+
+export const emptyUser = {
+  id: 0,
+  name: "",
+  email: "",
+  passwordHash: "",
+  securityRole: SecurityRole.USER,
+  companyId: 0,
+} as User;

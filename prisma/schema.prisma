@@ -72,14 +72,10 @@ model CompanyAccount {
 
 model User {
   id                Int               @id @default(autoincrement())
-  name              String?
+  name              String
   email             String            @unique
-  emailVerified     DateTime?
   passwordHash      String
-  image             String?
-  //accountId        String
   securityRole      SecurityRole      @default(USER)
-  //accounts         Account[]
   companyAccount    CompanyAccount    @relation(fields: [companyId], references: [id])
   companyId         Int
   selectedCompanyId Int?

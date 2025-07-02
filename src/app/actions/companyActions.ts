@@ -22,6 +22,14 @@ export async function getCompany() {
   return [company].filter((c) => !!c);
 }
 
+export async function getCompaniesWithUsers() {
+  const companies = await prisma.companyAccount.findMany({
+    include: { users: true },
+  });
+
+  return companies.filter((c) => !!c);
+}
+
 export async function saveCompany(company: CompanyAccount, roles: Role[]) {
   console.log("ROLES: ", roles);
   try {

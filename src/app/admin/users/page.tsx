@@ -1,14 +1,13 @@
 import React from "react";
-import Narrative from "../Narrative";
-import { getNarratives } from "../../actions/safetyActions";
-import { getCompanies } from "../../actions/companyActions";
+import Users from "./Users";
+import { getCompaniesWithUsers } from "../../actions/companyActions";
 
 export default async function AdminPage() {
-  const narratives = await getNarratives();
+  const companies = await getCompaniesWithUsers();
 
   return (
     <div className="flex h-full w-full">
-      <Narrative narratives={narratives} />
+      <Users companies={companies} />
     </div>
   );
 }
