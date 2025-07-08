@@ -85,3 +85,39 @@ export async function deleteCompany(company: CompanyAccount) {
     };
   }
 }
+
+export async function getHeadcountCSV(companyId: number, projectId: number){
+
+  const writeXlsxFile = require('write-excel-file/node')
+  const fs = require('fs');
+  const { Downloader } = require("nodejs-file-downloader");
+
+  const headcounts = await prisma.headcount.findMany({where: {projectId: projectId, companyId: companyId}, include: {role: true, project: true}})
+  const headers = [{value: 'Date'},{value: 'Role'},{value: 'Day Count'},{value: 'Night Count'}, {value: 'Project'}]
+  const values = headcounts.map((hc) => ([
+    { type: Date, value: hc.date, format: 'mm/dd/yyyy'},
+    { type: String, value: hc.role.name },
+    { type: Number, value: hc.dayCount },
+    { type: Number, value: hc.nightCount },
+    { type: String, value: hc.project.name },
+  ]))
+
+  const data = [headers, ...values]
+  const url = 'http://localhost:3000/files/headcount.xlsx';
+  const output = fs.createWriteStream(url)
+  const stream = await writeXlsxFile( data)
+  stream.pipe(output);
+
+  const downloader = new Downloader({url: url});
+
+   try {
+    const {filePath,downloadStatus} = await downloader.download(); //Downloader.download() resolves with some useful properties.
+
+    console.log("All done");
+  } catch (error) {
+    //IMPORTANT: Handle a possible error. An error is thrown in case of network errors, or status codes of 400 and above.
+    //Note that if the maxAttempts is set to higher than 1, the error is thrown only if all attempts fail.
+    console.log("Download failed", error);
+  }
+
+}

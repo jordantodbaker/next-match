@@ -116,6 +116,17 @@ export default function HeadcountPage({
     control,
   });
 
+  const onClickGetCSV = async () => {
+    const data = new FormData();
+    data.set("project", JSON.stringify(project));
+    data.set("company", JSON.stringify(company));
+
+    const uploadRequest = await fetch("/api/headcount", {
+      method: "POST",
+      body: data,
+    });
+  };
+
   const onSubmit = async (data: FormValues) => {
     if (data.headcount[0].id === 0) {
       const newHeadcounts = [...headcount, ...data.headcount];
@@ -200,7 +211,7 @@ export default function HeadcountPage({
               })}
             </div>
           </div>
-          <div className="mt-2">
+          <div className="mt-2 flex justify-between">
             <Button
               color="primary"
               type="submit"
@@ -208,6 +219,14 @@ export default function HeadcountPage({
               isLoading={isSubmitting}
             >
               Submit
+            </Button>
+            <Button
+              variant="bordered"
+              color="primary"
+              onPress={onClickGetCSV}
+              //isDisabled={!isValid}
+            >
+              Download CSV
             </Button>
           </div>
         </form>
