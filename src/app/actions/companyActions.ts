@@ -2,12 +2,12 @@
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { CompanyAccount, Role } from "@prisma/client";
+import { CompanyAccount, Project, Role } from "@prisma/client";
 
 export async function getCompanies() {
   return await prisma.companyAccount.findMany({
     where: { companyCode: { not: "ACE" } },
-    include: { roles: true },
+    include: { roles: true, projects: true },
   });
 }
 
@@ -16,7 +16,7 @@ export async function getCompany() {
   const user = session?.user;
   const company = await prisma.companyAccount.findFirst({
     where: { id: user?.companyId },
-    include: { roles: true },
+    include: { roles: true, projects: true },
   });
 
   return [company].filter((c) => !!c);
@@ -30,7 +30,7 @@ export async function getCompaniesWithUsers() {
   return companies.filter((c) => !!c);
 }
 
-export async function saveCompany(company: CompanyAccount, roles: Role[]) {
+export async function saveCompany(company: CompanyAccount, roles: Role[], projects: Project[]) {
   console.log("ROLES: ", roles);
   try {
     const data = {
@@ -39,6 +39,9 @@ export async function saveCompany(company: CompanyAccount, roles: Role[]) {
       roles: {
         connect: roles.map((r) => ({ id: r.id })),
       },
+      projects: {
+        connect: projects.map((p) => ({id: p.id}))
+      }
     };
     if (company.id === 0) {
       await prisma.companyAccount.create({
@@ -47,7 +50,10 @@ export async function saveCompany(company: CompanyAccount, roles: Role[]) {
     } else {
       await prisma.companyAccount.update({
         where: { id: company.id },
-        data: { ...data, roles: { set: roles.map((r) => ({ id: r.id })) } },
+        data: { 
+          ...data, 
+          roles: { set: roles.map((r) => ({ id: r.id })) }, 
+          projects: {set: projects.map((p) => ({id: p.id}))} },
       });
     }
     return { status: "success", data: "Company Saved" };

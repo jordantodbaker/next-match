@@ -11,6 +11,9 @@ import {
   useDisclosure,
   Checkbox,
   CheckboxGroup,
+  Select,
+  SelectItem,
+  select,
 } from "@heroui/react";
 import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
@@ -18,7 +21,7 @@ import React from "react";
 //import { authorizeNarrative, submitNarrative } from "../../actions/safetyActions";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
-import { CompanyAccount, Role } from "@prisma/client";
+import { CompanyAccount, Project, Role } from "@prisma/client";
 import { AdminSidebar } from "@/components/sidebar/AdminSidebar";
 import { IconSquareX } from "@tabler/icons-react";
 import { deleteCompany, saveCompany } from "@/app/actions/companyActions";
@@ -29,11 +32,13 @@ import { CompanyWithRoles } from "@/lib/types";
 type Props = {
   companies: CompanyWithRoles[];
   roles: Role[];
+  projects: Project[];
 };
 
 export default function Companies({
   companies: initialCompanies,
   roles,
+  projects,
 }: Props) {
   const { data } = useSession();
   const user = data?.user;
@@ -49,6 +54,9 @@ export default function Companies({
   const [selectedCompany, setSelectedCompany] =
     useState<CompanyWithRoles>(emptyCompany);
   const [selectedRoles, setSelectedRoles] = useState<Role[]>([]);
+  const [selectedProjects, setSelectedProjects] = useState<Project[]>([]);
+
+  console.log("Selected company: ", selectedCompany);
 
   const handleNameChange = (name: string) => {
     const newCompany = { ...selectedCompany, name: name };
@@ -60,10 +68,17 @@ export default function Companies({
     setSelectedCompany(newCompany);
   };
 
+  const handleProjectChange = (projectIds: string) => {
+    const parsedIds = projectIds.split(",").map((p) => parseInt(p));
+    const newProjects = projects.filter((p) => parsedIds.includes(p.id));
+    setSelectedProjects(newProjects);
+  };
+
   const onSaveCompany = async () => {
     const company = { ...selectedCompany };
     const roles = [...selectedRoles];
-    const result = await saveCompany(company, roles);
+    const projects = [...selectedProjects];
+    const result = await saveCompany(company, roles, projects);
     const newCompanies =
       company.id === 0
         ? [...companies, company]
@@ -190,6 +205,20 @@ export default function Companies({
                     value={selectedCompany.companyCode}
                     onChange={(e) => handleCodeChange(e.target.value)}
                   />
+                  <Select
+                    className="max-w-xs"
+                    label="Projects"
+                    placeholder="Select Projects"
+                    selectionMode="multiple"
+                    onChange={(e) => handleProjectChange(e.target.value)}
+                    defaultSelectedKeys={selectedCompany.projects.map(
+                      (p: Project) => `${p.id}`
+                    )}
+                  >
+                    {projects.map((project) => (
+                      <SelectItem key={project.id}>{project.name}</SelectItem>
+                    ))}
+                  </Select>
                   <div className="flex py-2 px-1 justify-between">
                     <CheckboxGroup
                       defaultValue={selectedCompany.roles.map((r) => r.code)}

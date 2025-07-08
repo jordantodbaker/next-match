@@ -1,4 +1,4 @@
-import { CompanyAccount, Role, User } from "@prisma/client";
+import { CompanyAccount, Project, Role, User } from "@prisma/client";
 
-export type CompanyWithRoles = CompanyAccount & { roles: Role[] };
+export type CompanyWithRoles = CompanyAccount & { roles: Role[] } & { projects: Project[]};
 export type CompanyWithUsers = CompanyAccount & { users: User[] };
