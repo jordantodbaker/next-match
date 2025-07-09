@@ -14,6 +14,7 @@ import { useContext, useEffect, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
+import { saveAs } from "file-saver";
 
 type FormValues = {
   headcount: {
@@ -32,6 +33,7 @@ type Props = {
   roles: Role[];
   company: CompanyWithRoles[];
   headcount: any;
+  baseUrl: string;
 };
 
 import { useSession } from "next-auth/react";
@@ -47,6 +49,7 @@ export default function HeadcountPage({
   roles,
   company,
   headcount: initialHeadcount,
+  baseUrl: baseUrl,
 }: Props) {
   const { data } = useSession();
   const user = data?.user;
@@ -125,6 +128,8 @@ export default function HeadcountPage({
       method: "POST",
       body: data,
     });
+
+    saveAs(`${baseUrl}/files/headcount.xlsx`, "headcount.xlsx");
   };
 
   const onSubmit = async (data: FormValues) => {

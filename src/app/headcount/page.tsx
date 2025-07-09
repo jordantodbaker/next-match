@@ -10,9 +10,16 @@ export default async function NarrativePage() {
   const company = await getCompany();
   const headcount = await getHeadcount();
 
+  const baseUrl = process.env.BASE_URL;
+
   return (
     <div className="flex h-full w-full">
-      <Headcount roles={roles} company={company} headcount={headcount[0]} />
+      <Headcount
+        roles={roles}
+        company={company}
+        headcount={headcount[0]}
+        baseUrl={baseUrl || ""}
+      />
     </div>
   );
 }
