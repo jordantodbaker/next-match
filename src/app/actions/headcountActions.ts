@@ -113,6 +113,19 @@ export async function getHeadcountCSV(companyId: number, projectId: number) {
   const data = [headers, ...values];
   const filePath = "./public/files/headcount.xlsx";
 
+  const folderName = "./public/files";
+
+  try {
+    if (!fs.existsSync(folderName)) {
+      fs.mkdirSync(folderName);
+      console.log(`Directory '${folderName}' created successfully.`);
+    } else {
+      console.log(`Directory '${folderName}' already exists.`);
+    }
+  } catch (err: any) {
+    console.error(`Error creating directory: ${err.message}`);
+  }
+
   const stream = await writeXlsxFile(data, { filePath: filePath });
   return stream;
 
