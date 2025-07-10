@@ -121,15 +121,22 @@ export default function HeadcountPage({
 
   const onClickGetCSV = async () => {
     const data = new FormData();
+    const fileName = `headcount_${company[0].id}_${project.id}.xlsx`;
     data.set("project", JSON.stringify(project));
     data.set("company", JSON.stringify(company));
+    data.set("fileName", fileName);
 
     const uploadRequest = await fetch("/api/headcount", {
       method: "POST",
       body: data,
     });
 
-    saveAs(`${baseUrl}/files/headcount.xlsx`, "headcount.xlsx");
+    saveAs(`${baseUrl}/files/${fileName}`, "headcount.xlsx");
+
+    const deleteResult = await fetch("/api/headcount", {
+      method: "DELETE",
+      body: data,
+    });
   };
 
   const onSubmit = async (data: FormValues) => {

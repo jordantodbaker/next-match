@@ -42,9 +42,6 @@ export async function saveHeadcount(headcount: Headcount[]) {
     }));
   const oldHeadcounts = headcount.filter((hc) => hc.id > 0);
 
-  console.log("New: ", newHeadcounts);
-  console.log("Old: ", oldHeadcounts);
-
   try {
     if (newHeadcounts.length > 0) {
       await prisma.headcount.createMany({
@@ -73,20 +70,11 @@ export async function saveHeadcount(headcount: Headcount[]) {
   }
 }
 
-export async function deleteCompany(company: CompanyAccount) {
-  console.log("DELETING COMPANY: ", company);
-  try {
-    await prisma.companyAccount.delete({ where: { id: company.id } });
-    return { status: "success", data: "Company Delete" };
-  } catch (error) {
-    return {
-      status: "error",
-      error: "Save failed. Are there existing narratives with this type?",
-    };
-  }
-}
-
-export async function getHeadcountCSV(companyId: number, projectId: number) {
+export async function getHeadcountCSV(
+  companyId: number,
+  projectId: number,
+  fileName: string
+) {
   const writeXlsxFile = require("write-excel-file/node");
   const fs = require("fs");
   const { Downloader } = require("nodejs-file-downloader");
@@ -111,7 +99,7 @@ export async function getHeadcountCSV(companyId: number, projectId: number) {
   ]);
 
   const data = [headers, ...values];
-  const filePath = "./public/files/headcount.xlsx";
+  const filePath = `./public/files/${fileName}`;
 
   const folderName = "./public/files";
 
@@ -127,21 +115,5 @@ export async function getHeadcountCSV(companyId: number, projectId: number) {
   }
 
   const stream = await writeXlsxFile(data, { filePath: filePath });
-  return stream;
-
-  // const downloader = new Downloader({
-  //   url: "http://localhost:3000/files/headcount.xlsx",
-  // });
-
-  // try {
-  //   const { filePath, downloadStatus } = await downloader.download(); //Downloader.download() resolves with some useful properties.
-
-  //   console.log("File path", filePath);
-  //   console.log("Download status", downloadStatus);
-  //   console.log("All done");
-  // } catch (error) {
-  //   //IMPORTANT: Handle a possible error. An error is thrown in case of network errors, or status codes of 400 and above.
-  //   //Note that if the maxAttempts is set to higher than 1, the error is thrown only if all attempts fail.
-  //   console.log("Download failed", error);
-  // }
+  return fileName;
 }
