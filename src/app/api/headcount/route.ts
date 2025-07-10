@@ -38,8 +38,8 @@ export async function DELETE(request: NextRequest) {
       } else {
         console.log("File deleted successfully.");
       }
-      return NextResponse.json({}, { status: 200 });
     });
+    return NextResponse.json({}, { status: 200 });
   } catch (e) {
     console.log("ERROR: ", e);
   }
