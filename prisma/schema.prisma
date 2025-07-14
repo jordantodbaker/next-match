@@ -69,6 +69,7 @@ model CompanyAccount {
   workforcePlansLegacy WorkforcePlanLegacy[]
   roles                Role[]
   headcounts           Headcount[]
+  headcountsLegacy     HeadcountLegacy[]
 }
 
 model User {
@@ -84,6 +85,7 @@ model User {
   safetyNarratives  SafetyNarrative[]
   narratives        Narrative[]
   headcounts        Headcount[]
+  headcountsLegacy  HeadcountLegacy[]
 }
 
 model Project {
@@ -94,6 +96,7 @@ model Project {
   workforcePlans       WorkforcePlan[]
   workforcePlansLegacy WorkforcePlanLegacy[]
   headcounts           Headcount[]
+  headcountsLegacy     HeadcountLegacy[]
 }
 
 model WorkforcePlan {
@@ -138,6 +141,7 @@ model Role {
   isDirect             Boolean               @default(true)
   companyAccounts      CompanyAccount[]
   headcounts           Headcount[]
+  headcountsLegacy     HeadcountLegacy[]
 }
 
 model Headcount {
@@ -155,7 +159,27 @@ model Headcount {
   projectId  Int
 }
 
+model HeadcountLegacy {
+  id        Int            @id @default(autoincrement())
+  headcount Int
+  shift     Shift
+  date      DateTime
+  role      Role           @relation(fields: [roleId], references: [id])
+  roleId    Int
+  company   CompanyAccount @relation(fields: [companyId], references: [id])
+  companyId Int
+  user      User           @relation(fields: [userId], references: [id])
+  userId    Int
+  project   Project        @relation(fields: [projectId], references: [id])
+  projectId Int
+}
+
 enum SecurityRole {
   USER
   ADMIN
+}
+
+enum Shift {
+  Day
+  Night
 }
