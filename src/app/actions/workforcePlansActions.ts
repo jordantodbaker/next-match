@@ -111,11 +111,12 @@ export async function syncWorkforcePlans() {
   const roles = await prisma.role.findMany();
   const companies = await prisma.companyAccount.findMany();
 
+  let results: any = []
+
   fs.createReadStream(inputFilePath)
     .pipe(csv())
     .on("data", async function (data: any) {
       try {
-        console.log("DATA ", data);
         const insertData = {
           remainingHours: parseInt(data.remainingHours),
           plannedHours: parseInt(data.plannedHours),
@@ -136,17 +137,25 @@ export async function syncWorkforcePlans() {
             connect: projects.find((p) => ({ id: p.id })),
           },
           companyAccount: {
-            connect: companies.find((c) => ({ id: c.id })),
+            connect: companies.find((c) => ({ companyCode: c.companyCode })),
           },
         };
 
-        await prisma.workforcePlanLegacy.create({ data: insertData });
+        results.push(insertData);
+
+        //await prisma.workforcePlanLegacy.create({ data: insertData });
       } catch (err) {
         //error handler
         console.log("Workforce error: ", err);
       }
     })
-    .on("end", function () {
-      //some final operation
+    .on("end", async function () {
+      try {
+        console.log("RESULTS: ", results)
+        //await prisma.workforcePlanLegacy.createMany({data: results});
+        const result = Promise.all(results.map(async (r: any) => await prisma.workforcePlanLegacy.create({data: r})))
+      } catch(error) {
+        console.log("ERROR ", error)
+      }
     });
 }

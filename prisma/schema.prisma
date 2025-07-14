@@ -58,17 +58,17 @@ model NarrativeType {
 }
 
 model CompanyAccount {
-  id               Int                      @id @default(autoincrement())
-  name             String
-  companyCode      String       @unique
-  users            User[]
-  safetyNarratives SafetyNarrative[]
-  narratives       Narrative[]
-  projects         Project[]
-  workforcePlans   WorkforcePlan[]
-  workforcePlansLegacy  WorkforcePlanLegacy[]
-  roles            Role[]
-  headcounts  Headcount[]
+  id                   Int                   @id @default(autoincrement())
+  name                 String
+  companyCode          String                @unique
+  users                User[]
+  safetyNarratives     SafetyNarrative[]
+  narratives           Narrative[]
+  projects             Project[]
+  workforcePlans       WorkforcePlan[]
+  workforcePlansLegacy WorkforcePlanLegacy[]
+  roles                Role[]
+  headcounts           Headcount[]
 }
 
 model User {
@@ -83,17 +83,17 @@ model User {
   selectedProjectId Int?
   safetyNarratives  SafetyNarrative[]
   narratives        Narrative[]
-  headcounts  Headcount[]
+  headcounts        Headcount[]
 }
 
 model Project {
-  id              Int              @id @default(autoincrement())
-  name            String 
-  code            String @unique    // Remove @unique after legacy ?
-  companyAccounts CompanyAccount[] //@relation(fields: [companyId], references: [id])
-  workforcePlans  WorkforcePlan[]
-  workforcePlansLegacy  WorkforcePlanLegacy[]
-  headcounts  Headcount[]
+  id                   Int                   @id @default(autoincrement())
+  name                 String
+  code                 String                @unique // Remove @unique after legacy ?
+  companyAccounts      CompanyAccount[] //@relation(fields: [companyId], references: [id])
+  workforcePlans       WorkforcePlan[]
+  workforcePlansLegacy WorkforcePlanLegacy[]
+  headcounts           Headcount[]
 }
 
 model WorkforcePlan {
@@ -110,49 +110,49 @@ model WorkforcePlan {
 }
 
 model WorkforcePlanLegacy {
-  id             Int            @id @default(autoincrement())
-  area           String?
-  roleName       String
-  remainingHours Int?
-  plannedHours   Int?
-  varianceHours  Int?
-  shiftHours     Int?
+  id                Int            @id @default(autoincrement())
+  area              String?
+  roleName          String
+  remainingHours    Int?
+  plannedHours      Int?
+  varianceHours     Int?
+  shiftHours        Int?
   plannedShiftHours Int?
-  workerDays     Int?
-  shift          String?
-  date           DateTime
-  headCount      Int?
-  projectCode    String
-  companyCode    String
-  project        Project        @relation(fields: [projectCode], references: [code])
-  role           Role           @relation(fields: [roleName], references: [name])
-  companyAccount CompanyAccount @relation(fields: [companyCode], references: [companyCode])
+  workerDays        Int?
+  shift             String?
+  date              DateTime
+  headCount         Int?
+  projectCode       String
+  companyCode       String
+  project           Project        @relation(fields: [projectCode], references: [code])
+  role              Role           @relation(fields: [roleName], references: [name])
+  companyAccount    CompanyAccount @relation(fields: [companyCode], references: [companyCode])
 }
 
 model Role {
-  id              Int                      @id @default(autoincrement())
-  code            String
-  name            String @unique //Remove @unique after legacy?
-  workforcePlans  WorkforcePlan[]
-  workforcePlansLegacy  WorkforcePlanLegacy[]
-  isDirect        Boolean                  @default(true)
-  companyAccounts CompanyAccount[]
-  headcounts  Headcount[]
+  id                   Int                   @id @default(autoincrement())
+  code                 String
+  name                 String                @unique //Remove @unique after legacy?
+  workforcePlans       WorkforcePlan[]
+  workforcePlansLegacy WorkforcePlanLegacy[]
+  isDirect             Boolean               @default(true)
+  companyAccounts      CompanyAccount[]
+  headcounts           Headcount[]
 }
 
 model Headcount {
-  id Int @id @default(autoincrement())
-  dayCount Int
+  id         Int            @id @default(autoincrement())
+  dayCount   Int
   nightCount Int
-  date DateTime
-  role Role @relation(fields: [roleId], references: [id])
-  roleId Int
-  company CompanyAccount @relation(fields: [companyId], references: [id])
-  companyId Int
-  user    User @relation(fields: [userId], references: [id])
-  userId Int
-  project Project @relation(fields: [projectId], references: [id])
-  projectId Int
+  date       DateTime
+  role       Role           @relation(fields: [roleId], references: [id])
+  roleId     Int
+  company    CompanyAccount @relation(fields: [companyId], references: [id])
+  companyId  Int
+  user       User           @relation(fields: [userId], references: [id])
+  userId     Int
+  project    Project        @relation(fields: [projectId], references: [id])
+  projectId  Int
 }
 
 enum SecurityRole {
