@@ -78,32 +78,31 @@ export default function SafetyPage({ narratives }: Props) {
     await authorizeNarrative(selectedNarrative);
   };
 
+  const onClickWorkForce = async () => {
+    const uploadRequest = await fetch("/api/workforcePlans", {
+      method: "PUT",
+    });
+  };
+
   return (
     <div className="flex h-full w-full">
       <AdminSidebar />
       <div className="w-full flex flex-col m-16">
         <div>
-          <h1 className="text-3xl text-center">Safety Narrative Update</h1>
+          <h1 className="text-3xl text-center">Admin Panel</h1>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="w-full mt-16 h-full">
-            <Textarea
-              {...register("narrative")}
-              label="Narrative"
-              placeholder="Enter your Safety Narrative"
-              defaultValue={selectedNarrative?.narrative || ""}
-              onChange={(e) => onNarrativeChange(e)}
-              value={narrativeValue}
-              disabled={selectedNarrative?.authorized}
-            />
-            {selectedNarrative?.updatedAt && (
-              <div className="flex justify-end mr-2 text-gray-500 font-light italic mt-1">
-                Last updated on{" "}
-                {selectedNarrative.updatedAt.toLocaleDateString()} at{" "}
-                {selectedNarrative.updatedAt.toLocaleTimeString()}
-              </div>
-            )}
+            <Button
+              className="ml-2"
+              color="primary"
+              isDisabled={!isValid}
+              isLoading={isSubmitting}
+              onPress={onClickWorkForce}
+            >
+              Sync Workforce Plans
+            </Button>
           </div>
           <div className="mt-2">
             <Button

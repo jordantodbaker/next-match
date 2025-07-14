@@ -14,30 +14,42 @@ export async function submitWorkforcePlan(
   const project = JSON.parse(data.get("project"));
   const role = JSON.parse(data.get("role"));
 
-  const existingWFP = await prisma.workforcePlan.findFirst({where: {companyId: company.id, projectId: project.id, roleId: role.id}});
+  const existingWFP = await prisma.workforcePlan.findFirst({
+    where: { companyId: company.id, projectId: project.id, roleId: role.id },
+  });
 
-  const dates = workforcePlan.map((p: any) => ([...p.weekdays.map((w: any) => ({
-    ...w,
-    projectId: project.id,
-    companyId: company.id,
-    roleId: role.id
-  })) ])).flat()
+  const dates = workforcePlan
+    .map((p: any) => [
+      ...p.weekdays.map((w: any) => ({
+        ...w,
+        projectId: project.id,
+        companyId: company.id,
+        roleId: role.id,
+      })),
+    ])
+    .flat();
 
-  console.log('WFPS TO GO => ', workforcePlan)
-  
+  console.log("WFPS TO GO => ", workforcePlan);
 
-  if(existingWFP){
-    console.log('--------------------------------------------------------');
-    console.log('UPDATE');
-    console.log('--------------------------------------------------------');
-    await Promise.all(dates.map(async (date: any) => await prisma.workforcePlan.update({where: {id: date.id}, data: {...date}})));
+  if (existingWFP) {
+    console.log("--------------------------------------------------------");
+    console.log("UPDATE");
+    console.log("--------------------------------------------------------");
+    await Promise.all(
+      dates.map(
+        async (date: any) =>
+          await prisma.workforcePlan.update({
+            where: { id: date.id },
+            data: { ...date },
+          })
+      )
+    );
   } else {
-    console.log('--------------------------------------------------------');
-    console.log('CREATE');
-    console.log('--------------------------------------------------------');
-    await prisma.workforcePlan.createMany({data: dates});
+    console.log("--------------------------------------------------------");
+    console.log("CREATE");
+    console.log("--------------------------------------------------------");
+    await prisma.workforcePlan.createMany({ data: dates });
   }
-
 
   //   try {
   //     if (data.narrative.id !== 0) {
@@ -78,9 +90,63 @@ export async function submitWorkforcePlan(
   return { status: "error", error: "Something else went wrong" };
 }
 
-export async function getWorkforcePlans(){
+export async function getWorkforcePlans() {
   const session = await auth();
   const user = session?.user;
 
-  return user?.securityRole === SecurityRole.ADMIN ? await prisma.workforcePlan.findMany({}) : await prisma.workforcePlan.findMany({ where: {companyId: user?.companyId}});
+  return user?.securityRole === SecurityRole.ADMIN
+    ? await prisma.workforcePlan.findMany({})
+    : await prisma.workforcePlan.findMany({
+        where: { companyId: user?.companyId },
+      });
+}
+
+export async function syncWorkforcePlans() {
+  const fs = require("fs");
+  const csv = require("csv-parser");
+
+  const inputFilePath = "./uploadCSVs/workforcePlan.csv";
+
+  const projects = await prisma.project.findMany();
+  const roles = await prisma.role.findMany();
+  const companies = await prisma.companyAccount.findMany();
+
+  fs.createReadStream(inputFilePath)
+    .pipe(csv())
+    .on("data", async function (data: any) {
+      try {
+        console.log("DATA ", data);
+        const insertData = {
+          remainingHours: parseInt(data.remainingHours),
+          plannedHours: parseInt(data.plannedHours),
+          varianceHours: parseInt(data.varianceHours),
+          shiftHours: parseInt(data.shiftHours),
+          plannedShiftHours: parseInt(data.plannedShiftHours),
+          workerDays: parseInt(data.workerDays),
+          headCount: parseInt(data.headCount),
+          area: data.area,
+          shift: data.shift,
+          date: new Date(data.date),
+          // projectCode: data.projectCode,
+          // companyCode: data.companyCode,
+          role: {
+            connect: roles.find((r) => ({ id: r.id })),
+          },
+          project: {
+            connect: projects.find((p) => ({ id: p.id })),
+          },
+          companyAccount: {
+            connect: companies.find((c) => ({ id: c.id })),
+          },
+        };
+
+        await prisma.workforcePlanLegacy.create({ data: insertData });
+      } catch (err) {
+        //error handler
+        console.log("Workforce error: ", err);
+      }
+    })
+    .on("end", function () {
+      //some final operation
+    });
 }
