@@ -7,7 +7,7 @@ import { CompanyAccount, Project, Role } from "@prisma/client";
 export async function getCompanies() {
   return await prisma.companyAccount.findMany({
     where: { companyCode: { not: "ACE" } },
-    include: { roles: true, projects: true },
+    include: { roles: true, projects: true, workforcePlans: true },
   });
 }
 
@@ -19,7 +19,7 @@ export async function getCompany() {
     include: { roles: true, projects: true },
   });
 
-  return [company].filter((c) => !!c);
+  return [company].filter((c) => !!c)[0];
 }
 
 export async function getCompaniesWithUsers() {

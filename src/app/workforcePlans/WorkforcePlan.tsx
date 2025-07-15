@@ -10,7 +10,7 @@ import {
   Input,
   NumberInput,
 } from "@heroui/react";
-import { Key, useContext, useState } from "react";
+import { Key, useContext, useEffect, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
@@ -22,6 +22,7 @@ import { CompanyAccount, Project, Role, WorkforcePlan } from "@prisma/client";
 import { ProjectContext } from "@/components/ProjectContext";
 import WorkforceWeek from "./WorkforceWeek";
 import { emptyRole } from "@/lib/schemas/defaultModels";
+import { CompanyWithRoles } from "@/lib/types";
 
 type Dates = {
   dateEnd: Date;
@@ -69,7 +70,10 @@ function getNewDates() {
       new Date(lastSunday.setDate(lastSunday.getDate() + 7)),
     ];
   }
-  return sundays.map((sunday) => {
+
+  sundays.pop();
+
+  const newDates = sundays.map((sunday) => {
     let weekdays = [] as any;
     for (i = 6; i >= 1; i--) {
       const newDate = new Date(sunday);
@@ -87,19 +91,22 @@ function getNewDates() {
       weekdays: weekdays,
     };
   });
+
+  return newDates;
 }
 
 export default function WorkforcePlanPage({
   workforcePlans,
-  roles,
+  company,
 }: {
   workforcePlans: WorkforcePlan[];
-  roles: Role[];
+  company: CompanyWithRoles;
 }) {
-  const company = useContext<CompanyAccount>(CompanyContext);
+  const selectedCompany = useContext<CompanyAccount>(CompanyContext);
   const project = useContext<Project>(ProjectContext);
   const { data } = useSession();
   const user = data?.user;
+  const roles = company.roles;
 
   const initialRole = roles.length > 0 ? roles[0] : emptyRole;
   const dates =
@@ -112,12 +119,21 @@ export default function WorkforcePlanPage({
   const [workForceDates, setWorkforceDates] = useState<Dates>(dates);
   const [selectedRole, setSelectedRole] = useState<Role>(initialRole);
 
+  useEffect(() => {
+    const filteredDates = workforcePlans
+      .filter((p) => p.roleId === selectedRole.id)
+      .filter((p) => p.projectId === project.id);
+    const newDates =
+      filteredDates.length > 0 ? buildDates(filteredDates) : getNewDates();
+    setWorkforceDates(newDates);
+  }, [selectedRole, project]);
+
   const onSubmit = async () => {
     const data = new FormData();
     data.set("workforcePlan", JSON.stringify(workForceDates));
     data.set("project", JSON.stringify(project));
     data.set("company", JSON.stringify(company));
-    data.set("role", JSON.stringify(selectedRole))
+    data.set("role", JSON.stringify(selectedRole));
 
     const uploadRequest = await fetch("/api/workforcePlans", {
       method: "POST",

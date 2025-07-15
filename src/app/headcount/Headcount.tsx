@@ -30,8 +30,7 @@ type FormValues = {
 };
 
 type Props = {
-  roles: Role[];
-  company: CompanyWithRoles[];
+  company: CompanyWithRoles;
   headcount: any;
   baseUrl: string;
 };
@@ -46,7 +45,6 @@ import { narrativeSchema } from "../../lib/schemas/narrativeSchema";
 import { toast } from "react-toastify";
 
 export default function HeadcountPage({
-  roles,
   company,
   headcount: initialHeadcount,
   baseUrl: baseUrl,
@@ -61,7 +59,7 @@ export default function HeadcountPage({
     headcount.filter((hc: any) => hc.projectId === project.id).length > 0
       ? headcount
       : [
-          ...company[0].roles.map((role) => ({
+          ...company.roles.map((role) => ({
             role: role,
             dayCount: 0,
             nightCount: 0,
@@ -82,7 +80,7 @@ export default function HeadcountPage({
       headcount.filter((hc: any) => hc.projectId === project.id).length > 0
         ? headcount.filter((hc: any) => hc.projectId === project.id)
         : [
-            ...company[0].roles.map((role) => ({
+            ...company.roles.map((role) => ({
               role: role,
               dayCount: 0,
               nightCount: 0,
@@ -121,7 +119,7 @@ export default function HeadcountPage({
 
   const onClickGetCSV = async () => {
     const data = new FormData();
-    const fileName = `headcount_${company[0].id}_${project.id}.xlsx`;
+    const fileName = `headcount_${company.id}_${project.id}.xlsx`;
     data.set("project", JSON.stringify(project));
     data.set("company", JSON.stringify(company));
     data.set("fileName", fileName);

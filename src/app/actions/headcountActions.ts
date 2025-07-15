@@ -49,9 +49,6 @@ export async function saveHeadcount(headcount: Headcount[]) {
       });
     }
     if (oldHeadcounts.length > 0) {
-      //   await prisma.headcount.updateMany({
-      //     data: oldHeadcounts,
-      //   });
       await Promise.all(
         oldHeadcounts.map(
           async (hc) =>
