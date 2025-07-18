@@ -103,7 +103,7 @@ export default function WorkforcePlansPage({
                     ? field.reportPlans[0].roleId
                     : null;
                 if (lastId) {
-                  field.reportPlans.forEach((p) => {
+                  field.reportPlans.forEach((p: ReportPlan) => {
                     if (p.roleId !== lastId) {
                       plans.push({
                         role: field.roles.find((r: any) => r.id == lastId),
@@ -117,13 +117,15 @@ export default function WorkforcePlansPage({
                 }
 
                 plans.push({
-                  role: field.roles.find((r) => r.id == lastId),
+                  role: field.roles.find((r: Role) => r.id == lastId),
                   plans: wfps,
                 });
 
                 return (
                   <div>
-                    <div className="text-2xl font-bold">{field.name}</div>
+                    {plans[0].plans.length > 0 && (
+                      <div className="text-2xl font-bold">{field.name}</div>
+                    )}
                     {plans[0].plans.length > 0 &&
                       plans.map((plan: any) => {
                         return (

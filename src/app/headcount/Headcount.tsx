@@ -9,6 +9,7 @@ import {
   DropdownItem,
   Input,
   NumberInput,
+  Tooltip,
 } from "@heroui/react";
 import { useContext, useEffect, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
@@ -43,6 +44,7 @@ import { ProjectContext } from "@/components/ProjectContext";
 import { CompanyContext } from "@/components/CompanyContext";
 import { narrativeSchema } from "../../lib/schemas/narrativeSchema";
 import { toast } from "react-toastify";
+import { IconInfoCircle } from "@tabler/icons-react";
 
 export default function HeadcountPage({
   company,
@@ -169,6 +171,8 @@ export default function HeadcountPage({
     }
   };
 
+  let lastCategoryId = 0;
+
   return (
     <div className="flex h-full w-full">
       <Sidebar />
@@ -191,11 +195,40 @@ export default function HeadcountPage({
           <div className="w-full mt-16 h-full flex flex-col justify-center">
             <div className="">
               {fields.map((field: any, index) => {
+                let showCategoryTitle = false;
+                if (lastCategoryId !== field.role.categoryId) {
+                  showCategoryTitle = true;
+                  lastCategoryId = field.role.categoryId;
+                }
+                console.log("FIELD: ", field);
                 return (
                   <section key={field.id} className="mr-4 sm:mt-4 mt-16">
+                    {showCategoryTitle && (
+                      <div className="flex flex-row mb-4 items-end border-b-1 pb-2">
+                        <h1 className="text-2xl">
+                          {field.role.category.name}{" "}
+                        </h1>
+                        <div className="ml-2">
+                          {field.role.category.description && (
+                            <Tooltip content={field.role.category.description}>
+                              <IconInfoCircle />
+                            </Tooltip>
+                          )}
+                        </div>
+                      </div>
+                    )}
                     <div className="flex flex-row">
                       <div className="w-3xs flex align-middle">
-                        <span>{field.role.name}</span>
+                        <div>
+                          <span>{field.role.name} </span>
+                        </div>
+                        <div className="ml-2">
+                          {field.role.description && (
+                            <Tooltip content={field.role.description}>
+                              <IconInfoCircle />
+                            </Tooltip>
+                          )}
+                        </div>
                       </div>
                       <Input
                         fullWidth={false}

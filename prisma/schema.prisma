@@ -133,25 +133,25 @@ model WorkforcePlanLegacy {
 }
 
 model Role {
-  id  Int              @id @default(autoincrement())
+  id                   Int                   @id @default(autoincrement())
   code                 String?
   name                 String                @unique //Remove @unique after legacy?
   description          String?
-  // categoryId           Int                  
-  // category             RoleCategory         @relation(fields: [categoryId], references: [id])
+  categoryId           Int
+  category             RoleCategory          @relation(fields: [categoryId], references: [id])
   workforcePlans       WorkforcePlan[]
   workforcePlansLegacy WorkforcePlanLegacy[]
   companyAccounts      CompanyAccount[]
   headcounts           Headcount[]
   headcountsLegacy     HeadcountLegacy[]
- }
+}
 
 model RoleCategory {
-  id  Int @id @default(autoincrement())
-  name  String
+  id          Int     @id @default(autoincrement())
+  name        String
   description String?
-  isDirect  Boolean @default(true)
-  //roles     Role[]
+  isDirect    Boolean @default(true)
+  roles       Role[]
 }
 
 model Headcount {

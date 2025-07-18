@@ -8,10 +8,10 @@ export default async function AdminPage() {
   const companies = await getCompanies();
   const roles = await getRoles();
   const projects = await getProjects();
-
+  console.log("PROJECTS ", projects);
   return (
     <div className="flex h-full w-full">
-      <Companies companies={companies} roles={roles} projects={projects}/>
+      <Companies companies={companies} roles={roles} projects={projects} />
     </div>
   );
 }

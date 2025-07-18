@@ -21,16 +21,15 @@ import React from "react";
 //import { authorizeNarrative, submitNarrative } from "../../actions/safetyActions";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
-import { CompanyAccount, Project, Role } from "@prisma/client";
+import { CompanyAccount, Project, Role as PrismaRole } from "@prisma/client";
 import { AdminSidebar } from "@/components/sidebar/AdminSidebar";
-import { IconSquareX } from "@tabler/icons-react";
 import { deleteCompany, saveCompany } from "@/app/actions/companyActions";
 import CompanyTable from "./CompanyTable";
 import { emptyCompany } from "@/lib/schemas/defaultModels";
-import { CompanyWithRoles } from "@/lib/types";
+import { Company, Role } from "@/lib/types";
 
 type Props = {
-  companies: CompanyWithRoles[];
+  companies: Company[];
   roles: Role[];
   projects: Project[];
 };
@@ -51,12 +50,9 @@ export default function Companies({
   } = useDisclosure();
 
   const [companies, setCompanies] = useState(initialCompanies);
-  const [selectedCompany, setSelectedCompany] =
-    useState<CompanyWithRoles>(emptyCompany);
+  const [selectedCompany, setSelectedCompany] = useState<Company>(emptyCompany);
   const [selectedRoles, setSelectedRoles] = useState<Role[]>([]);
   const [selectedProjects, setSelectedProjects] = useState<Project[]>([]);
-
-  console.log("Selected company: ", selectedCompany);
 
   const handleNameChange = (name: string) => {
     const newCompany = { ...selectedCompany, name: name };
@@ -113,13 +109,13 @@ export default function Companies({
     }
   };
 
-  const onClickEditCompany = async (company: CompanyWithRoles) => {
+  const onClickEditCompany = async (company: Company) => {
     setSelectedCompany(company);
     setSelectedRoles(company.roles);
     onOpen();
   };
 
-  const onClickDeleteCompany = (company: CompanyWithRoles) => {
+  const onClickDeleteCompany = (company: Company) => {
     setSelectedCompany(company);
     onDeleteOpen();
   };
@@ -221,14 +217,16 @@ export default function Companies({
                   </Select>
                   <div className="flex py-2 px-1 justify-between">
                     <CheckboxGroup
-                      defaultValue={selectedCompany.roles.map((r) => r.code)}
+                      defaultValue={selectedCompany.roles.map(
+                        (r) => r.code || ""
+                      )}
                       label="Select roles"
                     >
                       {roles.map((role) => {
                         return (
                           <Checkbox
-                            name={role.code}
-                            value={role.code}
+                            name={role.code || ""}
+                            value={role.code || ""}
                             onChange={(e) => onToggleRole(e)}
                             defaultChecked={selectedCompany.roles.some(
                               (r) => r.id === role.id

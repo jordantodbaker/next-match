@@ -9,6 +9,7 @@ export async function getCategories() {
 }
 
 export async function saveCategory(category: RoleCategory) {
+  console.log("SAVING: ", category);
   try {
     const data = {
       name: category.name,
@@ -21,7 +22,7 @@ export async function saveCategory(category: RoleCategory) {
       await prisma.roleCategory.update({
         where: { id: category.id },
         data: {
-          ...data,
+          ...category,
         },
       });
     }

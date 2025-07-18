@@ -18,8 +18,8 @@ import {
 } from "@heroui/react";
 
 import { EditIcon, DeleteIcon } from "@/lib/icons";
-import { useCallback } from "react";
-import { RoleCategory } from "@prisma/client";
+import { Key, useCallback } from "react";
+import { Role as PrismaRole, RoleCategory } from "@prisma/client";
 import { Role } from "@/lib/types";
 
 export const columns = [
@@ -43,8 +43,8 @@ export default function RoleTable({
   onClickEditRole,
   onClickDeleteRole,
 }: Props) {
-  const renderCell = useCallback((role: Role, columnKey: any) => {
-    const cellValue = role[columnKey as keyof Role];
+  const renderCell = useCallback((role: Role, columnKey: Key) => {
+    const cellValue = role[columnKey as keyof PrismaRole];
 
     switch (columnKey) {
       case "role":

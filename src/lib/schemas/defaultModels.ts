@@ -5,15 +5,9 @@ import {
   SecurityRole,
   User,
 } from "@prisma/client";
-import { Role, CompanyWithRoles } from "../types";
+import { Role, Company } from "../types";
 
-export const emptyCompany = {
-  id: 0,
-  name: "",
-  companyCode: "",
-  roles: [],
-  projects: [],
-} as CompanyWithRoles;
+
 
 export const emptyProject = { id: 0, name: "", code: "" } as Project;
 
@@ -41,3 +35,13 @@ export const emptyRole = {
   categoryId: 0,
   category: emptyRoleCategory,
 } as Role;
+
+export const emptyCompany = {
+  id: 0,
+  name: "",
+  companyCode: "",
+  roles: [emptyRole],
+  projects: [],
+  workforcePlans: [],
+  headcounts: []
+} as Company;

@@ -8,7 +8,7 @@ export async function getCompanies() {
   return await prisma.companyAccount.findMany({
     where: { companyCode: { not: "ACE" } },
     include: {
-      roles: true,
+      roles: {orderBy: {categoryId: 'asc'}, include: {category: true}},
       projects: true,
       workforcePlans: true,
       headcounts: true,
@@ -21,7 +21,7 @@ export async function getCompany() {
   const user = session?.user;
   const company = await prisma.companyAccount.findFirst({
     where: { id: user?.companyId },
-    include: { roles: true, projects: true },
+    include: { roles: {orderBy: {categoryId: 'asc'}, include: {category: true}}, projects: true },
   });
 
   return [company].filter((c) => !!c)[0];

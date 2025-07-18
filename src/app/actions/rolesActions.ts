@@ -5,22 +5,21 @@ import { Role } from "@prisma/client";
 //import { Role } from "@/lib/types";
 
 export async function getRoles() {
-  return await prisma.role.findMany({ include: { category: true } });
+  return await prisma.role.findMany({ include: { category: true }, orderBy: [{categoryId: 'asc'}] });
 }
 
 export async function saveRole(role: Role) {
   console.log("ROLE: ", role);
+  const data = {code: role.code, name: role.name, description: role.description, categoryId: role.categoryId}
   try {
     if (role.id === 0) {
       await prisma.role.create({
-        data: role,
+        data: data
       });
     } else {
       await prisma.role.update({
         where: { id: role.id },
-        data: {
-          ...role,
-        },
+        data: data,
       });
     }
     return { status: "success", data: "Narrative Saved" };

@@ -20,7 +20,7 @@ import {
 import { EditIcon, DeleteIcon } from "@/lib/icons";
 import { useCallback } from "react";
 import { CompanyAccount } from "@prisma/client";
-import { CompanyWithRoles } from "@/lib/types";
+import { Company } from "@/lib/types";
 
 export const columns = [
   { name: "COMPANY", uid: "company" },
@@ -29,9 +29,9 @@ export const columns = [
 ];
 
 type Props = {
-  companies: CompanyWithRoles[];
-  onClickEditCompany: (company: CompanyWithRoles) => void;
-  onClickDeleteCompany: (company: CompanyWithRoles) => void;
+  companies: Company[];
+  onClickEditCompany: (company: Company) => void;
+  onClickDeleteCompany: (company: Company) => void;
 };
 
 export default function CompanyTable({
@@ -40,47 +40,44 @@ export default function CompanyTable({
   onClickDeleteCompany,
 }: Props) {
   console.log("COMPANIES", companies);
-  const renderCell = useCallback(
-    (company: CompanyWithRoles, columnKey: any) => {
-      const cellValue = company[columnKey as keyof CompanyAccount];
+  const renderCell = useCallback((company: Company, columnKey: any) => {
+    const cellValue = company[columnKey as keyof CompanyAccount];
 
-      switch (columnKey) {
-        case "company":
-          return <div>{company.name}</div>;
-        case "code":
-          return (
-            <div className="flex flex-col">
-              <p className="text-bold text-sm capitalize">{cellValue}</p>
-              <p className="text-bold text-sm capitalize ">
-                {company.companyCode}
-              </p>
-            </div>
-          );
-        case "actions":
-          return (
-            <div className="relative flex items-center gap-2">
-              <Button
-                color="primary"
-                variant="bordered"
-                onPress={async () => onClickEditCompany(company)}
-              >
-                Edit
-              </Button>
-              <Button
-                color="primary"
-                variant="bordered"
-                onPress={() => onClickDeleteCompany(company)}
-              >
-                Delete
-              </Button>
-            </div>
-          );
-        default:
-          return cellValue;
-      }
-    },
-    []
-  );
+    switch (columnKey) {
+      case "company":
+        return <div>{company.name}</div>;
+      case "code":
+        return (
+          <div className="flex flex-col">
+            <p className="text-bold text-sm capitalize">{cellValue}</p>
+            <p className="text-bold text-sm capitalize ">
+              {company.companyCode}
+            </p>
+          </div>
+        );
+      case "actions":
+        return (
+          <div className="relative flex items-center gap-2">
+            <Button
+              color="primary"
+              variant="bordered"
+              onPress={async () => onClickEditCompany(company)}
+            >
+              Edit
+            </Button>
+            <Button
+              color="primary"
+              variant="bordered"
+              onPress={() => onClickDeleteCompany(company)}
+            >
+              Delete
+            </Button>
+          </div>
+        );
+      default:
+        return cellValue;
+    }
+  }, []);
 
   return (
     <Table aria-label="Example table with custom cells">

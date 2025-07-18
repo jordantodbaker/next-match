@@ -22,7 +22,7 @@ import { RoleCategory } from "@prisma/client";
 import { AdminSidebar } from "@/components/sidebar/AdminSidebar";
 import { deleteRole, saveRole } from "@/app/actions/rolesActions";
 import RoleTable from "./RoleTable";
-import { emptyRole } from "@/lib/schemas/defaultModels";
+import { emptyRole, emptyRoleCategory } from "@/lib/schemas/defaultModels";
 import { Role } from "@/lib/types";
 
 type Props = {
@@ -60,8 +60,11 @@ export default function Roles({ roles: initialRoles, categories }: Props) {
   };
 
   const handleCategoryChange = (category: any) => {
-    console.log("Category: ", parseInt(category));
-    setSelectedRole({ ...selectedRole, categoryId: parseInt(category) });
+    setSelectedRole({
+      ...selectedRole,
+      categoryId: parseInt(category),
+      category: categories.find((c) => c.id == category) || emptyRoleCategory,
+    });
   };
 
   const onSaveRole = async () => {
@@ -117,7 +120,7 @@ export default function Roles({ roles: initialRoles, categories }: Props) {
   //   });
   // };
 
-  console.log("ROLES: ", roles);
+  console.log("selected role: ", selectedRole);
 
   return (
     <div className="flex h-full w-full">
@@ -184,7 +187,8 @@ export default function Roles({ roles: initialRoles, categories }: Props) {
                     label="Category"
                     placeholder="Select Category"
                     onChange={(e) => handleCategoryChange(e.target.value)}
-                    defaultSelectedKeys={[]}
+                    //defaultSelectedKeys={[selectedRole.categoryId]}
+                    selectedKeys={[`${selectedRole.categoryId}`]}
                   >
                     {categories.map((category) => (
                       <SelectItem key={category.id}>{category.name}</SelectItem>
