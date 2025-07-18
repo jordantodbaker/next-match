@@ -20,6 +20,7 @@ export async function getHeadcount() {
   const company = await prisma.headcount.findMany({
     where: { companyId: user?.companyId, date: { gte: today } },
     include: { role: {include: {category: true}} },
+    orderBy: {role: {category: {id: 'asc'}}},
   });
 
   return [company].filter((c) => !!c);

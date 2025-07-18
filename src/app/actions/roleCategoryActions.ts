@@ -8,11 +8,12 @@ export async function getCategories() {
   return await prisma.roleCategory.findMany();
 }
 
-export async function saveCategory(category: RoleCategory) {
-  console.log("SAVING: ", category);
+export async function saveCategory(category: RoleCategory) {;
   try {
     const data = {
       name: category.name,
+      description: category.description,
+      isDirect: category.isDirect
     };
     if (category.id === 0) {
       await prisma.roleCategory.create({

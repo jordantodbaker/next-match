@@ -149,6 +149,8 @@ export default function Companies({
     }
   };
 
+  let lastId = 0;
+
   return (
     <div className="flex h-full w-full">
       <AdminSidebar />
@@ -223,17 +225,29 @@ export default function Companies({
                       label="Select roles"
                     >
                       {roles.map((role) => {
+                        let showCategory = false;
+                        if (lastId != role.categoryId) {
+                          showCategory = true;
+                          lastId = role.categoryId;
+                        }
                         return (
-                          <Checkbox
-                            name={role.code || ""}
-                            value={role.code || ""}
-                            onChange={(e) => onToggleRole(e)}
-                            defaultChecked={selectedCompany.roles.some(
-                              (r) => r.id === role.id
+                          <div>
+                            {showCategory && (
+                              <h1 className="mb-2 font-bold">
+                                {role.category.name}
+                              </h1>
                             )}
-                          >
-                            {role.name}
-                          </Checkbox>
+                            <Checkbox
+                              name={role.code || ""}
+                              value={role.code || ""}
+                              onChange={(e) => onToggleRole(e)}
+                              defaultChecked={selectedCompany.roles.some(
+                                (r) => r.id === role.id
+                              )}
+                            >
+                              {role.name}
+                            </Checkbox>
+                          </div>
                         );
                       })}
                     </CheckboxGroup>

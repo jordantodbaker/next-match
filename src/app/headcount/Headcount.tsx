@@ -173,8 +173,6 @@ export default function HeadcountPage({
 
   let lastCategoryId = 0;
 
-  console.log("COMPANY: ", company);
-
   return (
     <div className="flex h-full w-full">
       <Sidebar />
@@ -202,7 +200,6 @@ export default function HeadcountPage({
                   showCategoryTitle = true;
                   lastCategoryId = field.role.categoryId;
                 }
-                console.log("FIELD: ", field);
                 return (
                   <section key={field.id} className="mr-4 sm:mt-4 mt-16">
                     {showCategoryTitle && (

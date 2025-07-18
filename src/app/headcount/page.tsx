@@ -9,6 +9,7 @@ export default async function NarrativePage() {
 
   const baseUrl = process.env.BASE_URL;
 
+  console.log("Headcount: ", headcount);
   return (
     <div className="flex h-full w-full">
       <Headcount
