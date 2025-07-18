@@ -41,8 +41,30 @@ export default function WorkforceWeek({
     <section key={weekIndex}>
       <div className="flex flex-row justify-center">
         <div className="flex flex-row mt-10">
-          <div className="flex flex-col">
+          {/* <div className="flex flex-col">
             <div className="mt-2 mr-2 w-24">
+              <NumberInput
+                hideStepper
+                label="Hrs"
+                variant="bordered"
+                onValueChange={(value) => onChangeFillWeekDay(value, weekIndex)}
+                value={fillWeekDay[weekIndex]}
+              />
+            </div>
+            <div className="mt-2 mr-2 w-24">
+              <NumberInput
+                hideStepper
+                label="$"
+                variant="bordered"
+                onValueChange={(value) =>
+                  onChangeFillWeekNight(value, weekIndex)
+                }
+                value={fillWeekNight[weekIndex]}
+              />
+            </div>
+          </div> */}
+          <div className="flex flex-col">
+            <div className="mt-2 mr-2 w-24 step-two">
               <NumberInput
                 hideStepper
                 label="Day"

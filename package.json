@@ -17,6 +17,7 @@
     "@hookform/resolvers": "^5.0.1",
     "@material-tailwind/react": "^2.1.10",
     "@prisma/client": "^6.7.0",
+    "@reactour/tour": "^3.8.0",
     "@rpldy/upload-button": "^1.10.0",
     "@rpldy/uploady": "^1.10.0",
     "@tabler/icons-react": "^3.31.0",
