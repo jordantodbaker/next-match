@@ -15,38 +15,79 @@ import {
   Role,
   SecurityRole,
   User,
+  WorkforcePlan,
 } from "@prisma/client";
 import { Company } from "@/lib/types";
 import { ProjectContext } from "@/components/ProjectContext";
 import { CompanyContext } from "@/components/CompanyContext";
 import { toast } from "react-toastify";
 import Roles from "../roles/Roles";
+import { AdminSidebar } from "@/components/sidebar/AdminSidebar";
+
+const datesAreOnSameDay = (first: Date, second: Date) =>
+  first.getFullYear() === second.getFullYear() &&
+  first.getMonth() === second.getMonth() &&
+  first.getDate() === second.getDate();
 
 type Props = {
   companies: Company[];
 };
 
+type ReportPlan = WorkforcePlan & {
+  dayHeadCount: number;
+  nightHeadCount: number;
+};
+type ParsedCompany = Company & { reportPlans: ReportPlan };
+
 export default function WorkforcePlansPage({
   companies: initialCompanies,
 }: Props) {
+  const parsedCompanies = initialCompanies.map((company) => {
+    let merged = [];
+
+    for (let i = 0; i < company.workforcePlans.length; i++) {
+      const headCount = company.headcounts.find((hc) => {
+        if (
+          datesAreOnSameDay(company.workforcePlans[i].date, hc.date) &&
+          company.workforcePlans[i].roleId === hc.roleId
+        ) {
+        }
+        return (
+          datesAreOnSameDay(company.workforcePlans[i].date, hc.date) &&
+          company.workforcePlans[i].roleId === hc.roleId &&
+          company.workforcePlans[i].projectId === hc.projectId
+        );
+      });
+      merged.push({
+        ...company.workforcePlans[i],
+        ...{
+          dayHeadCount: headCount?.dayCount,
+          nightHeadCount: headCount?.dayCount,
+        },
+      });
+    }
+
+    return { ...company, reportPlans: merged };
+  });
+
   const { data } = useSession();
   const user = data?.user;
   const project = useContext<Project>(ProjectContext);
-  const [companies, setCompanies] = useState<Company[]>(initialCompanies);
+  const [companies, setCompanies] = useState<any[]>(parsedCompanies);
 
   useEffect(() => {
-    const newCompanies = initialCompanies.map((c) => ({
+    const newCompanies = parsedCompanies.map((c) => ({
       ...c,
-      workforcePlans: [...c.workforcePlans].filter(
-        (w) => w.projectId == project.id
-      ),
+      reportPlans: [...c.reportPlans].filter((w) => w.projectId == project.id),
     }));
     setCompanies(newCompanies);
   }, [project]);
 
+  console.log("Companies: ", companies);
+
   return (
     <div className="h-full overflow-x-scroll flex w-full">
-      <Sidebar />
+      <AdminSidebar />
       <div className=" flex flex-col m-16 w-full">
         <div>
           <h1 className="text-3xl text-center">Workforce Plans</h1>
@@ -58,14 +99,14 @@ export default function WorkforcePlansPage({
                 const plans: any = [];
                 let wfps: any = [];
                 let lastId =
-                  field.workforcePlans.length > 0
-                    ? field.workforcePlans[0].roleId
+                  field.reportPlans.length > 0
+                    ? field.reportPlans[0].roleId
                     : null;
                 if (lastId) {
-                  field.workforcePlans.forEach((p) => {
+                  field.reportPlans.forEach((p) => {
                     if (p.roleId !== lastId) {
                       plans.push({
-                        role: field.roles.find((r) => r.id == lastId),
+                        role: field.roles.find((r: any) => r.id == lastId),
                         plans: wfps,
                       });
                       lastId = p.roleId;
@@ -81,38 +122,53 @@ export default function WorkforcePlansPage({
                 });
 
                 return (
-                  <Accordion
-                    isCompact
-                    key={field.id}
-                    className="mr-4 sm:mt-4 mt-16"
-                  >
-                    <AccordionItem
-                      key={index}
-                      title={<div className="text-2xl">{field.name}</div>}
-                    >
-                      {plans[0].plans.length > 0 &&
-                        plans.map((plan: any) => {
-                          return (
-                            <div>
-                              <div>{plan.role.name}</div>
-                              <div className={"flex flex-row"}>
+                  <div>
+                    <div className="text-2xl font-bold">{field.name}</div>
+                    {plans[0].plans.length > 0 &&
+                      plans.map((plan: any) => {
+                        return (
+                          <div className="mb-8">
+                            <div className="text-xl mb-2">{plan.role.name}</div>
+                            <div className="flex">
+                              <div className="flex flex-col justify-end mr-4 font-bold">
+                                <div>Day</div>
+                                <div>Night</div>
+                              </div>
+                              <div className={"flex"}>
                                 {plan.plans.map((p: any) => (
-                                  <div className="flex flex-row">
-                                    <div>
+                                  <div className="mr-8">
+                                    <div className="text-center mb-4 font-bold text-lg">
                                       {p.date.toLocaleDateString(undefined, {
                                         month: "numeric",
                                         day: "numeric",
                                       })}
                                     </div>
-                                    <div> | </div>
+                                    <div className="flex mb-4">
+                                      <div className="[writing-mode:vertical-lr]">
+                                        Planned
+                                      </div>
+                                      <div className="[writing-mode:vertical-lr]">
+                                        Actual
+                                      </div>
+                                    </div>
+                                    <div className="flex">
+                                      <div className="mr-2">
+                                        <div>{p.dayCount}</div>
+                                        <div>{p.nightCount}</div>
+                                      </div>
+                                      <div>
+                                        <div>{p.dayHeadCount}</div>
+                                        <div>{p.nightHeadCount}</div>
+                                      </div>
+                                    </div>
                                   </div>
                                 ))}
                               </div>
                             </div>
-                          );
-                        })}
-                    </AccordionItem>
-                  </Accordion>
+                          </div>
+                        );
+                      })}
+                  </div>
                 );
               })}
             </div>

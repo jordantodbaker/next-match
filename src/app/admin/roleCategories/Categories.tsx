@@ -10,8 +10,6 @@ import {
   ModalFooter,
   useDisclosure,
   Checkbox,
-  Select,
-  SelectItem,
   Textarea,
 } from "@heroui/react";
 import { useState } from "react";
@@ -20,17 +18,18 @@ import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
 import { RoleCategory } from "@prisma/client";
 import { AdminSidebar } from "@/components/sidebar/AdminSidebar";
-import { deleteRole, saveRole } from "@/app/actions/rolesActions";
-import RoleTable from "./RoleTable";
-import { emptyRole } from "@/lib/schemas/defaultModels";
-import { Role } from "@/lib/types";
+import {
+  deleteCategory,
+  saveCategory,
+} from "@/app/actions/roleCategoryActions";
+import CategoryTable from "./CategoryTable";
+import { emptyRoleCategory } from "@/lib/schemas/defaultModels";
 
 type Props = {
-  roles: Role[];
   categories: RoleCategory[];
 };
 
-export default function Roles({ roles: initialRoles, categories }: Props) {
+export default function Categories({ categories: initialCategories }: Props) {
   const { data } = useSession();
   const user = data?.user;
 
@@ -41,96 +40,86 @@ export default function Roles({ roles: initialRoles, categories }: Props) {
     onOpenChange: onDeleteOpenChange,
   } = useDisclosure();
 
-  const [roles, setRoles] = useState(initialRoles);
-  const [selectedRole, setSelectedRole] = useState<Role>(emptyRole);
+  const [categories, setCategories] = useState(initialCategories);
+  const [selectedCategory, setSelectedCategory] =
+    useState<RoleCategory>(emptyRoleCategory);
 
   const handleNameChange = (name: string) => {
-    const newRole = { ...selectedRole, name: name };
-    setSelectedRole(newRole);
-  };
-
-  const handleCodeChange = (code: string) => {
-    const newRole = { ...selectedRole, code: code };
-    setSelectedRole(newRole);
+    const newCategory = { ...selectedCategory, name: name };
+    setSelectedCategory(newCategory);
   };
 
   const handleDescriptionChange = (description: string) => {
-    const newRole = { ...selectedRole, description: description };
-    setSelectedRole(newRole);
+    const newCategory = { ...selectedCategory, description: description };
+    setSelectedCategory(newCategory);
   };
 
-  const handleCategoryChange = (category: any) => {
-    console.log("Category: ", parseInt(category));
-    setSelectedRole({ ...selectedRole, categoryId: parseInt(category) });
-  };
-
-  const onSaveRole = async () => {
-    const role = { ...selectedRole };
-    console.log("Role: ", role);
-    const result = await saveRole(role);
-    const newRoles =
-      role.id === 0
-        ? [...roles, role]
-        : roles.map((c) => {
-            if (c.id === role.id || c.id === 0) {
-              return role;
+  const onSaveCategory = async () => {
+    const category = { ...selectedCategory };
+    console.log("Category: ", category);
+    const result = await saveCategory(category);
+    const newCategories =
+      category.id === 0
+        ? [...categories, category]
+        : categories.map((c) => {
+            if (c.id === category.id || c.id === 0) {
+              return category;
             }
             return c;
           });
 
-    setRoles(newRoles);
+    setCategories(newCategories);
 
     if (result.status === "success") {
-      toast.success("Role Saved.");
+      toast.success("Category Saved.");
     } else {
       toast.error(result.error);
     }
   };
 
-  const onDeleteRole = async () => {
-    const role = { ...selectedRole };
-    const result = await deleteRole(role);
+  const onDeleteCategory = async () => {
+    const category = { ...selectedCategory };
+    const result = await deleteCategory(category);
 
     if (result.status === "success") {
-      const newRoles = roles.filter((t) => t.name !== selectedRole.name);
-      setRoles(newRoles);
-      toast.success("Role Deleted.");
+      const newCategories = categories.filter(
+        (t) => t.name !== selectedCategory.name
+      );
+      setCategories(newCategories);
+      toast.success("Category Deleted.");
     } else {
       toast.error(result.error);
     }
   };
 
-  const onClickEditRole = async (role: Role) => {
-    setSelectedRole(role);
+  const onClickEditCategory = async (category: RoleCategory) => {
+    setSelectedCategory(category);
     onOpen();
   };
 
-  const onClickDeleteRole = (role: Role) => {
-    setSelectedRole(role);
+  const onClickDeleteCategory = (category: RoleCategory) => {
+    setSelectedCategory(category);
     onDeleteOpen();
   };
 
-  // const onToggleIsDirect = (e: any) => {
-  //   setSelectedRole({
-  //     ...selectedRole,
-  //     isDirect: !selectedRole.isDirect,
-  //   });
-  // };
-
-  console.log("ROLES: ", roles);
+  const onToggleIsDirect = (e: any) => {
+    setSelectedCategory({
+      ...selectedCategory,
+      isDirect: !selectedCategory.isDirect,
+    });
+  };
 
   return (
     <div className="flex h-full w-full">
       <AdminSidebar />
       <div className="w-full flex flex-col m-16">
         <div>
-          <h1 className="text-3xl text-center">Roles</h1>
+          <h1 className="text-3xl text-center">Categories</h1>
         </div>
-        <RoleTable
-          roles={roles}
+        <CategoryTable
           categories={categories}
-          onClickEditRole={onClickEditRole}
-          onClickDeleteRole={onClickDeleteRole}
+          onClickEditCategory={onClickEditCategory}
+          onClickDeleteCategory={onClickDeleteCategory}
         />
 
         <div className="mt-4">
@@ -139,11 +128,11 @@ export default function Roles({ roles: initialRoles, categories }: Props) {
             color="primary"
             type="button"
             onPress={() => {
-              setSelectedRole(emptyRole);
+              setSelectedCategory(emptyRoleCategory);
               onOpen();
             }}
           >
-            Add Role
+            Add Category
           </Button>
         </div>
         <Modal
@@ -155,41 +144,32 @@ export default function Roles({ roles: initialRoles, categories }: Props) {
             {(onClose) => (
               <>
                 <ModalHeader className="flex flex-col gap-1">
-                  {selectedRole.id === 0 ? "Add Role" : "Edit Role"}
+                  {selectedCategory.id === 0 ? "Add Category" : "Edit Category"}
                 </ModalHeader>
                 <ModalBody>
                   <Input
                     label="Name"
-                    placeholder="Role Name"
+                    placeholder="Category Name"
                     variant="bordered"
-                    value={selectedRole.name}
+                    value={selectedCategory.name}
                     onChange={(e) => handleNameChange(e.target.value)}
-                  />
-                  <Input
-                    label="Code"
-                    placeholder="Role Code"
-                    variant="bordered"
-                    value={selectedRole.code || ""}
-                    onChange={(e) => handleCodeChange(e.target.value)}
                   />
                   <Textarea
                     label="Description"
                     placeholder="Description"
                     variant="bordered"
-                    value={selectedRole.description || ""}
+                    value={selectedCategory.description || ""}
                     onChange={(e) => handleDescriptionChange(e.target.value)}
                   />
-                  <Select
-                    className="max-w-xs"
-                    label="Category"
-                    placeholder="Select Category"
-                    onChange={(e) => handleCategoryChange(e.target.value)}
-                    defaultSelectedKeys={[]}
-                  >
-                    {categories.map((category) => (
-                      <SelectItem key={category.id}>{category.name}</SelectItem>
-                    ))}
-                  </Select>
+                  <div className="flex py-2 px-1 justify-between">
+                    <Checkbox
+                      onChange={(e) => onToggleIsDirect(e)}
+                      defaultChecked={selectedCategory.isDirect}
+                      isSelected={selectedCategory.isDirect}
+                    >
+                      Direct
+                    </Checkbox>
+                  </div>
                 </ModalBody>
                 <ModalFooter>
                   <Button color="danger" variant="flat" onPress={onClose}>
@@ -199,10 +179,12 @@ export default function Roles({ roles: initialRoles, categories }: Props) {
                     color="primary"
                     onPress={async () => {
                       onClose();
-                      await onSaveRole();
+                      await onSaveCategory();
                     }}
                   >
-                    {selectedRole.id === 0 ? "Add Role" : "Edit Role"}
+                    {selectedCategory.id === 0
+                      ? "Add Category"
+                      : "Edit Category"}
                   </Button>
                 </ModalFooter>
               </>
@@ -218,10 +200,12 @@ export default function Roles({ roles: initialRoles, categories }: Props) {
             {(onDeleteClose) => (
               <>
                 <ModalHeader className="flex flex-col gap-1">
-                  {selectedRole.id === 0 ? "Add Role" : "Edit Role"}
+                  {selectedCategory.id === 0 ? "Add Category" : "Edit Category"}
                 </ModalHeader>
                 <ModalBody>
-                  <div>Are you just you want to delete {selectedRole.name}</div>
+                  <div>
+                    Are you just you want to delete {selectedCategory.name}
+                  </div>
                 </ModalBody>
                 <ModalFooter>
                   <Button color="danger" variant="flat" onPress={onDeleteClose}>
@@ -231,10 +215,10 @@ export default function Roles({ roles: initialRoles, categories }: Props) {
                     color="primary"
                     onPress={async () => {
                       onDeleteClose();
-                      await onDeleteRole();
+                      await onDeleteCategory();
                     }}
                   >
-                    Delete {selectedRole.name}
+                    Delete {selectedCategory.name}
                   </Button>
                 </ModalFooter>
               </>
