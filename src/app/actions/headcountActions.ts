@@ -19,7 +19,7 @@ export async function getHeadcount() {
   today.setHours(0, 0, 0, 0);
   const company = await prisma.headcount.findMany({
     where: { companyId: user?.companyId, date: { gte: today } },
-    include: { role: true },
+    include: { role: {include: {category: true}} },
   });
 
   return [company].filter((c) => !!c);

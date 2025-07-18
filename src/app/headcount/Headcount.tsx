@@ -173,6 +173,8 @@ export default function HeadcountPage({
 
   let lastCategoryId = 0;
 
+  console.log("COMPANY: ", company);
+
   return (
     <div className="flex h-full w-full">
       <Sidebar />

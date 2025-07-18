@@ -1,8 +1,8 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { Role } from "@prisma/client";
-//import { Role } from "@/lib/types";
+//import { Role } from "@prisma/client";
+import { Role } from "@/lib/types";
 
 export async function getRoles() {
   return await prisma.role.findMany({ include: { category: true }, orderBy: [{categoryId: 'asc'}] });
@@ -34,6 +34,8 @@ export async function saveRoles(roles: Role[]) {
   const filteredNewRoles = newRoles.map((r) => ({
     name: r.name,
     code: r.code,
+    categoryId: r.categoryId,
+    description: r.description
   }));
   const existingRoles = roles.filter((r) => r.id !== 0);
   try {

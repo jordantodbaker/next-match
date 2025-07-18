@@ -23,7 +23,7 @@ export default async function RootLayout({
   const companies =
     user?.securityRole === SecurityRole.ADMIN
       ? await getCompanies()
-      : await getCompany();
+      : [await getCompany()];
   const projects = await getProjects();
 
   const initialCompanies = companies.length > 0 ? companies : [emptyCompany];

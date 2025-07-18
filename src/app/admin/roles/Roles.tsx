@@ -149,7 +149,7 @@ export default function Roles({ roles: initialRoles, categories }: Props) {
             Add Role
           </Button>
         </div>
-        <Modal
+      <Modal
           isOpen={isOpen}
           placement="top-center"
           onOpenChange={onOpenChange}
