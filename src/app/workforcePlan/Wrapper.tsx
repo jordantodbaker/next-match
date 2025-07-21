@@ -46,7 +46,6 @@ export default function WorkforcePlanPage({
     <TourProvider
       steps={steps}
       onClickClose={(clickProps) => {
-        console.log("ON CLICK CLOSE", clickProps);
         clickProps.setIsOpen(false);
       }}
     >
