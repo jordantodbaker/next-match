@@ -23,7 +23,7 @@ import { ProjectContext } from "@/components/ProjectContext";
 import WorkforceWeek from "./WorkforceWeek";
 import { emptyRole } from "@/lib/schemas/defaultModels";
 import { CompanyWithRoles } from "@/lib/types";
-import { TourProvider, useTour } from "@reactour/tour";
+import { useTour } from "@reactour/tour";
 
 type Dates = {
   dateEnd: Date;
@@ -120,14 +120,11 @@ export default function WorkforcePlanPage({
   const [workForceDates, setWorkforceDates] = useState<Dates>(dates);
   const [selectedRole, setSelectedRole] = useState<Role>(initialRole);
 
-  const steps = [
-    {
-      selector: ".step-one",
-      content: "This is my first Step",
-    },
-  ];
-
   const { setIsOpen } = useTour();
+
+  useEffect(() => {
+    setIsOpen(true);
+  }, []);
 
   useEffect(() => {
     const filteredDates = workforcePlans
@@ -136,7 +133,6 @@ export default function WorkforcePlanPage({
     const newDates =
       filteredDates.length > 0 ? buildDates(filteredDates) : getNewDates();
     setWorkforceDates(newDates);
-    setIsOpen(true);
   }, [selectedRole, project]);
 
   const onSubmit = async () => {
@@ -242,40 +238,41 @@ export default function WorkforcePlanPage({
   };
 
   return (
-    <TourProvider steps={steps}>
-      <div className="flex h-full w-full">
-        <Sidebar />
-        <div className="w-full flex flex-col m-16">
-          <div className="step-one">
-            <h1 className="text-3xl text-center">Workforce Plan</h1>
-          </div>
-          <form onSubmit={async () => await onSubmit()}>
-            <div className="w-full mt-16 h-full">
-              <div className="w-1/4 m-auto mb-4">
-                <div>
-                  {" "}
-                  <Dropdown>
-                    <DropdownTrigger>
-                      <Button variant="bordered" color="primary">
-                        {selectedRole.name
-                          ? selectedRole.name
-                          : "Select a Role"}
-                      </Button>
-                    </DropdownTrigger>
-                    <DropdownMenu
+    <div className="flex h-full w-full">
+      <Sidebar />
+      <div className="w-full flex flex-col m-16">
+        <div>
+          <h1 className="text-3xl text-center">Workforce Plan</h1>
+        </div>
+        <form onSubmit={async () => await onSubmit()}>
+          <div className="w-full mt-16 h-full">
+            <div className="w-1/4 m-auto mb-4">
+              <div>
+                <Dropdown>
+                  <DropdownTrigger>
+                    <Button
+                      variant="bordered"
                       color="primary"
-                      variant="faded"
-                      aria-label="Static Actions"
-                      onAction={(key: Key) => onChangeRole(key)}
-                      selectionMode="single"
+                      className="step-one"
                     >
-                      {roles.map((roles) => (
-                        <DropdownItem key={roles.id}>{roles.name}</DropdownItem>
-                      ))}
-                    </DropdownMenu>
-                  </Dropdown>
-                </div>
-                <div className="flex flex-row step-one">
+                      {selectedRole.name ? selectedRole.name : "Select a Role"}
+                    </Button>
+                  </DropdownTrigger>
+                  <DropdownMenu
+                    color="primary"
+                    variant="faded"
+                    aria-label="Static Actions"
+                    onAction={(key: Key) => onChangeRole(key)}
+                    selectionMode="single"
+                  >
+                    {roles.map((roles) => (
+                      <DropdownItem key={roles.id}>{roles.name}</DropdownItem>
+                    ))}
+                  </DropdownMenu>
+                </Dropdown>
+              </div>
+              <div className="step-two">
+                <div className="flex flex-row ">
                   <div className="mt-2 mr-2 ">
                     <NumberInput
                       hideStepper
@@ -309,30 +306,30 @@ export default function WorkforcePlanPage({
                   </Button>
                 </div>
               </div>
-              {workForceDates.map((week, weekIndex) => {
-                return (
-                  <WorkforceWeek
-                    week={week}
-                    weekIndex={weekIndex}
-                    fillWeekDay={fillWeekDay}
-                    fillWeekNight={fillWeekNight}
-                    onChangeFillWeekDay={onChangeFillWeekDay}
-                    onChangeFillWeekNight={onChangeFillWeekNight}
-                    onClickFillWeek={onClickFillWeek}
-                    handleDayChange={handleDayChange}
-                    handleNightChange={handleNightChange}
-                  />
-                );
-              })}
             </div>
-            <div className="mt-2">
-              <Button color="primary" type="submit">
-                Submit
-              </Button>
-            </div>
-          </form>
-        </div>
+            {workForceDates.map((week, weekIndex) => {
+              return (
+                <WorkforceWeek
+                  week={week}
+                  weekIndex={weekIndex}
+                  fillWeekDay={fillWeekDay}
+                  fillWeekNight={fillWeekNight}
+                  onChangeFillWeekDay={onChangeFillWeekDay}
+                  onChangeFillWeekNight={onChangeFillWeekNight}
+                  onClickFillWeek={onClickFillWeek}
+                  handleDayChange={handleDayChange}
+                  handleNightChange={handleNightChange}
+                />
+              );
+            })}
+          </div>
+          <div className="mt-2 step-five">
+            <Button color="primary" type="submit">
+              Submit
+            </Button>
+          </div>
+        </form>
       </div>
-    </TourProvider>
+    </div>
   );
 }

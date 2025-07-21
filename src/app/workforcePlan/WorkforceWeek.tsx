@@ -37,10 +37,12 @@ export default function WorkforceWeek({
   handleNightChange,
 }: Props) {
   let i = 0;
+  const cNameWeek = weekIndex === 0 ? "step-three" : "";
+  const cNameFillWeek = weekIndex === 0 ? "step-four" : "";
   return (
-    <section key={weekIndex}>
+    <section key={weekIndex} className={cNameWeek}>
       <div className="flex flex-row justify-center">
-        <div className="flex flex-row mt-10">
+        <div className={`flex flex-row mt-10 ${cNameFillWeek}`}>
           {/* <div className="flex flex-col">
             <div className="mt-2 mr-2 w-24">
               <NumberInput
