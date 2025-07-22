@@ -82,6 +82,7 @@ model User {
   companyId         Int
   selectedCompanyId Int?
   selectedProjectId Int?
+  hasTakenWFPTour   Boolean           @default(false)
   safetyNarratives  SafetyNarrative[]
   narratives        Narrative[]
   headcounts        Headcount[]

@@ -6,7 +6,8 @@ export const registerSchema = z.object({
   email: z.string().email(),
   passwordHash: z.string().min(6, { message: "Must be at least 6 characters" }),
   companyId: z.number(),
-  updatePassword: z.boolean(),
+  updatePassword: z.boolean().optional(),
+  hasTakenWFPTour: z.boolean().optional(),
 });
 
 export type RegisterSchema = z.infer<typeof registerSchema>;

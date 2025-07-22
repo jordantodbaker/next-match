@@ -99,9 +99,11 @@ function getNewDates() {
 export default function WorkforcePlanPage({
   workforcePlans,
   company,
+  showTour,
 }: {
   workforcePlans: WorkforcePlan[];
   company: CompanyWithRoles;
+  showTour: boolean;
 }) {
   const selectedCompany = useContext<CompanyAccount>(CompanyContext);
   const project = useContext<Project>(ProjectContext);
@@ -123,7 +125,7 @@ export default function WorkforcePlanPage({
   const { setIsOpen } = useTour();
 
   useEffect(() => {
-    setIsOpen(true);
+    setIsOpen(showTour);
   }, []);
 
   useEffect(() => {
@@ -242,6 +244,15 @@ export default function WorkforcePlanPage({
       <Sidebar />
       <div className="w-full flex flex-col m-16">
         <div>
+          <Button
+            variant="bordered"
+            color="primary"
+            onPress={() => setIsOpen(true)}
+          >
+            Help
+          </Button>
+        </div>
+        <div>
           <h1 className="text-3xl text-center">Workforce Plan</h1>
         </div>
         <form onSubmit={async () => await onSubmit()}>
@@ -253,6 +264,7 @@ export default function WorkforcePlanPage({
                     <Button
                       variant="bordered"
                       color="primary"
+                      fullWidth={true}
                       className="step-one"
                     >
                       {selectedRole.name ? selectedRole.name : "Select a Role"}
