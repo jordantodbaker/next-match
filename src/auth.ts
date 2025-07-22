@@ -2,6 +2,8 @@ import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import authConfig from "./auth.config";
 import { prisma } from "./lib/prisma";
+import { User } from "@prisma/client";
+import { emptyUser } from "./lib/schemas/defaultModels";
 
 export const {
   handlers: { GET, POST },
@@ -16,14 +18,7 @@ export const {
           where: { email: session.user.email },
         });
 
-        // if (user) {
-        //   const account = await prisma.companyAccount.findUnique({
-        //     where: { id: user.companyId } as any,
-        //   });
-        // }
-
-        session.user = user as any;
-        //console.log("user: ", user);
+        session.user = user ? user : emptyUser; 
       }
 
       return session;
