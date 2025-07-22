@@ -335,10 +335,13 @@ export default function WorkforcePlanPage({
               );
             })}
           </div>
-          <div className="mt-2 step-five">
-            <Button color="primary" type="submit">
-              Submit
-            </Button>
+          <div className="flex flex-row justify-between">
+            <div className="mt-2 step-five">
+              <Button color="primary" type="submit">
+                Submit
+              </Button>
+            </div>
+            <div>{""}</div>
           </div>
         </form>
       </div>
