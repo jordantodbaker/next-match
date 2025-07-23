@@ -18,7 +18,7 @@ export const {
           where: { email: session.user.email },
         });
 
-        session.user = user ? user : emptyUser; 
+        session.user = user ? user : emptyUser as any; 
       }
 
       return session;
