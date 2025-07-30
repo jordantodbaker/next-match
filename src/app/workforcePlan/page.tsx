@@ -12,7 +12,6 @@ export default async function WorkforcePlanPage() {
   const userResult = await getUser();
 
   const user = userResult.status === "success" ? userResult.data : emptyUser;
-  console.log("USER: ", user);
 
   return (
     <div className="flex h-full w-full">
