@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { registerSchema, RegisterSchema } from "@/lib/schemas/registerSchema";
 import { User } from "@prisma/client";
 import { clerkClient } from "@clerk/nextjs/server";
+import { getCurrentUser } from "@/auth";
 
 export async function saveUser(
   data: RegisterSchema
@@ -15,7 +16,7 @@ export async function saveUser(
       return { status: "error", error: validated.error.errors };
     }
 
-    const { id, name, email, password, companyId, updatePassword } =
+    const { id, name, email, password, companyId, updatePassword, hasTakenWFPTour } =
       validated.data;
 
     const clerk = await clerkClient();
@@ -35,7 +36,7 @@ export async function saveUser(
       });
 
       user = await prisma.user.create({
-        data: { name, email, companyId, clerkId: clerkUser.id },
+        data: { name, email, companyId, clerkId: clerkUser.id, hasTakenWFPTour },
       });
     } else {
       // Existing user: keep the linked Clerk identity in sync.
@@ -50,8 +51,23 @@ export async function saveUser(
 
       user = await prisma.user.update({
         where: { id },
-        data: { name, email, companyId },
+        data: { name, email, companyId, hasTakenWFPTour },
       });
+    }
+
+    return { status: "success", data: user };
+  } catch (error) {
+    console.log(error);
+    return { status: "error", error: "Something went wrong" };
+  }
+}
+
+export async function getUser(): Promise<ActionResult<User>> {
+  try {
+    const user = await getCurrentUser();
+
+    if (!user) {
+      return { status: "error", error: "No session user" };
     }
 
     return { status: "success", data: user };

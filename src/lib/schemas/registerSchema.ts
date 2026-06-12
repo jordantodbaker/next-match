@@ -10,7 +10,8 @@ export const registerSchema = z.object({
     .optional()
     .or(z.literal("")),
   companyId: z.number(),
-  updatePassword: z.boolean(),
+  updatePassword: z.boolean().optional(),
+  hasTakenWFPTour: z.boolean().optional(),
 });
 
 export type RegisterSchema = z.infer<typeof registerSchema>;

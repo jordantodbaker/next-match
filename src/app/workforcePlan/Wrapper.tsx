@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { WorkforcePlan as WorkforcePlanType } from "@prisma/client";
+import { User, WorkforcePlan as WorkforcePlanType } from "@prisma/client";
 import { CompanyWithRoles } from "@/lib/types";
 import { TourProvider, useTour } from "@reactour/tour";
 import WorkforcePlan from "./WorkforcePlan";
@@ -9,9 +9,11 @@ import WorkforcePlan from "./WorkforcePlan";
 export default function WorkforcePlanPage({
   workforcePlans,
   company,
+  user,
 }: {
   workforcePlans: WorkforcePlanType[];
   company: CompanyWithRoles;
+  user: User;
 }) {
   const steps = [
     {
@@ -45,11 +47,23 @@ export default function WorkforcePlanPage({
   return (
     <TourProvider
       steps={steps}
-      onClickClose={(clickProps) => {
+      onClickClose={async (clickProps) => {
         clickProps.setIsOpen(false);
+        clickProps.setCurrentStep(0);
+        const data = new FormData();
+        data.set("user", JSON.stringify({ ...user, hasTakenWFPTour: true }));
+
+        const result = await fetch("/api/users", {
+          method: "POST",
+          body: data,
+        });
       }}
     >
-      <WorkforcePlan workforcePlans={workforcePlans} company={company} />
+      <WorkforcePlan
+        workforcePlans={workforcePlans}
+        company={company}
+        showTour={!user.hasTakenWFPTour}
+      />
     </TourProvider>
   );
 }

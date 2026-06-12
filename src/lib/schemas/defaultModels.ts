@@ -18,6 +18,7 @@ export const emptyUser = {
   password: "",
   securityRole: SecurityRole.USER,
   companyId: 0,
+  hasTakenWFPTour: false,
 } as User & { password: string };
 
 export const emptyRoleCategory = {

@@ -17,14 +17,9 @@ export async function POST(request: NextRequest){
 
         })
 
-        console.log("FILE ", file);
-
-
         readXlsxFile('./testFile.xlsx').then((rows: any) => {
             console.log("ROW -> ", rows);
         })
-
-        console.log("AFTER");
 
         // readFile(file).then((rows: any) => {
         //     console.log("Rows: ", rows)
