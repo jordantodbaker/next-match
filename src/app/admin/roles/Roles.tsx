@@ -16,7 +16,7 @@ import {
 } from "@heroui/react";
 import { useState } from "react";
 import React from "react";
-import { useSession } from "next-auth/react";
+import { useCurrentUser } from "@/lib/useCurrentUser";
 import { toast } from "react-toastify";
 import { RoleCategory } from "@prisma/client";
 import { AdminSidebar } from "@/components/sidebar/AdminSidebar";
@@ -31,7 +31,7 @@ type Props = {
 };
 
 export default function Roles({ roles: initialRoles, categories }: Props) {
-  const { data } = useSession();
+  const data = { user: useCurrentUser() };
   const user = data?.user;
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();

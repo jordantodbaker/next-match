@@ -15,7 +15,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
 import { SafetySchema, safetySchema } from "@/lib/schemas/safetySchema";
 //import { authorizeQuantity, submitQuantity } from "../actions/quantityActions";
-import { useSession } from "next-auth/react";
+import { useCurrentUser } from "@/lib/useCurrentUser";
 
 const roles = [
   { id: 1, name: "Boilermaker" },
@@ -87,7 +87,7 @@ type DropdownType = {
 };
 
 export default function QuantitiesPage() {
-  const { data } = useSession();
+  const data = { user: useCurrentUser() };
   const user = data?.user;
 
   const [selectedCompany, setSelectedCompany] = useState(

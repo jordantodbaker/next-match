@@ -34,7 +34,7 @@ type Errors = {
   email?: string;
 };
 
-import { useSession } from "next-auth/react";
+import { useCurrentUser } from "@/lib/useCurrentUser";
 import {
   CompanyAccount,
   Headcount,
@@ -51,8 +51,7 @@ import { userSchema } from "@/lib/schemas/userSchema";
 import { saveUser } from "@/app/actions/userActions";
 
 export default function UsersPage({ companies }: Props) {
-  const { data } = useSession();
-  const user = data?.user;
+  const user = useCurrentUser();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [showChangePassword, setShowChangePassword] = useState(false);
 
@@ -197,7 +196,7 @@ export default function UsersPage({ companies }: Props) {
                       label="Password"
                       placeholder="Password"
                       variant="bordered"
-                      value={selectedUser.passwordHash}
+                      value={selectedUser.password}
                       type="password"
                       isInvalid={
                         errors &&
@@ -212,7 +211,7 @@ export default function UsersPage({ companies }: Props) {
                       onChange={(e) =>
                         setSelectedUser({
                           ...selectedUser,
-                          passwordHash: e.target.value,
+                          password: e.target.value,
                         })
                       }
                     />
@@ -225,7 +224,7 @@ export default function UsersPage({ companies }: Props) {
                         setShowChangePassword(true);
                         setSelectedUser({
                           ...selectedUser,
-                          passwordHash: "",
+                          password: "",
                           updatePassword: true,
                         });
                       }}

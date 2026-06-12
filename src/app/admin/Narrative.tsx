@@ -15,7 +15,7 @@ import { useForm } from "react-hook-form";
 import React from "react";
 import { SafetySchema } from "@/lib/schemas/safetySchema";
 import { authorizeNarrative, submitNarrative } from "../actions/safetyActions";
-import { useSession } from "next-auth/react";
+import { useCurrentUser } from "@/lib/useCurrentUser";
 import { toast } from "react-toastify";
 import { CompanyContext } from "@/components/CompanyContext";
 import { CompanyAccount, SecurityRole } from "@prisma/client";
@@ -47,7 +47,7 @@ export default function SafetyPage({ narratives }: Props) {
     setNarrativeValue(narrative);
   };
 
-  const { data } = useSession();
+  const data = { user: useCurrentUser() };
   const user = data?.user;
   const {
     register,

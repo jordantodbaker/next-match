@@ -14,7 +14,7 @@ import { Key, useContext, useEffect, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
-import { useSession } from "next-auth/react";
+import { useCurrentUser } from "@/lib/useCurrentUser";
 import { getSunday } from "@/lib/utils";
 import { submitWorkforcePlan } from "../actions/workforcePlansActions";
 import { CompanyContext } from "@/components/CompanyContext";
@@ -105,7 +105,7 @@ export default function WorkforcePlanPage({
 }) {
   const selectedCompany = useContext<CompanyAccount>(CompanyContext);
   const project = useContext<Project>(ProjectContext);
-  const { data } = useSession();
+  const data = { user: useCurrentUser() };
   const user = data?.user;
   const roles = company.roles;
 

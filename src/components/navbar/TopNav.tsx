@@ -13,11 +13,9 @@ import {
 } from "@heroui/react";
 import Link from "next/link";
 import React from "react";
-import { useSession } from "next-auth/react";
+import { useAuth, useClerk } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-//import { signOut } from "@/auth";
-
-import { signOut } from "next-auth/react";
+import { useCurrentUser } from "@/lib/useCurrentUser";
 import { CompanyAccount, Project, SecurityRole } from "@prisma/client";
 
 export default function TopNav({
@@ -36,8 +34,9 @@ export default function TopNav({
   setSelectedProject: any;
 }) {
   const router = useRouter();
-  const { data: session, update } = useSession();
-  const user = session?.user;
+  const { signOut } = useClerk();
+  const { isSignedIn } = useAuth();
+  const user = useCurrentUser();
 
   function SignOut() {
     return (
@@ -47,8 +46,7 @@ export default function TopNav({
         variant="bordered"
         color="primary"
         onPress={async () => {
-          signOut({ callbackUrl: "/login" });
-          router.push("/login");
+          await signOut({ redirectUrl: "/login" });
         }}
       >
         Logout
@@ -69,6 +67,7 @@ export default function TopNav({
   return (
     <Navbar
       maxWidth="xl"
+      height="5rem"
       className="flex flex-row  border-b-1 border-b-cyan-600"
       classNames={{
         item: ["text-xl", "uppercase"],
@@ -76,7 +75,7 @@ export default function TopNav({
       }}
     >
       <NavbarBrand as={Link} href="/">
-        <Image src="../../../logo.png" height={60} />
+        <Image src="../../../logo.png" height={75} />
       </NavbarBrand>
 
       <NavbarContent justify="end">
@@ -105,44 +104,33 @@ export default function TopNav({
             </div>
           </div>
         )}
-        {!session ? (
-          <div>
-            <Button
-              as={Link}
-              href="/login"
-              variant="bordered"
-              color="primary"
-              className="mr-4"
-            >
-              Login
-            </Button>
-            <Button as={Link} href="/demo" variant="bordered" color="primary">
-              Demo
-            </Button>
-          </div>
-        ) : (
-          <div className="flex flex-row">
-            <div className="mr-2">
-              <Dropdown>
-                <DropdownTrigger>
-                  <Button variant="bordered" color="primary">
-                    {selectedProject.name ? selectedProject.name : "Project"}
-                  </Button>
-                </DropdownTrigger>
-                <DropdownMenu
-                  color="primary"
-                  variant="faded"
-                  aria-label="Static Actions"
-                  onAction={(key) => onChangeProject(key)}
-                  // selectedKeys={[2]}
-                  selectionMode="single"
-                >
-                  {projects.map((project: any) => (
-                    <DropdownItem key={project.id}>{project.name}</DropdownItem>
-                  ))}
-                </DropdownMenu>
-              </Dropdown>
-            </div>
+        {isSignedIn && (
+          <div className="flex flex-row items-center">
+            {user && (
+              <div className="mr-2">
+                <Dropdown>
+                  <DropdownTrigger>
+                    <Button variant="bordered" color="primary">
+                      {selectedProject.name ? selectedProject.name : "Project"}
+                    </Button>
+                  </DropdownTrigger>
+                  <DropdownMenu
+                    color="primary"
+                    variant="faded"
+                    aria-label="Static Actions"
+                    onAction={(key) => onChangeProject(key)}
+                    // selectedKeys={[2]}
+                    selectionMode="single"
+                  >
+                    {projects.map((project: any) => (
+                      <DropdownItem key={project.id}>
+                        {project.name}
+                      </DropdownItem>
+                    ))}
+                  </DropdownMenu>
+                </Dropdown>
+              </div>
+            )}
             <div>{SignOut()}</div>
           </div>
         )}

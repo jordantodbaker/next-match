@@ -18,11 +18,11 @@ import {
   IconAlertTriangle,
   IconExclamationMark,
 } from "@tabler/icons-react";
-import { useSession } from "next-auth/react";
+import { useCurrentUser } from "@/lib/useCurrentUser";
 import { SecurityRole } from "@prisma/client";
 
 export function Sidebar() {
-  const { data } = useSession();
+  const data = { user: useCurrentUser() };
   const user = data?.user;
   const links = [
     {

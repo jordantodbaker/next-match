@@ -14,7 +14,6 @@ import { Key, useContext, useEffect, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
-import { useSession } from "next-auth/react";
 import { getSunday } from "@/lib/utils";
 import { submitWorkforcePlan } from "../actions/workforcePlansActions";
 import { CompanyContext } from "@/components/CompanyContext";

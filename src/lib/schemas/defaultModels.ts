@@ -15,10 +15,10 @@ export const emptyUser = {
   id: 0,
   name: "",
   email: "",
-  passwordHash: "",
+  password: "",
   securityRole: SecurityRole.USER,
   companyId: 0,
-} as User;
+} as User & { password: string };
 
 export const emptyRoleCategory = {
   id: 0,

@@ -19,7 +19,7 @@ import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import React from "react";
 //import { authorizeNarrative, submitNarrative } from "../../actions/safetyActions";
-import { useSession } from "next-auth/react";
+import { useCurrentUser } from "@/lib/useCurrentUser";
 import { toast } from "react-toastify";
 import { CompanyAccount, Project, Role as PrismaRole } from "@prisma/client";
 import { AdminSidebar } from "@/components/sidebar/AdminSidebar";
@@ -39,7 +39,7 @@ export default function Companies({
   roles,
   projects,
 }: Props) {
-  const { data } = useSession();
+  const data = { user: useCurrentUser() };
   const user = data?.user;
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();

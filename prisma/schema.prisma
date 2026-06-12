@@ -8,25 +8,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Account {
-  id                Int     @id @default(autoincrement())
-  userId            Int
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
-
-  //user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-}
-
 model SafetyNarrative {
   id             Int             @id @default(autoincrement())
   user           User?           @relation(fields: [userId], references: [id])
@@ -76,7 +57,7 @@ model User {
   id                Int               @id @default(autoincrement())
   name              String
   email             String            @unique
-  passwordHash      String
+  clerkId           String?           @unique
   securityRole      SecurityRole      @default(USER)
   companyAccount    CompanyAccount    @relation(fields: [companyId], references: [id])
   companyId         Int

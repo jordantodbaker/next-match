@@ -1,3 +1,5 @@
+"use server";
+
 import { prisma } from "@/lib/prisma";
 import { SafetySchema } from "@/lib/schemas/safetySchema";
 import { Narrative, NarrativeType, User } from "@prisma/client";

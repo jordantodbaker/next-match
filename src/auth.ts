@@ -1,35 +1,23 @@
-import NextAuth from "next-auth";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import authConfig from "./auth.config";
+import { auth as clerkAuth } from "@clerk/nextjs/server";
 import { prisma } from "./lib/prisma";
+import { User } from "@prisma/client";
 
-export const {
-  handlers: { GET, POST },
-  auth,
-  signIn,
-  signOut,
-} = NextAuth({
-  callbacks: {
-    async session({ token, session }) {
-      if (token.sub && session.user) {
-        const user = await prisma.user.findUnique({
-          where: { email: session.user.email },
-        });
+/**
+ * Returns the application `User` (Prisma) for the currently signed-in Clerk
+ * identity, or `null` when signed out / not yet linked.
+ */
+export async function getCurrentUser(): Promise<User | null> {
+  const { userId } = await clerkAuth();
+  if (!userId) return null;
 
-        // if (user) {
-        //   const account = await prisma.companyAccount.findUnique({
-        //     where: { id: user.companyId } as any,
-        //   });
-        // }
+  return prisma.user.findUnique({ where: { clerkId: userId } });
+}
 
-        session.user = user as any;
-        //console.log("user: ", user);
-      }
-
-      return session;
-    },
-  },
-  adapter: PrismaAdapter(prisma),
-  session: { strategy: "jwt" },
-  ...authConfig,
-});
+/**
+ * Compatibility wrapper that mirrors the old NextAuth `auth()` shape
+ * (`{ user }`) so existing server-side call sites keep working unchanged.
+ */
+export async function auth(): Promise<{ user: User } | null> {
+  const user = await getCurrentUser();
+  return user ? { user } : null;
+}

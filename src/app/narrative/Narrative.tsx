@@ -14,7 +14,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useContext } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { useCurrentUser } from "@/lib/useCurrentUser";
 import { Narrative, NarrativeType, SecurityRole } from "@prisma/client";
 import {
   authorizeNarrative,
@@ -46,7 +46,7 @@ export default function NarrativePage({
   initialNarratives,
   narrativeTypes,
 }: Props) {
-  const { data } = useSession();
+  const data = { user: useCurrentUser() };
   const router = useRouter();
   const user = data?.user;
 

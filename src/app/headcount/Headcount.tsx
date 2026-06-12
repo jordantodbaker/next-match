@@ -36,7 +36,7 @@ type Props = {
   baseUrl: string;
 };
 
-import { useSession } from "next-auth/react";
+import { useCurrentUser } from "@/lib/useCurrentUser";
 import { CompanyAccount, Headcount, Role, SecurityRole } from "@prisma/client";
 import { CompanyWithRoles } from "@/lib/types";
 import { saveHeadcount } from "../actions/headcountActions";
@@ -51,7 +51,7 @@ export default function HeadcountPage({
   headcount: initialHeadcount,
   baseUrl: baseUrl,
 }: Props) {
-  const { data } = useSession();
+  const data = { user: useCurrentUser() };
   const user = data?.user;
   const project = useContext(ProjectContext);
   const selectedCompany = useContext(CompanyContext);

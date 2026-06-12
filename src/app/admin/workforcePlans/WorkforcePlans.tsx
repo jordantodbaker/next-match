@@ -7,7 +7,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
 import * as z from "zod/v4";
-import { useSession } from "next-auth/react";
+import { useCurrentUser } from "@/lib/useCurrentUser";
 import {
   CompanyAccount,
   Headcount,
@@ -70,7 +70,7 @@ export default function WorkforcePlansPage({
     return { ...company, reportPlans: merged };
   });
 
-  const { data } = useSession();
+  const data = { user: useCurrentUser() };
   const user = data?.user;
   const project = useContext<Project>(ProjectContext);
   const [companies, setCompanies] = useState<any[]>(parsedCompanies);

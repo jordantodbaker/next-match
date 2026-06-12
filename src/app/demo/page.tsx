@@ -8,12 +8,11 @@ export default async function AdminPage() {
   const narratives = await getNarratives();
 
   return (
-    <div className="flex h-full w-full flex justify-center mt-20">
+    <div className="flex h-full w-full justify-center mt-6 px-4">
       <iframe
-        title="HaskellSilaCumulative"
-        width="1200"
-        height="673.5"
-        src="https://app.powerbi.com/view?r=eyJrIjoiODNlYTkyNTYtNzU4Yi00N2M5LWJlMWEtMzlmZTEzODU5YzJjIiwidCI6ImYyODhkNTU2LTJmZTctNDkwZS1iYzdlLTFhMzcwYTRlNTU2ZiIsImMiOjZ9"
+        title="Units By Sector"
+        className="w-[95vw] h-[90vh]"
+        src="https://app.powerbi.com/view?r=eyJrIjoiYTZiODcyZDktODYxMy00ODBiLThhNGMtZjRkNjgwY2U1MTNjIiwidCI6ImYyODhkNTU2LTJmZTctNDkwZS1iYzdlLTFhMzcwYTRlNTU2ZiIsImMiOjZ9"
         allowFullScreen={true}
       ></iframe>
       {/* <iframe

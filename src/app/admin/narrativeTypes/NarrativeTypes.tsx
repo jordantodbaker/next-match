@@ -6,7 +6,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import React from "react";
 import { SafetySchema } from "@/lib/schemas/safetySchema";
 //import { authorizeNarrative, submitNarrative } from "../../actions/safetyActions";
-import { useSession } from "next-auth/react";
+import { useCurrentUser } from "@/lib/useCurrentUser";
 import { toast } from "react-toastify";
 import { CompanyContext } from "@/components/CompanyContext";
 import { NarrativeType } from "@prisma/client";
@@ -22,7 +22,7 @@ type Props = {
 };
 
 export default function NarrativeTypes({ narrativeTypes }: Props) {
-  const { data } = useSession();
+  const data = { user: useCurrentUser() };
   const user = data?.user;
   const [types, setTypes] = useState(narrativeTypes);
 

@@ -3,19 +3,21 @@
 import { HeroUIProvider } from "@heroui/react";
 import React, { ReactNode, useState } from "react";
 import { ToastContainer } from "react-toastify";
-import { SessionProvider } from "next-auth/react";
 import "react-toastify/dist/ReactToastify.css";
 import TopNav from "./navbar/TopNav";
-import { CompanyAccount, Project } from "@prisma/client";
+import { CompanyAccount, Project, User } from "@prisma/client";
 import { CompanyContext } from "./CompanyContext";
 import { ProjectContext } from "./ProjectContext";
+import { UserContext } from "./UserContext";
 import { emptyCompany, emptyProject } from "@/lib/schemas/defaultModels";
 
 export default function Providers({
+  user,
   companies,
   projects,
   children,
 }: {
+  user: User | null;
   companies: CompanyAccount[];
   projects: Project[];
   children: ReactNode;
@@ -27,7 +29,7 @@ export default function Providers({
   const [selectedProject, setSelectedProject] = useState(initialProject);
 
   return (
-    <SessionProvider>
+    <UserContext value={user}>
       <HeroUIProvider>
         <ToastContainer
           position="bottom-right"
@@ -48,6 +50,6 @@ export default function Providers({
           </ProjectContext>
         </CompanyContext>
       </HeroUIProvider>
-    </SessionProvider>
+    </UserContext>
   );
 }

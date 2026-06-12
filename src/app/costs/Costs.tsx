@@ -22,10 +22,10 @@ type FormValues = {
   cart: { name: string; amount: number }[];
 };
 
-import { useSession } from "next-auth/react";
+import { useCurrentUser } from "@/lib/useCurrentUser";
 import { uploadFile } from "../actions/fileUploadActions";
 export default function CostsPage() {
-  const { data } = useSession();
+  const data = { user: useCurrentUser() };
   const user = data?.user;
   const [file, setFile] = useState();
   const fileInputRef = useRef<HTMLInputElement | null>(null);

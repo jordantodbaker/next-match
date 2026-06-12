@@ -4,7 +4,11 @@ export const registerSchema = z.object({
   id: z.number(),
   name: z.string().min(3),
   email: z.string().email(),
-  passwordHash: z.string().min(6, { message: "Must be at least 6 characters" }),
+  password: z
+    .string()
+    .min(6, { message: "Must be at least 6 characters" })
+    .optional()
+    .or(z.literal("")),
   companyId: z.number(),
   updatePassword: z.boolean(),
 });

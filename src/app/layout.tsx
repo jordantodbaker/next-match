@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
+import { ClerkProvider } from "@clerk/nextjs";
 import Providers from "../components/Providers";
 import { getCompany, getCompanies } from "./actions/companyActions";
 import { getProjects } from "./actions/projectActions";
 import "./globals.css";
-import { useSession } from "next-auth/react";
-import { auth } from "@/auth";
+import { getCurrentUser } from "@/auth";
 import { SecurityRole } from "@prisma/client";
 import { emptyCompany, emptyProject } from "@/lib/schemas/defaultModels";
 
@@ -18,8 +18,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth();
-  const user = session?.user;
+  const user = await getCurrentUser();
   const companies =
     user?.securityRole === SecurityRole.ADMIN
       ? await getCompanies()
@@ -30,12 +29,18 @@ export default async function RootLayout({
   const initialProjects = projects.length > 0 ? projects : [emptyProject];
 
   return (
-    <html lang="en">
-      <body>
-        <Providers companies={initialCompanies} projects={initialProjects}>
-          <main className="vertical-center">{children}</main>
-        </Providers>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <body>
+          <Providers
+            user={user}
+            companies={initialCompanies}
+            projects={initialProjects}
+          >
+            <main className="vertical-center">{children}</main>
+          </Providers>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

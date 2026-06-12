@@ -40,9 +40,9 @@ type FormValues = {
   }[];
 };
 
-import { useSession } from "next-auth/react";
+import { useCurrentUser } from "@/lib/useCurrentUser";
 export default function HeadcountPage() {
-  const { data } = useSession();
+  const data = { user: useCurrentUser() };
   const user = data?.user;
 
   const {
