@@ -2,9 +2,19 @@
 
 import { prisma } from "@/lib/prisma";
 import { registerSchema, RegisterSchema } from "@/lib/schemas/registerSchema";
-import { User } from "@prisma/client";
+import { SecurityRole, User } from "@prisma/client";
 import { clerkClient } from "@clerk/nextjs/server";
 import { getCurrentUser } from "@/auth";
+
+/**
+ * Resolves where a freshly signed-in user should land. The role lives in
+ * Prisma (not Clerk), so this has to run server-side: ADMIN -> user
+ * management, everyone else -> their org's Power BI report.
+ */
+export async function getPostLoginPath(): Promise<string> {
+  const user = await getCurrentUser();
+  return user?.securityRole === SecurityRole.ADMIN ? "/admin/users" : "/report";
+}
 
 export async function saveUser(
   data: RegisterSchema

@@ -19,10 +19,11 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const user = await getCurrentUser();
-  const companies =
+  const companies = (
     user?.securityRole === SecurityRole.ADMIN
       ? await getCompanies()
-      : [await getCompany()];
+      : [await getCompany()]
+  ).filter((c) => !!c);
   const projects = await getProjects();
 
   const initialCompanies = companies.length > 0 ? companies : [emptyCompany];

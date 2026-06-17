@@ -18,11 +18,21 @@ export async function getCompanies() {
 
 export async function getCompany() {
   const session = await auth();
-  const user = session?.user;
-  const company = await prisma.companyAccount.findFirst({
-    where: { id: user?.companyId },
-    include: { roles: {orderBy: {categoryId: 'asc'}, include: {category: true}}, projects: true },
-  });
+  const companyId = session?.user?.companyId;
+
+  // Guard against `where: { id: undefined }`, which Prisma treats as "no
+  // filter" and would return an arbitrary (first) company instead of the
+  // user's own — surfacing the wrong/blank report.
+  if (!companyId) {
+    console.error("getCompany: no authenticated user/companyId in this render");
+  }
+
+  const company = companyId
+    ? await prisma.companyAccount.findFirst({
+        where: { id: companyId },
+        include: { roles: {orderBy: {categoryId: 'asc'}, include: {category: true}}, projects: true },
+      })
+    : null;
 
   return [company].filter((c) => !!c)[0];
 }

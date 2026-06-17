@@ -1,18 +1,32 @@
-import { redirect } from "next/navigation";
-import { SecurityRole } from "@prisma/client";
-import { getCurrentUser } from "@/auth";
+"use client";
+
+import React, { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { getPostLoginPath } from "../actions/userActions";
 
 /**
- * Post-login landing decider. Clerk's <SignIn> redirect is static, but the
- * role lives in Prisma — so we route here after login and send the user on
- * by role: ADMIN -> user management, everyone else -> their org's report.
+ * Post-login landing decider. Clerk's <SignIn> redirect is static and the
+ * role lives in Prisma, so we land here and route by role. The navigation is
+ * done client-side with the router: a Server Component `redirect()` issued as
+ * the immediate Clerk landing page isn't reliably followed by Clerk's
+ * client-side post-sign-in navigation, which left users stranded on this URL.
  */
-export default async function PostLoginPage() {
-  const user = await getCurrentUser();
+export default function PostLoginPage() {
+  const router = useRouter();
 
-  if (user?.securityRole === SecurityRole.ADMIN) {
-    redirect("/admin/users");
-  }
+  useEffect(() => {
+    let active = true;
+    getPostLoginPath().then((path) => {
+      if (active) router.replace(path);
+    });
+    return () => {
+      active = false;
+    };
+  }, [router]);
 
-  redirect("/report");
+  return (
+    <div className="flex h-full w-full justify-center mt-20">
+      <p className="text-xl text-neutral-500">Signing you in…</p>
+    </div>
+  );
 }
