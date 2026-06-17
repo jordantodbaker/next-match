@@ -18,4 +18,4 @@ export type Role = PrismaRole & { category: RoleCategory };
 
 export type Company = CompanyAccount & { roles: Role[] } & {
   projects: Project[];
-} & { workforcePlans: WorkforcePlan[] } & { headcounts: Headcount[] };
+} & { workforcePlans?: WorkforcePlan[] } & { headcounts?: Headcount[] };

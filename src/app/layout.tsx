@@ -19,12 +19,15 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const user = await getCurrentUser();
-  const companies = (
+
+  // Companies and projects don't depend on each other — fetch them together.
+  const [companiesRaw, projects] = await Promise.all([
     user?.securityRole === SecurityRole.ADMIN
-      ? await getCompanies()
-      : [await getCompany()]
-  ).filter((c) => !!c);
-  const projects = await getProjects();
+      ? getCompanies()
+      : getCompany().then((c) => [c]),
+    getProjects(),
+  ]);
+  const companies = companiesRaw.filter((c) => !!c);
 
   const initialCompanies = companies.length > 0 ? companies : [emptyCompany];
   const initialProjects = projects.length > 0 ? projects : [emptyProject];

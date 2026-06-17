@@ -1,22 +1,26 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { SafetySchema } from "@/lib/schemas/safetySchema";
-import { Narrative, NarrativeType, SecurityRole, User } from "@prisma/client";
-import { auth } from "@/auth";
+import { SecurityRole } from "@prisma/client";
+import { getCurrentUser } from "@/auth";
 import { emptyProject } from "@/lib/schemas/defaultModels";
 
 export async function getProjects() {
-  const session = await auth();
-  const user = session?.user;
+  const user = await getCurrentUser();
 
-  const companyAccount = await prisma.companyAccount.findFirst({where: {id: user?.companyId}, include: {projects: true}});
-  
-  const projects =
-    user?.securityRole === SecurityRole.ADMIN && companyAccount
-      ? 
-          await prisma.project.findMany()
-        
-      : companyAccount && companyAccount.projects ? companyAccount.projects : [emptyProject];
-  return projects;
+  // Admins see every project — no need to first load the company account
+  // (the old code fetched it and then threw it away).
+  if (user?.securityRole === SecurityRole.ADMIN) {
+    return prisma.project.findMany();
+  }
+
+  // Guard against `where: { id: undefined }` (Prisma treats it as no filter).
+  if (!user?.companyId) return [emptyProject];
+
+  const companyAccount = await prisma.companyAccount.findFirst({
+    where: { id: user.companyId },
+    include: { projects: true },
+  });
+
+  return companyAccount?.projects ?? [emptyProject];
 }

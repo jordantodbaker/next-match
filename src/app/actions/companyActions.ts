@@ -5,13 +5,14 @@ import { prisma } from "@/lib/prisma";
 import { CompanyAccount, Project, Role } from "@prisma/client";
 
 export async function getCompanies() {
+  // Only `roles` and `projects` are read off these company objects anywhere;
+  // `workforcePlans`/`headcounts` were being eagerly loaded for every company
+  // on every admin navigation and never used.
   return await prisma.companyAccount.findMany({
     where: { companyCode: { not: "ACE" } },
     include: {
       roles: {orderBy: {categoryId: 'asc'}, include: {category: true}},
       projects: true,
-      workforcePlans: true,
-      headcounts: true,
     },
   });
 }
@@ -22,11 +23,8 @@ export async function getCompany() {
 
   // Guard against `where: { id: undefined }`, which Prisma treats as "no
   // filter" and would return an arbitrary (first) company instead of the
-  // user's own — surfacing the wrong/blank report.
-  if (!companyId) {
-    console.error("getCompany: no authenticated user/companyId in this render");
-  }
-
+  // user's own — surfacing the wrong/blank report. (Signed-out renders of the
+  // layout legitimately have no companyId, so this isn't logged as an error.)
   const company = companyId
     ? await prisma.companyAccount.findFirst({
         where: { id: companyId },
