@@ -7,9 +7,11 @@ import { getUser } from "../actions/userActions";
 import { emptyUser } from "@/lib/schemas/defaultModels";
 
 export default async function WorkforcePlanPage() {
-  const company = await getCompany();
-  const workforcePlans = await getWorkforcePlans();
-  const userResult = await getUser();
+  const [company, workforcePlans, userResult] = await Promise.all([
+    getCompany(),
+    getWorkforcePlans(),
+    getUser(),
+  ]);
 
   const user = userResult.status === "success" ? userResult.data : emptyUser;
 

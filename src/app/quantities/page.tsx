@@ -1,14 +1,7 @@
 import React from "react";
 import Quantities from "./Quantities";
-import { getNarratives } from "../actions/narrativeActions";
-import { getCompanies } from "../actions/companyActions";
 
-export default async function NarrativePage() {
-  let narratives = await getNarratives();
-  const companies = await getCompanies();
-
-  narratives = narratives[0] === null ? [] : narratives;
-
+export default function NarrativePage() {
   return (
     <div className="flex h-full w-full">
       <Quantities />

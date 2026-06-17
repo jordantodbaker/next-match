@@ -33,7 +33,6 @@ type FormValues = {
 type Props = {
   company: CompanyWithRoles;
   headcount: any;
-  baseUrl: string;
 };
 
 import { useCurrentUser } from "@/lib/useCurrentUser";
@@ -49,7 +48,6 @@ import { IconInfoCircle } from "@tabler/icons-react";
 export default function HeadcountPage({
   company,
   headcount: initialHeadcount,
-  baseUrl: baseUrl,
 }: Props) {
   const data = { user: useCurrentUser() };
   const user = data?.user;
@@ -121,22 +119,21 @@ export default function HeadcountPage({
 
   const onClickGetCSV = async () => {
     const data = new FormData();
-    const fileName = `headcount_${company.id}_${project.id}.xlsx`;
     data.set("project", JSON.stringify(project));
     data.set("company", JSON.stringify(company));
-    data.set("fileName", fileName);
 
-    const uploadRequest = await fetch("/api/headcount", {
+    const response = await fetch("/api/headcount", {
       method: "POST",
       body: data,
     });
 
-    saveAs(`${baseUrl}/files/${fileName}`, "headcount.xlsx");
+    if (!response.ok) {
+      toast.error("Could not generate headcount export.");
+      return;
+    }
 
-    const deleteResult = await fetch("/api/headcount", {
-      method: "DELETE",
-      body: data,
-    });
+    // The route streams the xlsx bytes back directly; save the blob.
+    saveAs(await response.blob(), "headcount.xlsx");
   };
 
   const onSubmit = async (data: FormValues) => {

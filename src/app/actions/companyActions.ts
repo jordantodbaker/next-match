@@ -48,7 +48,6 @@ export async function saveCompany(
   roles: Role[],
   projects: Project[]
 ) {
-  console.log("ROLES: ", roles);
   try {
     const data = {
       name: company.name,
@@ -82,7 +81,6 @@ export async function saveCompany(
 }
 
 export async function deleteCompany(company: CompanyAccount) {
-  console.log("DELETING COMPANY: ", company);
   try {
     await prisma.companyAccount.delete({ where: { id: company.id } });
     return { status: "success", data: "Company Delete" };

@@ -4,19 +4,14 @@ import { getCompany } from "../actions/companyActions";
 import { getHeadcount } from "../actions/headcountActions";
 
 export default async function NarrativePage() {
-  const company = await getCompany();
-  const headcount = await getHeadcount();
+  const [company, headcount] = await Promise.all([
+    getCompany(),
+    getHeadcount(),
+  ]);
 
-  const baseUrl = process.env.BASE_URL;
-
-  console.log("Headcount: ", headcount);
   return (
     <div className="flex h-full w-full">
-      <Headcount
-        company={company}
-        headcount={headcount[0]}
-        baseUrl={baseUrl || ""}
-      />
+      <Headcount company={company} headcount={headcount[0]} />
     </div>
   );
 }

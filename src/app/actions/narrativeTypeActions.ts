@@ -3,10 +3,6 @@
 import { prisma } from "@/lib/prisma";
 import { NarrativeType } from "@prisma/client";
 
-export async function getNarrativeTypes() {
-  return await prisma.narrativeType.findMany();
-}
-
 export async function saveNarrativeType(narrativeType: NarrativeType) {
     try{
         if(narrativeType.id === 0) {

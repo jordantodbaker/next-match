@@ -1,7 +1,6 @@
 import React from "react";
 import Narrative from "./Narrative";
 import { getNarratives } from "../actions/safetyActions";
-import { getCompanies } from "../actions/companyActions";
 
 export default async function SafetyPage() {
   const narratives = await getNarratives();

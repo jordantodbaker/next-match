@@ -2,15 +2,7 @@
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { CompanyAccount, Headcount, Role } from "@prisma/client";
-import { hasCustomGetInitialProps } from "next/dist/build/utils";
-
-// export async function getCompanies() {
-//   return await prisma.companyAccount.findMany({
-//     where: { companyCode: { not: "ACE" } },
-//     include: { roles: true },
-//   });
-// }
+import { Headcount } from "@prisma/client";
 
 export async function getHeadcount() {
   const session = await auth();
@@ -44,21 +36,17 @@ export async function saveHeadcount(headcount: Headcount[]) {
   const oldHeadcounts = headcount.filter((hc) => hc.id > 0);
 
   try {
+    // Run the create + per-row updates atomically in a single transaction
+    // (one round-trip) instead of N independent, non-atomic update calls.
+    const ops = [];
     if (newHeadcounts.length > 0) {
-      await prisma.headcount.createMany({
-        data: newHeadcounts,
-      });
+      ops.push(prisma.headcount.createMany({ data: newHeadcounts }));
     }
-    if (oldHeadcounts.length > 0) {
-      await Promise.all(
-        oldHeadcounts.map(
-          async (hc) =>
-            await prisma.headcount.update({
-              where: { id: hc.id },
-              data: { ...hc },
-            })
-        )
-      );
+    for (const hc of oldHeadcounts) {
+      ops.push(prisma.headcount.update({ where: { id: hc.id }, data: { ...hc } }));
+    }
+    if (ops.length > 0) {
+      await prisma.$transaction(ops);
     }
 
     return { status: "success", data: "Company Saved" };
@@ -68,14 +56,18 @@ export async function saveHeadcount(headcount: Headcount[]) {
   }
 }
 
+/**
+ * Builds the headcount export as an in-memory xlsx Buffer. Returning bytes
+ * (rather than writing to `./public/files`) avoids the local filesystem,
+ * which is read-only/ephemeral on serverless hosts like Vercel — the old
+ * write-then-serve-then-delete dance broke in production and raced on a
+ * fixed filename.
+ */
 export async function getHeadcountCSV(
   companyId: number,
-  projectId: number,
-  fileName: string
-) {
+  projectId: number
+): Promise<Buffer> {
   const writeXlsxFile = require("write-excel-file/node");
-  const fs = require("fs");
-  const { Downloader } = require("nodejs-file-downloader");
 
   const headcounts = await prisma.headcount.findMany({
     where: { projectId: projectId, companyId: companyId },
@@ -97,21 +89,6 @@ export async function getHeadcountCSV(
   ]);
 
   const data = [headers, ...values];
-  const filePath = `./public/files/${fileName}`;
 
-  const folderName = "./public/files";
-
-  try {
-    if (!fs.existsSync(folderName)) {
-      fs.mkdirSync(folderName);
-      console.log(`Directory '${folderName}' created successfully.`);
-    } else {
-      console.log(`Directory '${folderName}' already exists.`);
-    }
-  } catch (err: any) {
-    console.error(`Error creating directory: ${err.message}`);
-  }
-
-  const stream = await writeXlsxFile(data, { filePath: filePath });
-  return fileName;
+  return writeXlsxFile(data, { buffer: true });
 }

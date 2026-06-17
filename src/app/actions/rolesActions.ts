@@ -9,7 +9,6 @@ export async function getRoles() {
 }
 
 export async function saveRole(role: Role) {
-  console.log("ROLE: ", role);
   const data = {code: role.code, name: role.name, description: role.description, categoryId: role.categoryId}
   try {
     if (role.id === 0) {
