@@ -45,6 +45,7 @@ export async function saveCompany(
     const data = {
       name: company.name,
       companyCode: company.companyCode,
+      powerBiUrl: company.powerBiUrl,
       roles: {
         connect: roles.map((r) => ({ id: r.id })),
       },

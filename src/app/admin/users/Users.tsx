@@ -1,6 +1,6 @@
 "use client";
 
-import { Sidebar } from "@/components/sidebar/Sidebar";
+import { AdminSidebar } from "@/components/sidebar/AdminSidebar";
 import {
   Dropdown,
   DropdownTrigger,
@@ -83,7 +83,7 @@ export default function UsersPage({ companies }: Props) {
 
   return (
     <div className="flex h-full w-full">
-      <Sidebar />
+      <AdminSidebar />
       <div className="w-full flex flex-col m-16">
         <div>
           <h1 className="text-3xl text-center">Users</h1>

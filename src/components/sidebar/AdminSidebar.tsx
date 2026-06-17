@@ -6,16 +6,10 @@ import {
   SidebarLink,
 } from "./AceternitySidebar";
 import {
-  IconFirstAidKit,
-  IconClipboard,
   IconHammer,
   IconUser,
-  IconCoin,
   IconLock,
   IconLayoutGrid,
-  IconUsers,
-  IconBuildingCommunity,
-  IconUserPlus,
 } from "@tabler/icons-react";
 
 export function AdminSidebar() {
@@ -40,41 +34,6 @@ export function AdminSidebar() {
       href: "/admin/projects",
       icon: (
         <IconHammer className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
-      ),
-    },
-    {
-      label: "Roles",
-      href: "/admin/roles",
-      icon: (
-        <IconUsers className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
-      ),
-    },
-    {
-      label: "Role Categories",
-      href: "/admin/roleCategories",
-      icon: (
-        <IconUserPlus className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
-      ),
-    },
-    {
-      label: "Areas",
-      href: "/admin/areas",
-      icon: (
-        <IconBuildingCommunity className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
-      ),
-    },
-    {
-      label: "Narrative Types",
-      href: "/admin/narrativeTypes",
-      icon: (
-        <IconClipboard className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
-      ),
-    },
-    {
-      label: "Workforce Plans",
-      href: "/admin/workforcePlans",
-      icon: (
-        <IconClipboard className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
     },
   ];

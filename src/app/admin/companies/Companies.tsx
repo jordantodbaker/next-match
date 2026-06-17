@@ -64,6 +64,11 @@ export default function Companies({
     setSelectedCompany(newCompany);
   };
 
+  const handlePowerBiUrlChange = (powerBiUrl: string) => {
+    const newCompany = { ...selectedCompany, powerBiUrl };
+    setSelectedCompany(newCompany);
+  };
+
   const handleProjectChange = (projectIds: string) => {
     const parsedIds = projectIds.split(",").map((p) => parseInt(p));
     const newProjects = projects.filter((p) => parsedIds.includes(p.id));
@@ -203,6 +208,23 @@ export default function Companies({
                     value={selectedCompany.companyCode}
                     onChange={(e) => handleCodeChange(e.target.value)}
                   />
+                  <Input
+                    label="Power BI Report URL"
+                    placeholder="https://app.powerbi.com/view?r=..."
+                    variant="bordered"
+                    value={selectedCompany.powerBiUrl ?? ""}
+                    onChange={(e) => handlePowerBiUrlChange(e.target.value)}
+                  />
+                  {selectedCompany.powerBiUrl && (
+                    <a
+                      href={selectedCompany.powerBiUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-primary underline self-start"
+                    >
+                      View this company&apos;s Power BI report ↗
+                    </a>
+                  )}
                   <Select
                     className="max-w-xs"
                     label="Projects"
@@ -217,41 +239,6 @@ export default function Companies({
                       <SelectItem key={project.id}>{project.name}</SelectItem>
                     ))}
                   </Select>
-                  <div className="flex py-2 px-1 justify-between">
-                    <CheckboxGroup
-                      defaultValue={selectedCompany.roles.map(
-                        (r) => r.code || ""
-                      )}
-                      label="Select roles"
-                    >
-                      {roles.map((role) => {
-                        let showCategory = false;
-                        if (lastId != role.categoryId) {
-                          showCategory = true;
-                          lastId = role.categoryId;
-                        }
-                        return (
-                          <div>
-                            {showCategory && (
-                              <h1 className="mb-2 font-bold">
-                                {role.category.name}
-                              </h1>
-                            )}
-                            <Checkbox
-                              name={role.code || ""}
-                              value={role.code || ""}
-                              onChange={(e) => onToggleRole(e)}
-                              defaultChecked={selectedCompany.roles.some(
-                                (r) => r.id === role.id
-                              )}
-                            >
-                              {role.name}
-                            </Checkbox>
-                          </div>
-                        );
-                      })}
-                    </CheckboxGroup>
-                  </div>
                 </ModalBody>
                 <ModalFooter>
                   <Button color="danger" variant="flat" onPress={onClose}>

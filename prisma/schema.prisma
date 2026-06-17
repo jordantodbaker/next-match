@@ -42,6 +42,7 @@ model CompanyAccount {
   id                   Int                   @id @default(autoincrement())
   name                 String
   companyCode          String                @unique
+  powerBiUrl           String?
   users                User[]
   safetyNarratives     SafetyNarrative[]
   narratives           Narrative[]

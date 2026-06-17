@@ -38,7 +38,7 @@ export default function SafetyPage({ narratives }: Props) {
     if (company && user?.securityRole === SecurityRole.ADMIN) {
       const narrative = narratives.find((n: any) => n.companyId == company.id);
       setSelectedNarrative(narrative);
-      setNarrativeValue(narrative.narrative);
+      setNarrativeValue(narrative?.narrative ?? "");
     }
   }, [company as any]);
 

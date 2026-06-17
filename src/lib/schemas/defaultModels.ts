@@ -41,6 +41,7 @@ export const emptyCompany = {
   id: 0,
   name: "",
   companyCode: "",
+  powerBiUrl: null,
   roles: [emptyRole],
   projects: [],
   workforcePlans: [],
