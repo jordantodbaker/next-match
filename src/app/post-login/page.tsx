@@ -16,9 +16,14 @@ export default function PostLoginPage() {
 
   useEffect(() => {
     let active = true;
-    getPostLoginPath().then((path) => {
-      if (active) router.replace(path);
-    });
+    getPostLoginPath()
+      .then((path) => {
+        if (active) router.replace(path);
+      })
+      .catch(() => {
+        // Never leave the user stranded here — default to the report.
+        if (active) router.replace("/report");
+      });
     return () => {
       active = false;
     };

@@ -6,9 +6,7 @@ import {
   SidebarLink,
 } from "./AceternitySidebar";
 import {
-  IconHammer,
   IconUser,
-  IconLock,
   IconLayoutGrid,
 } from "@tabler/icons-react";
 
@@ -29,13 +27,6 @@ export function AdminSidebar() {
         <IconLayoutGrid className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
     },
-    {
-      label: "Projects",
-      href: "/admin/projects",
-      icon: (
-        <IconHammer className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
-      ),
-    },
   ];
   const [open, setOpen] = useState(false);
   return (
@@ -46,17 +37,6 @@ export function AdminSidebar() {
             {links.map((link, idx) => (
               <SidebarLink key={idx} link={link} />
             ))}
-          </div>
-          <div>
-            <SidebarLink
-              link={{
-                label: "App",
-                href: "/dashboard",
-                icon: (
-                  <IconLock className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
-                ),
-              }}
-            />
           </div>
         </div>
       </SidebarBody>
