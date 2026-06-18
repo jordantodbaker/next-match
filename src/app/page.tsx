@@ -1,5 +1,6 @@
 "use client";
-import { Card, CardBody, CardFooter, Image } from "@heroui/react";
+import { Card, CardBody, CardFooter } from "@heroui/react";
+import Image from "next/image";
 
 export default function Home() {
   return (
@@ -10,7 +11,13 @@ export default function Home() {
       <div className="flex flex-row justify-between mt-16">
         <Card className="w-1/4">
           <CardBody className="flex flex-row justify-center">
-            <Image src="../../Forms.png" width={400} className="object-top" />
+            <Image
+              src="/Forms.png"
+              alt="Consistent Data"
+              width={2800}
+              height={1260}
+              className="w-[400px] h-auto object-top"
+            />
           </CardBody>
           <CardFooter>
             <div className="flex flex-col">
@@ -25,7 +32,13 @@ export default function Home() {
         </Card>
         <Card className="w-1/4">
           <CardBody className="flex flex-row justify-center">
-            <Image src="../../PBIDash.png" width={400} />
+            <Image
+              src="/PBIDash.png"
+              alt="Powerful Analytics"
+              width={1527}
+              height={877}
+              className="w-[400px] h-auto"
+            />
           </CardBody>
           <CardFooter>
             <div className="flex flex-col">
@@ -40,7 +53,13 @@ export default function Home() {
         </Card>
         <Card className="w-1/4">
           <CardBody className="flex flex-row justify-center">
-            <Image src="../../imports.jpg" width={400} />
+            <Image
+              src="/imports.jpg"
+              alt="Data Imports"
+              width={1261}
+              height={654}
+              className="w-[400px] h-auto"
+            />
           </CardBody>
           <CardFooter>
             <div className="flex flex-col">
@@ -56,7 +75,13 @@ export default function Home() {
       <div className="flex flex-row justify-between mt-16">
         <Card className="w-1/4">
           <CardBody className="flex flex-row justify-center">
-            <Image src="../../mobile.jpg" width={400} />
+            <Image
+              src="/mobile.jpg"
+              alt="Mobile Friendly"
+              width={900}
+              height={500}
+              className="w-[400px] h-auto"
+            />
           </CardBody>
           <CardFooter>
             <div className="flex flex-col">
@@ -71,7 +96,13 @@ export default function Home() {
         </Card>
         <Card className="w-1/4">
           <CardBody className="flex flex-row justify-center">
-            <Image src="../../cloud.jpg" width={400} />
+            <Image
+              src="/cloud.jpg"
+              alt="Anywhere Access"
+              width={900}
+              height={550}
+              className="w-[400px] h-auto"
+            />
           </CardBody>
           <CardFooter>
             <div className="flex flex-col">
@@ -85,7 +116,13 @@ export default function Home() {
         </Card>
         <Card className="w-1/4">
           <CardBody className="flex flex-row justify-center">
-            <Image src="../../secure.jpg" width={400} />
+            <Image
+              src="/secure.jpg"
+              alt="Data Security"
+              width={280}
+              height={180}
+              className="w-[400px] h-auto"
+            />
           </CardBody>
           <CardFooter>
             <div className="flex flex-col">
