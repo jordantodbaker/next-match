@@ -50,8 +50,6 @@ model CompanyAccount {
   workforcePlans       WorkforcePlan[]
   workforcePlansLegacy WorkforcePlanLegacy[]
   roles                Role[]
-  headcounts           Headcount[]
-  headcountsLegacy     HeadcountLegacy[]
 }
 
 model User {
@@ -67,8 +65,6 @@ model User {
   hasTakenWFPTour   Boolean           @default(false)
   safetyNarratives  SafetyNarrative[]
   narratives        Narrative[]
-  headcounts        Headcount[]
-  headcountsLegacy  HeadcountLegacy[]
 }
 
 model Project {
@@ -78,8 +74,6 @@ model Project {
   companyAccounts      CompanyAccount[] //@relation(fields: [companyId], references: [id])
   workforcePlans       WorkforcePlan[]
   workforcePlansLegacy WorkforcePlanLegacy[]
-  headcounts           Headcount[]
-  headcountsLegacy     HeadcountLegacy[]
 }
 
 model WorkforcePlan {
@@ -125,8 +119,6 @@ model Role {
   workforcePlans       WorkforcePlan[]
   workforcePlansLegacy WorkforcePlanLegacy[]
   companyAccounts      CompanyAccount[]
-  headcounts           Headcount[]
-  headcountsLegacy     HeadcountLegacy[]
 }
 
 model RoleCategory {
@@ -135,36 +127,6 @@ model RoleCategory {
   description String?
   isDirect    Boolean @default(true)
   roles       Role[]
-}
-
-model Headcount {
-  id         Int            @id @default(autoincrement())
-  dayCount   Int
-  nightCount Int
-  date       DateTime
-  role       Role           @relation(fields: [roleId], references: [id])
-  roleId     Int
-  company    CompanyAccount @relation(fields: [companyId], references: [id])
-  companyId  Int
-  user       User           @relation(fields: [userId], references: [id])
-  userId     Int
-  project    Project        @relation(fields: [projectId], references: [id])
-  projectId  Int
-}
-
-model HeadcountLegacy {
-  id        Int            @id @default(autoincrement())
-  headcount Int
-  shift     Shift
-  date      DateTime
-  role      Role           @relation(fields: [roleId], references: [id])
-  roleId    Int
-  company   CompanyAccount @relation(fields: [companyId], references: [id])
-  companyId Int
-  user      User           @relation(fields: [userId], references: [id])
-  userId    Int
-  project   Project        @relation(fields: [projectId], references: [id])
-  projectId Int
 }
 
 enum SecurityRole {

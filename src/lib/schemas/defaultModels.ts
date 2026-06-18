@@ -45,5 +45,4 @@ export const emptyCompany = {
   roles: [emptyRole],
   projects: [],
   workforcePlans: [],
-  headcounts: []
 } as Company;

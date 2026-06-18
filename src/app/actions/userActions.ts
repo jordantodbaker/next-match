@@ -86,3 +86,29 @@ export async function getUser(): Promise<ActionResult<User>> {
     return { status: "error", error: "Something went wrong" };
   }
 }
+
+export async function deleteUser(id: number): Promise<ActionResult<string>> {
+  try {
+    const existing = await prisma.user.findUnique({ where: { id } });
+    if (!existing) {
+      return { status: "error", error: "User not found" };
+    }
+
+    // Delete the app record first. If it fails (e.g. a required-FK relation),
+    // the linked Clerk identity is left intact so the two systems stay in sync.
+    await prisma.user.delete({ where: { id } });
+
+    if (existing.clerkId) {
+      const clerk = await clerkClient();
+      await clerk.users.deleteUser(existing.clerkId);
+    }
+
+    return { status: "success", data: "User deleted" };
+  } catch (error) {
+    console.log(error);
+    return {
+      status: "error",
+      error: "Could not delete user. They may still have related records.",
+    };
+  }
+}

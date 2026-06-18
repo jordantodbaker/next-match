@@ -37,7 +37,6 @@ type Errors = {
 import { useCurrentUser } from "@/lib/useCurrentUser";
 import {
   CompanyAccount,
-  Headcount,
   Role,
   SecurityRole,
   User,
@@ -48,11 +47,19 @@ import { CompanyContext } from "@/components/CompanyContext";
 import { toast } from "react-toastify";
 import { emptyUser } from "@/lib/schemas/defaultModels";
 import { userSchema } from "@/lib/schemas/userSchema";
-import { saveUser } from "@/app/actions/userActions";
+import { saveUser, deleteUser } from "@/app/actions/userActions";
+import { useRouter } from "next/navigation";
 
 export default function UsersPage({ companies }: Props) {
   const user = useCurrentUser();
+  const router = useRouter();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const {
+    isOpen: isDeleteOpen,
+    onOpen: onDeleteOpen,
+    onOpenChange: onDeleteOpenChange,
+  } = useDisclosure();
+  const [userToDelete, setUserToDelete] = useState<any>(null);
   const [showChangePassword, setShowChangePassword] = useState(false);
 
   const [selectedUser, setSelectedUser] = useState({
@@ -77,6 +84,17 @@ export default function UsersPage({ companies }: Props) {
     });
 
     console.log("RESULT: ", result);
+  };
+
+  const onDeleteUser = async () => {
+    if (!userToDelete) return;
+    const result = await deleteUser(userToDelete.id);
+    if (result.status === "success") {
+      toast.success("User deleted.");
+      router.refresh();
+    } else {
+      toast.error(result.error);
+    }
   };
 
   console.log("Errors", errors);
@@ -119,7 +137,15 @@ export default function UsersPage({ companies }: Props) {
                               >
                                 Edit
                               </Button>
-                              <Button color="primary">Delete</Button>
+                              <Button
+                                color="danger"
+                                onPress={() => {
+                                  setUserToDelete(user);
+                                  onDeleteOpen();
+                                }}
+                              >
+                                Delete
+                              </Button>
                             </div>
                           </div>
                         );
@@ -288,6 +314,41 @@ export default function UsersPage({ companies }: Props) {
                     }}
                   >
                     {selectedUser.id === 0 ? "Add User" : "Edit User"}
+                  </Button>
+                </ModalFooter>
+              </>
+            )}
+          </ModalContent>
+        </Modal>
+        <Modal
+          isOpen={isDeleteOpen}
+          placement="top-center"
+          onOpenChange={onDeleteOpenChange}
+        >
+          <ModalContent>
+            {(onDeleteClose) => (
+              <>
+                <ModalHeader className="flex flex-col gap-1">
+                  Delete User
+                </ModalHeader>
+                <ModalBody>
+                  <div>
+                    Are you sure you want to delete {userToDelete?.name} (
+                    {userToDelete?.email})? This also removes their login.
+                  </div>
+                </ModalBody>
+                <ModalFooter>
+                  <Button color="default" variant="flat" onPress={onDeleteClose}>
+                    Close
+                  </Button>
+                  <Button
+                    color="danger"
+                    onPress={async () => {
+                      onDeleteClose();
+                      await onDeleteUser();
+                    }}
+                  >
+                    Delete {userToDelete?.name}
                   </Button>
                 </ModalFooter>
               </>

@@ -106,31 +106,7 @@ export default function TopNav({
         )}
         {isSignedIn && (
           <div className="flex flex-row items-center">
-            {user && (
-              <div className="mr-2">
-                <Dropdown>
-                  <DropdownTrigger>
-                    <Button variant="bordered" color="primary">
-                      {selectedProject.name ? selectedProject.name : "Project"}
-                    </Button>
-                  </DropdownTrigger>
-                  <DropdownMenu
-                    color="primary"
-                    variant="faded"
-                    aria-label="Static Actions"
-                    onAction={(key) => onChangeProject(key)}
-                    // selectedKeys={[2]}
-                    selectionMode="single"
-                  >
-                    {projects.map((project: any) => (
-                      <DropdownItem key={project.id}>
-                        {project.name}
-                      </DropdownItem>
-                    ))}
-                  </DropdownMenu>
-                </Dropdown>
-              </div>
-            )}
+            {/* Project selector hidden for now */}
             <div>{SignOut()}</div>
           </div>
         )}
