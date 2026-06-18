@@ -44,5 +44,4 @@ export const emptyCompany = {
   powerBiUrl: null,
   roles: [emptyRole],
   projects: [],
-  workforcePlans: [],
 } as Company;

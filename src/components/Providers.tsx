@@ -1,32 +1,45 @@
 "use client";
 
 import { HeroUIProvider } from "@heroui/react";
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
+import { useAuth } from "@clerk/nextjs";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import TopNav from "./navbar/TopNav";
-import { CompanyAccount, Project, User } from "@prisma/client";
-import { CompanyContext } from "./CompanyContext";
-import { ProjectContext } from "./ProjectContext";
+import { User } from "@prisma/client";
 import { UserContext } from "./UserContext";
-import { emptyCompany, emptyProject } from "@/lib/schemas/defaultModels";
+import { getUser } from "@/app/actions/userActions";
 
 export default function Providers({
-  user,
-  companies,
-  projects,
+  user: initialUser,
   children,
 }: {
   user: User | null;
-  companies: CompanyAccount[];
-  projects: Project[];
   children: ReactNode;
 }) {
-  const initialCompany = companies.length > 0 ? companies[0] : emptyCompany;
-  const initialProject = projects.length > 0 ? projects[0] : emptyProject;
+  const { isLoaded, isSignedIn, userId } = useAuth();
+  const [user, setUser] = useState<User | null>(initialUser);
 
-  const [selectedCompany, setSelectedCompany] = useState(initialCompany);
-  const [selectedProject, setSelectedProject] = useState(initialProject);
+  // Keep the app user in sync with Clerk's (always-current) client auth state.
+  // Next preserves the root layout across client navigations, so the
+  // server-seeded `initialUser` can go stale after a logout/login; re-resolve
+  // whenever the signed-in Clerk identity changes.
+  useEffect(() => {
+    if (!isLoaded) return;
+    if (!isSignedIn) {
+      setUser(null);
+      return;
+    }
+    if (user?.clerkId === userId) return; // already in sync — skip the fetch
+
+    let active = true;
+    getUser().then((res) => {
+      if (active) setUser(res.status === "success" ? res.data : null);
+    });
+    return () => {
+      active = false;
+    };
+  }, [isLoaded, isSignedIn, userId, user?.clerkId]);
 
   return (
     <UserContext value={user}>
@@ -36,19 +49,8 @@ export default function Providers({
           hideProgressBar
           className="z-50"
         />
-        <CompanyContext value={selectedCompany as any}>
-          <ProjectContext value={selectedProject}>
-            <TopNav
-              companies={companies}
-              selectedCompany={selectedCompany}
-              setSelectedCompany={setSelectedCompany}
-              projects={projects}
-              selectedProject={selectedProject}
-              setSelectedProject={setSelectedProject}
-            />
-            {children}
-          </ProjectContext>
-        </CompanyContext>
+        <TopNav />
+        {children}
       </HeroUIProvider>
     </UserContext>
   );

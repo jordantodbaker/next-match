@@ -4,7 +4,6 @@ import {
   Role as PrismaRole,
   RoleCategory,
   User,
-  WorkforcePlan,
 } from "@prisma/client";
 
 
@@ -17,4 +16,4 @@ export type Role = PrismaRole & { category: RoleCategory };
 
 export type Company = CompanyAccount & { roles: Role[] } & {
   projects: Project[];
-} & { workforcePlans?: WorkforcePlan[] };
+};

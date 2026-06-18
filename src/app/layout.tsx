@@ -1,12 +1,8 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import Providers from "../components/Providers";
-import { getCompany, getCompanies } from "./actions/companyActions";
-import { getProjects } from "./actions/projectActions";
 import "./globals.css";
 import { getCurrentUser } from "@/auth";
-import { SecurityRole } from "@prisma/client";
-import { emptyCompany, emptyProject } from "@/lib/schemas/defaultModels";
 
 export const metadata: Metadata = {
   title: "Ace Project Services",
@@ -20,27 +16,11 @@ export default async function RootLayout({
 }>) {
   const user = await getCurrentUser();
 
-  // Companies and projects don't depend on each other — fetch them together.
-  const [companiesRaw, projects] = await Promise.all([
-    user?.securityRole === SecurityRole.ADMIN
-      ? getCompanies()
-      : getCompany().then((c) => [c]),
-    getProjects(),
-  ]);
-  const companies = companiesRaw.filter((c) => !!c);
-
-  const initialCompanies = companies.length > 0 ? companies : [emptyCompany];
-  const initialProjects = projects.length > 0 ? projects : [emptyProject];
-
   return (
     <ClerkProvider>
       <html lang="en">
         <body>
-          <Providers
-            user={user}
-            companies={initialCompanies}
-            projects={initialProjects}
-          >
+          <Providers user={user}>
             <main className="vertical-center">{children}</main>
           </Providers>
         </body>

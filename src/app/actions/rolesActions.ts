@@ -23,7 +23,7 @@ export async function saveRole(role: Role) {
     }
     return { status: "success", data: "Narrative Saved" };
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return { status: "error", error: "Something went wrong" };
   }
 }
@@ -46,7 +46,7 @@ export async function saveRoles(roles: Role[]) {
     }
     return { status: "success", data: "Narrative Saved" };
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return { status: "error", error: "Something went wrong" };
   }
 }
@@ -56,7 +56,7 @@ export async function deleteRole(role: Role) {
     await prisma.role.delete({ where: { id: role.id } });
     return { status: "success", data: "Narrative Delete" };
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return {
       status: "error",
       error: "Save failed. Are there existing narratives with this type?",

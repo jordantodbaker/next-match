@@ -6,7 +6,6 @@ import {
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
-  NumberInput,
   Accordion,
   AccordionItem,
   useDisclosure,
@@ -18,14 +17,19 @@ import {
   ModalBody,
   ModalFooter,
 } from "@heroui/react";
-import { useContext, useEffect, useState } from "react";
-import { useForm, useFieldArray } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 import React from "react";
 import * as z from "zod/v4";
 
+type UnlinkedClerkUser = {
+  clerkId: string;
+  name: string;
+  email: string;
+};
+
 type Props = {
   companies: CompanyWithUsers[];
+  unlinkedUsers: UnlinkedClerkUser[];
 };
 
 type Errors = {
@@ -34,24 +38,16 @@ type Errors = {
   email?: string;
 };
 
-import { useCurrentUser } from "@/lib/useCurrentUser";
-import {
-  CompanyAccount,
-  Role,
-  SecurityRole,
-  User,
-} from "@prisma/client";
+import { User } from "@prisma/client";
 import { CompanyWithUsers } from "@/lib/types";
-import { ProjectContext } from "@/components/ProjectContext";
-import { CompanyContext } from "@/components/CompanyContext";
 import { toast } from "react-toastify";
 import { emptyUser } from "@/lib/schemas/defaultModels";
 import { userSchema } from "@/lib/schemas/userSchema";
 import { saveUser, deleteUser } from "@/app/actions/userActions";
 import { useRouter } from "next/navigation";
+import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
 
-export default function UsersPage({ companies }: Props) {
-  const user = useCurrentUser();
+export default function UsersPage({ companies, unlinkedUsers }: Props) {
   const router = useRouter();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const {
@@ -72,18 +68,35 @@ export default function UsersPage({ companies }: Props) {
     email: { errors: [] },
   });
 
-  useEffect(() => {}, []);
-
   const onSaveUser = async () => {
     const data = new FormData();
     data.set("user", JSON.stringify(selectedUser));
 
-    const result = await fetch("/api/users", {
+    const response = await fetch("/api/users", {
       method: "POST",
       body: data,
     });
+    const body = await response.json().catch(() => null);
 
-    console.log("RESULT: ", result);
+    if (body?.result?.status === "error") {
+      toast.error("Could not save user. Did you pick a company?");
+    } else {
+      toast.success("User saved.");
+      router.refresh();
+    }
+  };
+
+  const onAssignClerkUser = (u: UnlinkedClerkUser) => {
+    setSelectedUser({
+      ...emptyUser,
+      id: 0,
+      name: u.name || u.email,
+      email: u.email,
+      clerkId: u.clerkId,
+      companyId: 0,
+      updatePassword: false,
+    } as any);
+    onOpen();
   };
 
   const onDeleteUser = async () => {
@@ -97,8 +110,6 @@ export default function UsersPage({ companies }: Props) {
     }
   };
 
-  console.log("Errors", errors);
-
   return (
     <div className="flex h-full w-full">
       <AdminSidebar />
@@ -109,11 +120,46 @@ export default function UsersPage({ companies }: Props) {
         <form>
           <div className="w-full mt-16 h-full flex flex-col justify-center">
             <div className="">
+              {unlinkedUsers.length > 0 && (
+                <Accordion
+                  isCompact
+                  defaultExpandedKeys="all"
+                  className="mr-4 sm:mt-4 mt-16"
+                >
+                  <AccordionItem
+                    key="unassigned"
+                    title={
+                      <div className="text-2xl text-warning-600">
+                        Unassigned (no company)
+                      </div>
+                    }
+                  >
+                    {unlinkedUsers.map((u) => (
+                      <div
+                        key={u.clerkId}
+                        className="flex flex-row justify-between items-center"
+                      >
+                        <div>{u.name || "—"}</div>
+                        <div>{u.email}</div>
+                        <div>
+                          <Button
+                            color="primary"
+                            onPress={() => onAssignClerkUser(u)}
+                          >
+                            Assign to company
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </AccordionItem>
+                </Accordion>
+              )}
               {companies.map((field, index) => {
                 return (
                   <Accordion
                     isCompact
                     key={field.id}
+                    defaultExpandedKeys="all"
                     className="mr-4 sm:mt-4 mt-16"
                   >
                     <AccordionItem
@@ -320,41 +366,14 @@ export default function UsersPage({ companies }: Props) {
             )}
           </ModalContent>
         </Modal>
-        <Modal
+        <DeleteConfirmationModal
           isOpen={isDeleteOpen}
-          placement="top-center"
           onOpenChange={onDeleteOpenChange}
-        >
-          <ModalContent>
-            {(onDeleteClose) => (
-              <>
-                <ModalHeader className="flex flex-col gap-1">
-                  Delete User
-                </ModalHeader>
-                <ModalBody>
-                  <div>
-                    Are you sure you want to delete {userToDelete?.name} (
-                    {userToDelete?.email})? This also removes their login.
-                  </div>
-                </ModalBody>
-                <ModalFooter>
-                  <Button color="default" variant="flat" onPress={onDeleteClose}>
-                    Close
-                  </Button>
-                  <Button
-                    color="danger"
-                    onPress={async () => {
-                      onDeleteClose();
-                      await onDeleteUser();
-                    }}
-                  >
-                    Delete {userToDelete?.name}
-                  </Button>
-                </ModalFooter>
-              </>
-            )}
-          </ModalContent>
-        </Modal>
+          title="Delete User"
+          message={`Are you sure you want to delete ${userToDelete?.name} (${userToDelete?.email})? This also removes their login.`}
+          confirmLabel={`Delete ${userToDelete?.name ?? ""}`.trim()}
+          onConfirm={onDeleteUser}
+        />
       </div>
     </div>
   );

@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     }
     return NextResponse.json({ error: "Missing user" }, { status: 400 });
   } catch (e) {
-    console.log("ERROR: ", e);
+    console.error(e);
     return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
   }
 }

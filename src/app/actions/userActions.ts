@@ -26,14 +26,20 @@ export async function saveUser(
       return { status: "error", error: validated.error.errors };
     }
 
-    const { id, name, email, password, companyId, updatePassword, hasTakenWFPTour } =
+    const { id, name, email, password, companyId, clerkId, updatePassword, hasTakenWFPTour } =
       validated.data;
 
     const clerk = await clerkClient();
 
     let user: User;
 
-    if (id === 0) {
+    if (id === 0 && clerkId) {
+      // Linking an existing Clerk identity (e.g. a self-signed-up user) to a
+      // company. The Clerk user already exists, so just create the DB record.
+      user = await prisma.user.create({
+        data: { name, email, companyId, clerkId, hasTakenWFPTour },
+      });
+    } else if (id === 0) {
       // New user: create the Clerk identity first, then the linked DB record.
       if (!password) {
         return { status: "error", error: "Password is required for new users" };
@@ -67,7 +73,7 @@ export async function saveUser(
 
     return { status: "success", data: user };
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return { status: "error", error: "Something went wrong" };
   }
 }
@@ -82,7 +88,7 @@ export async function getUser(): Promise<ActionResult<User>> {
 
     return { status: "success", data: user };
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return { status: "error", error: "Something went wrong" };
   }
 }
@@ -105,10 +111,39 @@ export async function deleteUser(id: number): Promise<ActionResult<string>> {
 
     return { status: "success", data: "User deleted" };
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return {
       status: "error",
       error: "Could not delete user. They may still have related records.",
     };
   }
+}
+
+type UnlinkedClerkUser = {
+  clerkId: string;
+  name: string;
+  email: string;
+};
+
+/**
+ * Clerk users that have no linked Prisma `User` row yet (e.g. someone who
+ * signed up through Clerk directly). These don't belong to a company, so the
+ * admin needs to see and assign them.
+ */
+export async function getUnlinkedClerkUsers(): Promise<UnlinkedClerkUser[]> {
+  const clerk = await clerkClient();
+  const [{ data: clerkUsers }, prismaUsers] = await Promise.all([
+    clerk.users.getUserList({ limit: 200 }),
+    prisma.user.findMany({ select: { clerkId: true } }),
+  ]);
+
+  const linked = new Set(prismaUsers.map((u) => u.clerkId).filter(Boolean));
+
+  return clerkUsers
+    .filter((u) => !linked.has(u.id))
+    .map((u) => ({
+      clerkId: u.id,
+      name: [u.firstName, u.lastName].filter(Boolean).join(" "),
+      email: u.primaryEmailAddress?.emailAddress ?? u.emailAddresses[0]?.emailAddress ?? "",
+    }));
 }

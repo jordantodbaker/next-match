@@ -1,34 +1,34 @@
 "use server";
 
-import { auth } from "@/auth";
+import { getCurrentUser } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { CompanyAccount, Project, Role } from "@prisma/client";
+import { CompanyAccount, Prisma, Project, Role } from "@prisma/client";
+
+// Shared shape for company reads: roles (ordered, with their category) and
+// projects. `workforcePlans`/`headcounts` were intentionally dropped — they
+// were eagerly loaded on every admin navigation and never read.
+const companyInclude = {
+  roles: { orderBy: { categoryId: "asc" }, include: { category: true } },
+  projects: true,
+} satisfies Prisma.CompanyAccountInclude;
 
 export async function getCompanies() {
-  // Only `roles` and `projects` are read off these company objects anywhere;
-  // `workforcePlans`/`headcounts` were being eagerly loaded for every company
-  // on every admin navigation and never used.
   return await prisma.companyAccount.findMany({
     where: { companyCode: { not: "ACE" } },
-    include: {
-      roles: {orderBy: {categoryId: 'asc'}, include: {category: true}},
-      projects: true,
-    },
+    include: companyInclude,
   });
 }
 
 export async function getCompany() {
-  const session = await auth();
-  const companyId = session?.user?.companyId;
+  const user = await getCurrentUser();
+  const companyId = user?.companyId;
 
   // Guard against `where: { id: undefined }`, which Prisma treats as "no
-  // filter" and would return an arbitrary (first) company instead of the
-  // user's own — surfacing the wrong/blank report. (Signed-out renders of the
-  // layout legitimately have no companyId, so this isn't logged as an error.)
+  // filter" and would return an arbitrary company instead of the user's own.
   const company = companyId
     ? await prisma.companyAccount.findFirst({
         where: { id: companyId },
-        include: { roles: {orderBy: {categoryId: 'asc'}, include: {category: true}}, projects: true },
+        include: companyInclude,
       })
     : null;
 

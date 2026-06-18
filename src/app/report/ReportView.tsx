@@ -1,12 +1,20 @@
-"use client";
+import React from "react";
 
-import React, { useContext } from "react";
-import { CompanyContext } from "@/components/CompanyContext";
-
-export default function ReportView() {
-  const company = useContext(CompanyContext);
-
-  if (!company?.powerBiUrl) {
+/**
+ * Presentational report view. Receives the report URL as a prop from the
+ * `/report` server page (which resolves the *current* user's company on every
+ * request) rather than reading it from the layout-seeded CompanyContext —
+ * that context can go stale across logout/login because Next preserves the
+ * shared root layout across client navigations.
+ */
+export default function ReportView({
+  powerBiUrl,
+  companyName,
+}: {
+  powerBiUrl: string | null;
+  companyName: string;
+}) {
+  if (!powerBiUrl) {
     return (
       <div className="flex h-full w-full justify-center mt-20">
         <p className="text-xl text-neutral-500">
@@ -19,9 +27,9 @@ export default function ReportView() {
   return (
     <div className="flex h-full w-full justify-center mt-6 px-4">
       <iframe
-        title={`${company.name} Power BI Report`}
+        title={`${companyName} Power BI Report`}
         className="w-[95vw] h-[90vh]"
-        src={company.powerBiUrl}
+        src={powerBiUrl}
         allowFullScreen={true}
       ></iframe>
     </div>

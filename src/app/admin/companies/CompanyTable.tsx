@@ -39,7 +39,6 @@ export default function CompanyTable({
   onClickEditCompany,
   onClickDeleteCompany,
 }: Props) {
-  console.log("COMPANIES", companies);
   const renderCell = useCallback((company: Company, columnKey: any) => {
     const cellValue = company[columnKey as keyof CompanyAccount];
 
