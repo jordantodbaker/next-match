@@ -43,6 +43,7 @@ import { CompanyWithUsers } from "@/lib/types";
 import { toast } from "react-toastify";
 import { emptyUser } from "@/lib/schemas/defaultModels";
 import { userSchema } from "@/lib/schemas/userSchema";
+import { RegisterSchema } from "@/lib/schemas/registerSchema";
 import { saveUser, deleteUser } from "@/app/actions/userActions";
 import { useRouter } from "next/navigation";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
@@ -69,16 +70,9 @@ export default function UsersPage({ companies, unlinkedUsers }: Props) {
   });
 
   const onSaveUser = async () => {
-    const data = new FormData();
-    data.set("user", JSON.stringify(selectedUser));
+    const result = await saveUser(selectedUser as unknown as RegisterSchema);
 
-    const response = await fetch("/api/users", {
-      method: "POST",
-      body: data,
-    });
-    const body = await response.json().catch(() => null);
-
-    if (body?.result?.status === "error") {
+    if (result.status === "error") {
       toast.error("Could not save user. Did you pick a company?");
     } else {
       toast.success("User saved.");
