@@ -12,7 +12,7 @@ export default function TopNav() {
 
   return (
     <Navbar
-      maxWidth="xl"
+      maxWidth="full"
       height="5rem"
       isBlurred={false}
       classNames={{
