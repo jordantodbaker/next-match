@@ -79,7 +79,7 @@ export default function CompanyTable({
   }, []);
 
   return (
-    <Table aria-label="Example table with custom cells">
+    <Table aria-label="Companies">
       <TableHeader columns={columns}>
         {(column) => (
           <TableColumn
@@ -90,7 +90,7 @@ export default function CompanyTable({
           </TableColumn>
         )}
       </TableHeader>
-      <TableBody items={companies}>
+      <TableBody items={companies} emptyContent="No companies yet.">
         {(item) => (
           <TableRow key={item.id}>
             {(columnKey) => (

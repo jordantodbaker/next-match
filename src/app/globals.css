@@ -5,7 +5,8 @@
 @custom-variant dark (&:is(.dark *));
 
 .vertical-center {
-  height: calc(100vh - 65px);
+  /* full viewport minus the 5rem (80px) top navbar */
+  height: calc(100vh - 80px);
 }
 
 /* @layer components {

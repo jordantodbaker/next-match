@@ -26,8 +26,18 @@ export async function saveUser(
       return { status: "error", error: validated.error.errors };
     }
 
-    const { id, name, email, password, companyId, clerkId, updatePassword, hasTakenWFPTour } =
-      validated.data;
+    const {
+      id,
+      name,
+      email,
+      address,
+      securityRole,
+      password,
+      companyId,
+      clerkId,
+      updatePassword,
+      hasTakenWFPTour,
+    } = validated.data;
 
     const clerk = await clerkClient();
 
@@ -37,7 +47,7 @@ export async function saveUser(
       // Linking an existing Clerk identity (e.g. a self-signed-up user) to a
       // company. The Clerk user already exists, so just create the DB record.
       user = await prisma.user.create({
-        data: { name, email, companyId, clerkId, hasTakenWFPTour },
+        data: { name, email, address, securityRole, companyId, clerkId, hasTakenWFPTour },
       });
     } else if (id === 0) {
       // New user: create the Clerk identity first, then the linked DB record.
@@ -52,7 +62,15 @@ export async function saveUser(
       });
 
       user = await prisma.user.create({
-        data: { name, email, companyId, clerkId: clerkUser.id, hasTakenWFPTour },
+        data: {
+          name,
+          email,
+          address,
+          securityRole,
+          companyId,
+          clerkId: clerkUser.id,
+          hasTakenWFPTour,
+        },
       });
     } else {
       // Existing user: keep the linked Clerk identity in sync.
@@ -67,7 +85,7 @@ export async function saveUser(
 
       user = await prisma.user.update({
         where: { id },
-        data: { name, email, companyId, hasTakenWFPTour },
+        data: { name, email, address, securityRole, companyId, hasTakenWFPTour },
       });
     }
 

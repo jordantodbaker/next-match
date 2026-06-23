@@ -11,12 +11,15 @@ import {
   useDisclosure,
   Select,
   SelectItem,
+  Card,
+  CardBody,
 } from "@heroui/react";
 import { useState } from "react";
 import React from "react";
 import { toast } from "react-toastify";
 import { Project } from "@prisma/client";
 import { AdminSidebar } from "@/components/sidebar/AdminSidebar";
+import PageHeading from "@/components/PageHeading";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
 import { deleteCompany, saveCompany } from "@/app/actions/companyActions";
 import CompanyTable from "./CompanyTable";
@@ -45,6 +48,7 @@ export default function Companies({
   const [selectedCompany, setSelectedCompany] = useState<Company>(emptyCompany);
   const [selectedRoles, setSelectedRoles] = useState<Role[]>([]);
   const [selectedProjects, setSelectedProjects] = useState<Project[]>([]);
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleNameChange = (name: string) => {
     const newCompany = { ...selectedCompany, name: name };
@@ -68,10 +72,12 @@ export default function Companies({
   };
 
   const onSaveCompany = async () => {
+    setIsSaving(true);
     const company = { ...selectedCompany };
     const roles = [...selectedRoles];
     const projects = [...selectedProjects];
     const result = await saveCompany(company, roles, projects);
+    setIsSaving(false);
     const newCompanies =
       company.id === 0
         ? [...companies, company]
@@ -146,34 +152,34 @@ export default function Companies({
     }
   };
 
-  let lastId = 0;
-
   return (
     <div className="flex h-full w-full">
       <AdminSidebar />
-      <div className="w-full flex flex-col m-16">
-        <div>
-          <h1 className="text-3xl text-center">Companies</h1>
-        </div>
-        <CompanyTable
-          companies={companies}
-          onClickEditCompany={onClickEditCompany}
-          onClickDeleteCompany={onClickDeleteCompany}
+      <div className="w-full flex flex-col gap-6 p-6 sm:p-10 overflow-y-auto">
+        <PageHeading
+          title="Companies"
+          action={
+            <Button
+              color="primary"
+              type="button"
+              onPress={() => {
+                setSelectedCompany(emptyCompany);
+                onOpen();
+              }}
+            >
+              Add Company
+            </Button>
+          }
         />
-
-        <div className="mt-4">
-          <Button
-            className="mr-4"
-            color="primary"
-            type="button"
-            onPress={() => {
-              setSelectedCompany(emptyCompany);
-              onOpen();
-            }}
-          >
-            Add Company
-          </Button>
-        </div>
+        <Card>
+          <CardBody>
+            <CompanyTable
+              companies={companies}
+              onClickEditCompany={onClickEditCompany}
+              onClickDeleteCompany={onClickDeleteCompany}
+            />
+          </CardBody>
+        </Card>
         <Modal
           isOpen={isOpen}
           placement="top-center"
@@ -185,7 +191,7 @@ export default function Companies({
                 <ModalHeader className="flex flex-col gap-1">
                   {selectedCompany.id === 0 ? "Add Company" : "Edit Company"}
                 </ModalHeader>
-                <ModalBody>
+                <ModalBody className="gap-4">
                   <Input
                     label="Company Name"
                     placeholder="Company Name"
@@ -218,9 +224,9 @@ export default function Companies({
                     </a>
                   )}
                   <Select
-                    className="max-w-xs"
                     label="Projects"
                     placeholder="Select Projects"
+                    variant="bordered"
                     selectionMode="multiple"
                     onChange={(e) => handleProjectChange(e.target.value)}
                     defaultSelectedKeys={selectedCompany.projects.map(
@@ -233,17 +239,18 @@ export default function Companies({
                   </Select>
                 </ModalBody>
                 <ModalFooter>
-                  <Button color="danger" variant="flat" onPress={onClose}>
+                  <Button color="default" variant="flat" onPress={onClose}>
                     Close
                   </Button>
                   <Button
                     color="primary"
+                    isLoading={isSaving}
                     onPress={async () => {
                       onClose();
                       await onSaveCompany();
                     }}
                   >
-                    {selectedCompany.id === 0 ? "Add Company" : "Edit Company"}
+                    {selectedCompany.id === 0 ? "Add Company" : "Save"}
                   </Button>
                 </ModalFooter>
               </>

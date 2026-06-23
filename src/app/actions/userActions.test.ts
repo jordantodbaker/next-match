@@ -73,6 +73,25 @@ describe("saveUser", () => {
     );
   });
 
+  it("persists address and securityRole", async () => {
+    mockPrisma.user.create.mockResolvedValue({ id: 8 });
+    await saveUser({
+      ...base,
+      clerkId: "user_2",
+      address: "123 Main St",
+      securityRole: "ADMIN",
+    } as never);
+
+    expect(mockPrisma.user.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          address: "123 Main St",
+          securityRole: "ADMIN",
+        }),
+      })
+    );
+  });
+
   it("requires a password when creating a brand-new user", async () => {
     const res = await saveUser({ ...base } as never);
     expect(res).toEqual({

@@ -14,8 +14,9 @@ export default function TopNav() {
     <Navbar
       maxWidth="xl"
       height="5rem"
-      className="flex flex-row  border-b-1 border-b-cyan-600"
+      isBlurred={false}
       classNames={{
+        base: "bg-white border-b-1 border-b-primary",
         item: ["text-xl", "uppercase"],
         brand: [""],
       }}

@@ -1,9 +1,12 @@
 import { z } from "zod";
+import { SecurityRole } from "@prisma/client";
 
 export const registerSchema = z.object({
   id: z.number(),
   name: z.string().min(3),
   email: z.string().email(),
+  address: z.string().optional(),
+  securityRole: z.nativeEnum(SecurityRole).optional(),
   password: z
     .string()
     .min(6, { message: "Must be at least 6 characters" })

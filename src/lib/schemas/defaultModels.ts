@@ -15,6 +15,7 @@ export const emptyUser = {
   id: 0,
   name: "",
   email: "",
+  address: "",
   password: "",
   securityRole: SecurityRole.USER,
   companyId: 0,
