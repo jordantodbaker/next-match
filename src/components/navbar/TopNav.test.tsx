@@ -10,6 +10,8 @@ vi.mock("@clerk/nextjs", () => ({
   useAuth: mockUseAuth,
   useClerk: () => ({ signOut: mockSignOut }),
 }));
+// Default to a non-auth route so the navbar renders (it hides on /login, /sign-up).
+vi.mock("next/navigation", () => ({ usePathname: () => "/" }));
 
 import TopNav from "./TopNav";
 

@@ -14,7 +14,7 @@ vi.mock("@/lib/prisma", () => ({
 
 import { auth as clerkAuth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
-import { getCurrentUser, auth } from "./auth";
+import { getCurrentUser } from "./auth";
 
 const mockClerkAuth = clerkAuth as unknown as Mock;
 const mockFindUnique = prisma.user.findUnique as unknown as Mock;
@@ -35,19 +35,5 @@ describe("getCurrentUser", () => {
 
     expect(await getCurrentUser()).toEqual(user);
     expect(mockFindUnique).toHaveBeenCalledWith({ where: { clerkId: "user_1" } });
-  });
-});
-
-describe("auth (compat wrapper)", () => {
-  it("wraps the resolved user in { user }", async () => {
-    const user = { id: 6, clerkId: "user_1" };
-    mockClerkAuth.mockResolvedValue({ userId: "user_1" });
-    mockFindUnique.mockResolvedValue(user);
-    expect(await auth()).toEqual({ user });
-  });
-
-  it("returns null when there is no user", async () => {
-    mockClerkAuth.mockResolvedValue({ userId: null });
-    expect(await auth()).toBeNull();
   });
 });

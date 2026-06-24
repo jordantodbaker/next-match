@@ -4,11 +4,19 @@ import { Button, Navbar, NavbarBrand, NavbarContent } from "@heroui/react";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
+import { usePathname } from "next/navigation";
 import { useAuth, useClerk } from "@clerk/nextjs";
 
 export default function TopNav() {
   const { signOut } = useClerk();
   const { isSignedIn } = useAuth();
+  const pathname = usePathname();
+
+  // The auth pages are their own branded screens (logo lives in the Clerk
+  // card); the app nav would be redundant there.
+  if (pathname?.startsWith("/login") || pathname?.startsWith("/sign-up")) {
+    return null;
+  }
 
   return (
     <Navbar

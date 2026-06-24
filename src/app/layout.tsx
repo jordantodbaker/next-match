@@ -4,10 +4,28 @@ import Providers from "../components/Providers";
 import "./globals.css";
 import { getCurrentUser } from "@/auth";
 
+const description =
+  "Consistent data, powerful Power BI analytics, and secure cloud access for your projects.";
+
 export const metadata: Metadata = {
-  title: "Ace Project Services",
-  description:
-    "Consistent data, powerful Power BI analytics, and secure cloud access for your projects.",
+  metadataBase: new URL(process.env.BASE_URL ?? "http://localhost:3000"),
+  title: {
+    default: "Ace Project Services",
+    template: "%s | Ace Project Services",
+  },
+  description,
+  openGraph: {
+    title: "Ace Project Services",
+    description,
+    type: "website",
+    images: ["/logo.png"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Ace Project Services",
+    description,
+    images: ["/logo.png"],
+  },
 };
 
 export default async function RootLayout({
@@ -18,7 +36,7 @@ export default async function RootLayout({
   const user = await getCurrentUser();
 
   return (
-    <ClerkProvider>
+    <ClerkProvider appearance={{ variables: { colorPrimary: "#0d4788" } }}>
       <html lang="en">
         <body>
           <Providers user={user}>

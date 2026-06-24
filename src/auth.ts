@@ -17,12 +17,3 @@ export const getCurrentUser = cache(async (): Promise<User | null> => {
 
   return prisma.user.findUnique({ where: { clerkId: userId } });
 });
-
-/**
- * Compatibility wrapper that mirrors the old NextAuth `auth()` shape
- * (`{ user }`) so existing server-side call sites keep working unchanged.
- */
-export async function auth(): Promise<{ user: User } | null> {
-  const user = await getCurrentUser();
-  return user ? { user } : null;
-}

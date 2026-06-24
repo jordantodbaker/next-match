@@ -1,12 +1,5 @@
 import {
   Button,
-  Input,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  useDisclosure,
   Table,
   TableHeader,
   TableColumn,
@@ -14,17 +7,14 @@ import {
   TableRow,
   TableCell,
   Chip,
-  Tooltip,
 } from "@heroui/react";
-
-import { EditIcon, DeleteIcon } from "@/lib/icons";
-import { useCallback } from "react";
-import { CompanyAccount } from "@prisma/client";
 import { Company } from "@/lib/types";
 
 export const columns = [
   { name: "COMPANY", uid: "company" },
   { name: "CODE", uid: "code" },
+  { name: "PROJECTS", uid: "projects" },
+  { name: "REPORT", uid: "report" },
   { name: "ACTIONS", uid: "actions" },
 ];
 
@@ -39,34 +29,41 @@ export default function CompanyTable({
   onClickEditCompany,
   onClickDeleteCompany,
 }: Props) {
-  const renderCell = useCallback((company: Company, columnKey: any) => {
-    const cellValue = company[columnKey as keyof CompanyAccount];
-
+  const renderCell = (company: Company, columnKey: string) => {
     switch (columnKey) {
       case "company":
-        return <div>{company.name}</div>;
+        return <span className="font-medium">{company.name}</span>;
       case "code":
+        return <span className="text-default-500">{company.companyCode}</span>;
+      case "projects":
         return (
-          <div className="flex flex-col">
-            <p className="text-bold text-sm capitalize">{cellValue}</p>
-            <p className="text-bold text-sm capitalize ">
-              {company.companyCode}
-            </p>
-          </div>
+          <span className="text-default-500">
+            {company.projects?.length ?? 0}
+          </span>
+        );
+      case "report":
+        return company.powerBiUrl ? (
+          <Chip size="sm" variant="flat" color="primary">
+            Configured
+          </Chip>
+        ) : (
+          <span className="text-default-400">—</span>
         );
       case "actions":
         return (
-          <div className="relative flex items-center gap-2">
+          <div className="flex items-center justify-center gap-2">
             <Button
+              size="sm"
+              variant="flat"
               color="primary"
-              variant="bordered"
-              onPress={async () => onClickEditCompany(company)}
+              onPress={() => onClickEditCompany(company)}
             >
               Edit
             </Button>
             <Button
-              color="primary"
-              variant="bordered"
+              size="sm"
+              variant="flat"
+              color="danger"
               onPress={() => onClickDeleteCompany(company)}
             >
               Delete
@@ -74,12 +71,12 @@ export default function CompanyTable({
           </div>
         );
       default:
-        return cellValue;
+        return null;
     }
-  }, []);
+  };
 
   return (
-    <Table aria-label="Companies">
+    <Table aria-label="Companies" removeWrapper>
       <TableHeader columns={columns}>
         {(column) => (
           <TableColumn
@@ -94,7 +91,7 @@ export default function CompanyTable({
         {(item) => (
           <TableRow key={item.id}>
             {(columnKey) => (
-              <TableCell>{renderCell(item, columnKey)}</TableCell>
+              <TableCell>{renderCell(item, columnKey as string)}</TableCell>
             )}
           </TableRow>
         )}
