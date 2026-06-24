@@ -4,7 +4,6 @@ import { userSchema } from "./userSchema";
 const valid = {
   name: "Jordan",
   email: "jordan@example.com",
-  password: "secret123",
 };
 
 describe("userSchema", () => {
@@ -17,14 +16,8 @@ describe("userSchema", () => {
   });
 
   it("rejects an invalid email", () => {
-    expect(userSchema.safeParse({ ...valid, email: "not-an-email" }).success).toBe(false);
-  });
-
-  it("allows an empty password", () => {
-    expect(userSchema.safeParse({ ...valid, password: "" }).success).toBe(true);
-  });
-
-  it("rejects a non-empty password shorter than 6 chars", () => {
-    expect(userSchema.safeParse({ ...valid, password: "12345" }).success).toBe(false);
+    expect(userSchema.safeParse({ ...valid, email: "not-an-email" }).success).toBe(
+      false
+    );
   });
 });

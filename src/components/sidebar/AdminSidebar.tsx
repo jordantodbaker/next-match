@@ -31,7 +31,7 @@ export function AdminSidebar() {
   const [open, setOpen] = useState(false);
   return (
     <AceSidebar open={open} setOpen={setOpen}>
-      <SidebarBody className="justify-between gap-10 border-1 border-r-primary border-t-0 bg-primary-50">
+      <SidebarBody className="justify-between gap-10 border-1 border-r-primary border-t-0 bg-white">
         <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto justify-between">
           <div className="mt-8 flex flex-col gap-2">
             {links.map((link, idx) => (

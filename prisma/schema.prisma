@@ -56,7 +56,6 @@ model User {
   id                Int               @id @default(autoincrement())
   name              String
   email             String            @unique
-  address           String?
   clerkId           String?           @unique
   securityRole      SecurityRole      @default(USER)
   companyAccount    CompanyAccount    @relation(fields: [companyId], references: [id])

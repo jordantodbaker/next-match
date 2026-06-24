@@ -29,7 +29,7 @@ import { toast } from "react-toastify";
 import { emptyUser } from "@/lib/schemas/defaultModels";
 import { userSchema } from "@/lib/schemas/userSchema";
 import { RegisterSchema } from "@/lib/schemas/registerSchema";
-import { saveUser, deleteUser } from "@/app/actions/userActions";
+import { saveUser, deleteUser, inviteUser } from "@/app/actions/userActions";
 import { useRouter } from "next/navigation";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
 import PageHeading from "@/components/PageHeading";
@@ -66,39 +66,48 @@ export default function UsersPage({ companies, unlinkedUsers }: Props) {
     onOpenChange: onDeleteOpenChange,
   } = useDisclosure();
   const [userToDelete, setUserToDelete] = useState<any>(null);
-  const [showChangePassword, setShowChangePassword] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  const [selectedUser, setSelectedUser] = useState({
-    ...emptyUser,
-    updatePassword: false,
-  });
+  const [selectedUser, setSelectedUser] = useState<User>({ ...emptyUser });
   const [errors, setErrors] = useState({
     name: { errors: [] },
-    password: { errors: [] },
     email: { errors: [] },
   });
 
+  // Brand-new user: no Clerk identity yet → we send an invitation rather than
+  // creating a record directly.
+  const isInvite = selectedUser.id === 0 && !selectedUser.clerkId;
+
   const openAdd = () => {
-    setShowChangePassword(false);
-    setSelectedUser({ ...emptyUser, updatePassword: true });
+    setSelectedUser({ ...emptyUser });
     onOpen();
   };
 
   const openEdit = (user: User) => {
-    setShowChangePassword(false);
-    setSelectedUser({ ...user, password: "", updatePassword: false } as any);
+    setSelectedUser({ ...user });
     onOpen();
   };
 
   const onSaveUser = async () => {
     setIsSaving(true);
     try {
-      const result = await saveUser(selectedUser as unknown as RegisterSchema);
+      const result = isInvite
+        ? await inviteUser({
+            email: selectedUser.email,
+            name: selectedUser.name,
+            companyId: selectedUser.companyId,
+            securityRole: selectedUser.securityRole,
+          })
+        : await saveUser(selectedUser as unknown as RegisterSchema);
+
       if (result.status === "error") {
-        toast.error("Could not save user. Did you pick a company?");
+        toast.error(
+          isInvite
+            ? "Could not send invitation."
+            : "Could not save user. Did you pick a company?"
+        );
       } else {
-        toast.success("User saved.");
+        toast.success(isInvite ? "Invitation sent." : "User saved.");
         router.refresh();
       }
     } finally {
@@ -107,7 +116,6 @@ export default function UsersPage({ companies, unlinkedUsers }: Props) {
   };
 
   const onAssignClerkUser = (u: UnlinkedClerkUser) => {
-    setShowChangePassword(false);
     setSelectedUser({
       ...emptyUser,
       id: 0,
@@ -115,8 +123,7 @@ export default function UsersPage({ companies, unlinkedUsers }: Props) {
       email: u.email,
       clerkId: u.clerkId,
       companyId: 0,
-      updatePassword: false,
-    } as any);
+    } as User);
     onOpen();
   };
 
@@ -134,12 +141,12 @@ export default function UsersPage({ companies, unlinkedUsers }: Props) {
   return (
     <div className="flex h-full w-full">
       <AdminSidebar />
-      <div className="w-full flex flex-col gap-6 p-6 sm:p-10 overflow-y-auto">
+      <div className="flex-1 min-w-0 flex flex-col gap-6 p-6 sm:p-10 overflow-y-auto">
         <PageHeading
           title="Users"
           action={
             <Button color="primary" onPress={openAdd}>
-              Add User
+              Invite User
             </Button>
           }
         />
@@ -215,11 +222,8 @@ export default function UsersPage({ companies, unlinkedUsers }: Props) {
                       name={user.name}
                       description={user.email}
                       avatarProps={{ name: user.name, size: "sm" }}
-                      className="justify-start"
+                      className="justify-start sm:flex-1"
                     />
-                    <div className="text-sm text-default-500 sm:flex-1 sm:px-4 sm:truncate">
-                      {user.address || "—"}
-                    </div>
                     <div className="flex items-center gap-2">
                       <RoleChip role={user.securityRole} />
                       <Button
@@ -255,7 +259,11 @@ export default function UsersPage({ companies, unlinkedUsers }: Props) {
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1">
-                {selectedUser.id === 0 ? "Add User" : "Edit User"}
+                {isInvite
+                  ? "Invite User"
+                  : selectedUser.id === 0
+                  ? "Assign User"
+                  : "Edit User"}
               </ModalHeader>
               <ModalBody className="gap-4">
                 <Input
@@ -278,15 +286,6 @@ export default function UsersPage({ companies, unlinkedUsers }: Props) {
                   errorMessage={errors?.email?.errors[0] ?? ""}
                   onChange={(e) =>
                     setSelectedUser({ ...selectedUser, email: e.target.value })
-                  }
-                />
-                <Input
-                  label="Address"
-                  placeholder="Address"
-                  variant="bordered"
-                  value={selectedUser.address ?? ""}
-                  onChange={(e) =>
-                    setSelectedUser({ ...selectedUser, address: e.target.value })
                   }
                 />
                 <Select
@@ -322,39 +321,11 @@ export default function UsersPage({ companies, unlinkedUsers }: Props) {
                     </SelectItem>
                   ))}
                 </Select>
-
-                {(showChangePassword || selectedUser.id === 0) && (
-                  <Input
-                    label="Password"
-                    placeholder="Password"
-                    variant="bordered"
-                    type="password"
-                    value={selectedUser.password}
-                    isInvalid={errors?.password?.errors.length > 0}
-                    errorMessage={errors?.password?.errors[0] ?? ""}
-                    onChange={(e) =>
-                      setSelectedUser({
-                        ...selectedUser,
-                        password: e.target.value,
-                      })
-                    }
-                  />
-                )}
-                {selectedUser.id !== 0 && !showChangePassword && (
-                  <Button
-                    variant="flat"
-                    color="primary"
-                    onPress={() => {
-                      setShowChangePassword(true);
-                      setSelectedUser({
-                        ...selectedUser,
-                        password: "",
-                        updatePassword: true,
-                      });
-                    }}
-                  >
-                    Change Password
-                  </Button>
+                {isInvite && (
+                  <p className="text-sm text-default-500">
+                    An email invitation will be sent so they can set their own
+                    password.
+                  </p>
                 )}
               </ModalBody>
               <ModalFooter>
@@ -375,7 +346,11 @@ export default function UsersPage({ companies, unlinkedUsers }: Props) {
                     }
                   }}
                 >
-                  {selectedUser.id === 0 ? "Add User" : "Save"}
+                  {isInvite
+                    ? "Send Invitation"
+                    : selectedUser.id === 0
+                    ? "Assign"
+                    : "Save"}
                 </Button>
               </ModalFooter>
             </>
