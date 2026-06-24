@@ -6,13 +6,15 @@ const { mockPrisma } = vi.hoisted(() => ({
       create: vi.fn(),
       update: vi.fn(),
       delete: vi.fn(),
+      createMany: vi.fn(),
+      updateMany: vi.fn(),
     },
   },
 }));
 
 vi.mock("@/lib/prisma", () => ({ prisma: mockPrisma }));
 
-import { saveRole, deleteRole } from "./rolesActions";
+import { saveRole, saveRoles, deleteRole } from "./rolesActions";
 
 const role = { id: 0, code: "PM", name: "Project Manager", description: "", categoryId: 1 };
 
@@ -32,6 +34,29 @@ describe("saveRole", () => {
     expect(mockPrisma.role.update).toHaveBeenCalledWith(
       expect.objectContaining({ where: { id: 3 } })
     );
+  });
+});
+
+describe("saveRoles", () => {
+  it("createMany for new roles and updateMany for existing ones", async () => {
+    const roles = [
+      { id: 0, code: "A", name: "RoleA", description: "", categoryId: 1 },
+      { id: 3, code: "B", name: "RoleB", description: "", categoryId: 1 },
+    ];
+
+    const res = await saveRoles(roles as never);
+
+    expect(res.status).toBe("success");
+    expect(mockPrisma.role.createMany).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.role.updateMany).toHaveBeenCalledTimes(1);
+  });
+
+  it("skips createMany when there are no new roles", async () => {
+    await saveRoles([
+      { id: 3, code: "B", name: "RoleB", description: "", categoryId: 1 },
+    ] as never);
+    expect(mockPrisma.role.createMany).not.toHaveBeenCalled();
+    expect(mockPrisma.role.updateMany).toHaveBeenCalledTimes(1);
   });
 });
 

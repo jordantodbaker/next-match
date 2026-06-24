@@ -135,6 +135,17 @@ describe("inviteUser", () => {
     );
     expect(mockPrisma.user.create).not.toHaveBeenCalled();
   });
+
+  it("returns an error when the invitation fails (e.g. already invited)", async () => {
+    mockInvitations.createInvitation.mockRejectedValue(new Error("already invited"));
+    const res = await inviteUser({
+      email: "dupe@example.com",
+      name: "Dupe",
+      companyId: 21,
+      securityRole: "USER" as never,
+    });
+    expect(res.status).toBe("error");
+  });
 });
 
 describe("saveUser", () => {
@@ -198,6 +209,13 @@ describe("deleteUser", () => {
     mockPrisma.user.findUnique.mockResolvedValue(null);
     const res = await deleteUser(99);
     expect(res).toEqual({ status: "error", error: "User not found" });
+  });
+
+  it("returns an error when the delete throws (e.g. FK constraint)", async () => {
+    mockPrisma.user.findUnique.mockResolvedValue({ id: 6, clerkId: "user_1" });
+    mockPrisma.user.delete.mockRejectedValue(new Error("FK constraint"));
+    const res = await deleteUser(6);
+    expect(res.status).toBe("error");
   });
 });
 

@@ -16,9 +16,45 @@ const { mockPrisma, mockGetCurrentUser } = vi.hoisted(() => ({
 vi.mock("@/lib/prisma", () => ({ prisma: mockPrisma }));
 vi.mock("@/auth", () => ({ getCurrentUser: mockGetCurrentUser }));
 
-import { getCompany, saveCompany } from "./companyActions";
+import {
+  getCompany,
+  getCompanies,
+  saveCompany,
+  deleteCompany,
+} from "./companyActions";
 
 beforeEach(() => vi.clearAllMocks());
+
+describe("getCompanies", () => {
+  it("excludes the internal ACE company", async () => {
+    mockPrisma.companyAccount.findMany.mockResolvedValue([{ id: 2, name: "Acme" }]);
+
+    const res = await getCompanies();
+
+    expect(res).toEqual([{ id: 2, name: "Acme" }]);
+    expect(mockPrisma.companyAccount.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { companyCode: { not: "ACE" } } })
+    );
+  });
+});
+
+describe("deleteCompany", () => {
+  it("deletes the company by id", async () => {
+    mockPrisma.companyAccount.delete.mockResolvedValue({});
+    const res = await deleteCompany({ id: 5 } as never);
+
+    expect(res.status).toBe("success");
+    expect(mockPrisma.companyAccount.delete).toHaveBeenCalledWith({
+      where: { id: 5 },
+    });
+  });
+
+  it("returns an error result when the delete throws (e.g. FK constraint)", async () => {
+    mockPrisma.companyAccount.delete.mockRejectedValue(new Error("FK constraint"));
+    const res = await deleteCompany({ id: 5 } as never);
+    expect(res.status).toBe("error");
+  });
+});
 
 describe("getCompany", () => {
   it("returns undefined and skips the query when the user has no company", async () => {
